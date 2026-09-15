@@ -207,6 +207,17 @@ private struct EffectInspector: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+
+            Divider()
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Animation pace")
+                HStack(spacing: 8) {
+                    Text("Faster").font(.callout).foregroundStyle(.secondary)
+                    Slider(value: $state.settings.pace, in: EffectSettings.paceRange)
+                        .accessibilityLabel("Animation pace")
+                    Text("Slower").font(.callout).foregroundStyle(.secondary)
+                }
+            }
             Button("Restore Default Look") { state.settings = state.settings.resettingAppearance() }
                 .buttonStyle(.link)
                 .font(.callout)

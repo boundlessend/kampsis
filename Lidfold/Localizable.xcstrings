@@ -233,6 +233,16 @@
         }
       }
     },
+    "Animation pace" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Темп анимации"
+          }
+        }
+      }
+    },
     "Apple sensors are visible on this Mac, but none of them reports the lid angle. Send diagnostics from the %@ to help check compatibility." : {
       "localizations" : {
         "ru" : {
@@ -569,6 +579,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Исчезает при"
+          }
+        }
+      }
+    },
+    "Faster" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Быстрее"
           }
         }
       }
@@ -1129,6 +1149,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ползунок"
+          }
+        }
+      }
+    },
+    "Slower" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Медленнее"
           }
         }
       }

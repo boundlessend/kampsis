@@ -9,6 +9,11 @@ func foldProgress(angle: Double, fadeOutAngle: Double) -> Double {
     return ((fadeOutAngle - angle) / (fadeOutAngle - fullyFoldedAngle)).clamped(to: 0...1)
 }
 
+/// темп сложения по ходу крышки: при 0 прогресс линейный, к 1 экран темнеет ближе к закрытию, к -1 раньше
+func pacedProgress(_ progress: Double, pace: Double) -> Double {
+    pow(progress.clamped(to: 0...1), pow(3, pace))
+}
+
 /// прогресс пятисекундной демонстрации: плавно складывается и раскрывается обратно
 func demoProgress(elapsed: Double) -> Double {
     let phase = sin(elapsed / demoDuration * .pi)

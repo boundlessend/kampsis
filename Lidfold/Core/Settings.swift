@@ -58,14 +58,17 @@ struct EffectSettings: Codable, Equatable, Sendable {
     var blur: Double
     var dimming: Double
     var fadeOutAngle: Double
+    /// темп сложения, см. `pacedProgress`
+    var pace: Double
     var chimeOnOpen: Bool
     var toggleShortcut: ToggleShortcut
 
     static let fadeOutRange: ClosedRange<Double> = 60...135
+    static let paceRange: ClosedRange<Double> = -1...1
 
     static let standard = EffectSettings(
         isOn: true, look: .soft, bend: Look.soft.bend, blur: Look.soft.blur,
-        dimming: Look.soft.dimming, fadeOutAngle: 60, chimeOnOpen: false, toggleShortcut: .standard
+        dimming: Look.soft.dimming, fadeOutAngle: 60, pace: 0, chimeOnOpen: false, toggleShortcut: .standard
     )
 
     /// копия с параметрами выбранного стиля, остальное не трогается
@@ -104,6 +107,7 @@ struct EffectSettings: Codable, Equatable, Sendable {
         next.dimming = unit(dimming, look.dimming)
         next.fadeOutAngle = fadeOutAngle.isFinite
             ? fadeOutAngle.clamped(to: Self.fadeOutRange) : EffectSettings.standard.fadeOutAngle
+        next.pace = pace.isFinite ? pace.clamped(to: Self.paceRange) : EffectSettings.standard.pace
         next.toggleShortcut = toggleShortcut.isAcceptable ? toggleShortcut : .standard
         return next
     }

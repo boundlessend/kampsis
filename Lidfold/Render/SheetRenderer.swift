@@ -43,7 +43,7 @@ private struct FoldUniforms {
 
     func encode(source: any MTLTexture, sourceNumber: UInt64?, inputs: FoldInputs,
                 pass: MTLRenderPassDescriptor, command: any MTLCommandBuffer, size: CGSize) -> Bool {
-        let progress = Float(inputs.progress)
+        let progress = Float(pacedProgress(inputs.progress, pace: inputs.settings.pace))
         let spread = progress * Float(inputs.settings.blur) * Float(source.width) / 1600
         let glassSpread = spread * (inputs.settings.look == .matte ? 72 : 54)
         guard let softened = soft.blurred(source, sigma: spread * 8, sourceNumber: sourceNumber, into: command),
@@ -58,7 +58,7 @@ private struct FoldUniforms {
             bend: Float(inputs.settings.bend),
             blur: Float(inputs.settings.blur),
             dimming: Float(inputs.settings.dimming),
-            opacity: inputs.fadesIn ? min(1, progress / 0.015) : 1,
+            opacity: inputs.fadesIn ? min(1, Float(inputs.progress) / 0.015) : 1,
             flatten: inputs.reduceMotion ? 1 : 0,
             aspect: Float(size.width / max(1, size.height)),
             unused: 0

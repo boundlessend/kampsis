@@ -169,6 +169,16 @@ struct MotionTests {
         #expect(foldProgress(angle: 50, fadeOutAngle: 10) == 0)
     }
 
+    @Test func paceBendsProgressButKeepsItsEnds() {
+        for pace in [-1.0, 0, 1] {
+            #expect(pacedProgress(0, pace: pace) == 0)
+            #expect(pacedProgress(1, pace: pace) == 1)
+        }
+        #expect(pacedProgress(0.4, pace: 0) == 0.4)
+        #expect(pacedProgress(0.4, pace: 1) < 0.1, "медленный темп оставляет экран светлым дольше")
+        #expect(pacedProgress(0.4, pace: -1) > 0.7)
+    }
+
     @Test func demoFoldsAndReturnsToOpen() {
         #expect(demoProgress(elapsed: 0) == 0)
         #expect(abs(demoProgress(elapsed: demoDuration / 2) - 0.83) < 0.0001)
@@ -227,12 +237,14 @@ struct MotionTests {
         settings.blur = -3
         settings.dimming = .nan
         settings.toggleShortcut = ToggleShortcut(keyCode: 0, modifiers: [.shift])
+        settings.pace = 5
         let restored = settings.sanitized()
         #expect(restored.fadeOutAngle == 60)
         #expect(restored.bend == 1)
         #expect(restored.blur == 0)
         #expect(restored.dimming == Look.soft.dimming)
         #expect(restored.toggleShortcut == .standard)
+        #expect(restored.pace == 1)
     }
 
     @Test func settingsSurviveRelaunchAndCorruptionFallsBackToStandard() throws {
