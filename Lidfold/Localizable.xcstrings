@@ -283,12 +283,32 @@
         }
       }
     },
+    "Check Daily" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверять раз в день"
+          }
+        }
+      }
+    },
     "Check for Updates…" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Проверить обновления…"
+          }
+        }
+      }
+    },
+    "Check for updates automatically?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверять обновления автоматически?"
           }
         }
       }
@@ -469,6 +489,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Затемнение"
+          }
+        }
+      }
+    },
+    "Don’t Check" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не проверять"
           }
         }
       }
@@ -849,6 +879,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Выключен"
+          }
+        }
+      }
+    },
+    "Once a day %@ asks GitHub whether a new version is out and lets you know. You can change this later in General Settings." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Раз в день %@ спрашивает у GitHub, не вышла ли новая версия, и сообщает о ней. Это можно поменять в общих настройках."
           }
         }
       }

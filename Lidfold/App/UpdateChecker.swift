@@ -26,7 +26,22 @@ import os
     }
 
     func start() {
+        guard store.object(forKey: Self.automaticKey) != nil else {
+            Task { askAboutAutomaticChecks() }
+            return
+        }
         if checksAutomatically { scheduleChecks() }
+    }
+
+    /// при первом запуске пользователь сам решает, обращаться ли приложению к GitHub без его команды
+    private func askAboutAutomaticChecks() {
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Check for updates automatically?")
+        alert.informativeText = String(localized: "Once a day \(AppIdentity.name) asks GitHub whether a new version is out and lets you know. You can change this later in General Settings.")
+        alert.addButton(withTitle: String(localized: "Check Daily"))
+        alert.addButton(withTitle: String(localized: "Don’t Check"))
+        NSApp.activate()
+        setChecksAutomatically(alert.runModal() == .alertFirstButtonReturn)
     }
 
     func setChecksAutomatically(_ enabled: Bool) {
