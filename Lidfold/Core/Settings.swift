@@ -65,7 +65,7 @@ struct EffectSettings: Codable, Equatable, Sendable {
 
     static let standard = EffectSettings(
         isOn: true, look: .soft, bend: Look.soft.bend, blur: Look.soft.blur,
-        dimming: Look.soft.dimming, fadeOutAngle: 110, chimeOnOpen: false, toggleShortcut: .standard
+        dimming: Look.soft.dimming, fadeOutAngle: 60, chimeOnOpen: false, toggleShortcut: .standard
     )
 
     /// копия с параметрами выбранного стиля, остальное не трогается
