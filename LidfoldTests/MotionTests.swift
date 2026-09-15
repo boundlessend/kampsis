@@ -79,6 +79,8 @@ struct MotionTests {
         #expect(abs(estimate.degrees(at: 0.25)! - 112.5) < 0.01)
         #expect(abs(estimate.degrees(at: 0.29)! - 111.3) < 0.01)
         #expect(abs(estimate.degrees(at: 0.7)! - 114) < 0.01)
+        #expect(abs(estimate.closingSpeed(at: 0.25) - 30) < 0.001)
+        #expect(estimate.closingSpeed(at: 0.5) == 0, "устаревшая скорость не расширяет запас захвата")
 
         estimate = estimate.receiving(LidReading(degrees: 117, time: 0.3))
         #expect(estimate.degrees(at: 0.35)! > 117, "разворот крышки должен сразу менять направление")

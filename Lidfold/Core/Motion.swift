@@ -89,6 +89,12 @@ enum LidEstimate: Equatable, Sendable {
         }
     }
 
+    /// скорость закрытия в градусах в секунду; ноль при открытии, медленном движении и устаревшем отсчёте
+    func closingSpeed(at time: Double) -> Double {
+        guard case let .coast(reading, velocity, _) = self, time - reading.time <= Tuning.staleInterval else { return 0 }
+        return max(0, -velocity)
+    }
+
     func receiving(_ reading: LidReading) -> LidEstimate {
         let last: LidReading
         let velocity: Double

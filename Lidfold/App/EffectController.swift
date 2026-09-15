@@ -313,6 +313,7 @@ import ServiceManagement
             demo: state.demoRunning,
             measuredAngle: state.measuredAngle,
             fadeOutAngle: state.settings.fadeOutAngle,
+            closingSpeed: state.lidEstimate.closingSpeed(at: now),
             progress: readingProgress,
             movedRecently: now - lastLidMovement < Self.movementGrace,
             captureFailed: captureFailed,

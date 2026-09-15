@@ -5,7 +5,7 @@ struct DecisionTests {
     /// крышка приоткрыта до 80°, всё разрешено, захвата ещё нет
     private let ready = EffectSnapshot(
         isOn: true, screenAccess: true, suspended: false, builtInDisplay: true, demo: false,
-        measuredAngle: 80, fadeOutAngle: 110, progress: foldProgress(angle: 80, fadeOutAngle: 110),
+        measuredAngle: 80, fadeOutAngle: 110, closingSpeed: 0, progress: foldProgress(angle: 80, fadeOutAngle: 110),
         movedRecently: true, captureFailed: false, rendererBroken: false, phase: .idle,
         stopScheduled: false, hasFrame: false, overlayShown: false, hideScheduled: false
     )
@@ -14,6 +14,12 @@ struct DecisionTests {
         var snapshot = ready
         change(&snapshot)
         return snapshot
+    }
+
+    @Test func fastClosingStartsCaptureAheadOfTheThreshold() {
+        let aboveMargin = with { $0.measuredAngle = 90; $0.fadeOutAngle = 60; $0.progress = 0 }
+        #expect(planEffect(aboveMargin) == [])
+        #expect(planEffect(with { $0.measuredAngle = 90; $0.fadeOutAngle = 60; $0.progress = 0; $0.closingSpeed = 90 }) == [.beginCapture])
     }
 
     @Test func captureGatesOverrideDemo() {
