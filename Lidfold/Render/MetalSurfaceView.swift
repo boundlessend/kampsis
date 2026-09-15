@@ -68,7 +68,7 @@ import QuartzCore
         syncDrawableSize()
         let link = CAMetalDisplayLink(metalLayer: metalLayer)
         link.delegate = self
-        link.preferredFrameLatency = 2
+        link.preferredFrameLatency = 1
         link.isPaused = true
         link.add(to: .main, forMode: .common)
         self.link = link
