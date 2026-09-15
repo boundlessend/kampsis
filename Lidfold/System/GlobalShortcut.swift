@@ -6,8 +6,8 @@ enum ShortcutFailure: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case let .handlerRejected(status): "Сочетание ⌘⌥B не подключилось (код \(status))."
-        case .keyTaken: "Сочетание ⌘⌥B уже занято другой программой. Эффект можно переключать из меню."
+        case let .handlerRejected(status): String(localized: "The ⌘⌥B shortcut couldn’t be set up (code \(status)).")
+        case .keyTaken: String(localized: "⌘⌥B is already used by another app. You can still toggle the effect from the menu.")
         }
     }
 }

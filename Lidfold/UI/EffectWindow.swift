@@ -32,7 +32,7 @@ struct EffectWindow: View {
             Text(AppIdentity.name)
                 .font(.system(size: 20, weight: .semibold, design: .rounded))
             Spacer()
-            Toggle("Эффект", isOn: $state.settings.isOn)
+            Toggle("Effect", isOn: $state.settings.isOn)
                 .toggleStyle(.switch)
                 .controlSize(.small)
             Divider()
@@ -41,10 +41,10 @@ struct EffectWindow: View {
             Button {
                 openWindow(id: SceneID.general)
             } label: {
-                Label("Общие настройки", systemImage: "slider.horizontal.3")
+                Label("General Settings", systemImage: "slider.horizontal.3")
             }
             .buttonStyle(.borderless)
-            .help("Общие настройки, ⌘,")
+            .help("General Settings, ⌘,")
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 14)
@@ -60,19 +60,19 @@ private struct PreviewColumn: View {
     }
 
     private var hint: String {
-        if state.previewUsesLid { return "Прикройте крышку, и пример сложится вместе с ней." }
+        if state.previewUsesLid { return String(localized: "Lower the lid and the sample folds along with it.") }
         if state.previewAngle >= state.settings.fadeOutAngle {
-            return "При \(Int(state.settings.fadeOutAngle))° и шире эффекта не видно, сдвиньте ползунок левее."
+            return String(localized: "At \(Int(state.settings.fadeOutAngle))° and wider the effect isn’t visible. Move the slider to the left.")
         }
-        return "Ведите ползунок, чтобы пройти весь путь от открытой крышки до закрытой."
+        return String(localized: "Drag the slider to go all the way from an open lid to a closed one.")
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
-                Text("Предпросмотр").font(.headline)
+                Text("Preview").font(.headline)
                 Spacer()
-                Text("пример рабочего стола").font(.callout).foregroundStyle(.secondary)
+                Text("sample desktop").font(.callout).foregroundStyle(.secondary)
             }
             PreviewPane(state: state)
                 .aspectRatio(1.6, contentMode: .fit)
@@ -80,12 +80,12 @@ private struct PreviewColumn: View {
                 .padding(6)
                 .background(.black, in: .rect(cornerRadius: 16))
                 .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(.primary.opacity(0.1)))
-                .accessibilityLabel("Пример рабочего стола под эффектом")
+                .accessibilityLabel("Sample desktop under the effect")
 
             HStack(spacing: 12) {
-                Picker("Источник угла", selection: $state.previewUsesLid) {
-                    Text("Ползунок").tag(false)
-                    Text("Крышка").tag(true)
+                Picker("Angle Source", selection: $state.previewUsesLid) {
+                    Text("Slider").tag(false)
+                    Text("Lid").tag(true)
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
@@ -95,15 +95,17 @@ private struct PreviewColumn: View {
                     if !ready { state.previewUsesLid = false }
                 }
                 Spacer(minLength: 0)
-                Text("\(state.previewUsesLid ? "Крышка" : "Пример"): \(shownAngle)°")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
+                Group {
+                    if state.previewUsesLid { Text("Lid: \(shownAngle)°") } else { Text("Sample: \(shownAngle)°") }
+                }
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
             }
             Slider(value: $state.previewAngle, in: fullyFoldedAngle...EffectSettings.fadeOutRange.upperBound, step: 1)
                 .disabled(state.previewUsesLid)
-                .accessibilityLabel("Угол крышки в примере")
-                .accessibilityValue("\(shownAngle) градусов")
+                .accessibilityLabel("Lid angle in the sample")
+                .accessibilityValue("\(shownAngle) degrees")
             Text(hint).font(.callout).foregroundStyle(.secondary)
 
             Divider().padding(.vertical, 4)
@@ -119,20 +121,27 @@ private struct PreviewColumn: View {
                 Button {
                     if state.demoRunning { controller.endDemo() } else { controller.beginDemo() }
                 } label: {
-                    Label(state.demoRunning ? "Остановить" : "Показать на экране",
-                          systemImage: state.demoRunning ? "stop.fill" : "play.fill")
-                        .padding(.horizontal, 4)
+                    Group {
+                        if state.demoRunning {
+                            Label("Stop", systemImage: "stop.fill")
+                        } else {
+                            Label("Show on Screen", systemImage: "play.fill")
+                        }
+                    }
+                    .padding(.horizontal, 4)
                 }
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
-                Text(state.demoRunning ? "⌘⌥B остановит" : "Пять секунд\nна вашем рабочем столе")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
+                Group {
+                    if state.demoRunning { Text("⌘⌥B stops it") } else { Text("Five seconds\non your desktop") }
+                }
+                .font(.callout)
+                .foregroundStyle(.secondary)
             } else {
-                Button("Разрешить доступ к экрану…") { controller.requestScreenAccess() }
+                Button("Allow Screen Access…") { controller.requestScreenAccess() }
                     .buttonStyle(.glassProminent)
                     .controlSize(.large)
-                Text("Нужен, чтобы эффект\nработал на вашем экране")
+                Text("Needed for the effect\nto work on your screen")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
@@ -144,12 +153,12 @@ private struct PreviewColumn: View {
         if let problem = state.problem {
             VStack(alignment: .leading, spacing: 4) {
                 Label(problem, systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
-                Button("Проверить ещё раз") { controller.retry() }.buttonStyle(.link)
+                Button("Check Again") { controller.retry() }.buttonStyle(.link)
             }
             .font(.callout)
             .fixedSize(horizontal: false, vertical: true)
         } else if state.settings.isOn, !state.sensorReady {
-            Label("Датчик крышки недоступен, но демонстрация работает.", systemImage: "info.circle")
+            Label("The lid sensor is unavailable, but the demo still works.", systemImage: "info.circle")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
@@ -162,7 +171,7 @@ private struct EffectInspector: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Стиль").font(.headline)
+            Text("Style").font(.headline)
             HStack(spacing: 8) {
                 ForEach(Look.allCases) { look in
                     LookTile(look: look, selected: state.settings.look == look) {
@@ -172,40 +181,40 @@ private struct EffectInspector: View {
                     }
                 }
             }
-            Text(state.settings.isCustomized ? "\(state.settings.look.summary), изменён" : state.settings.look.summary)
+            Text(state.settings.isCustomized ? String(localized: "\(state.settings.look.summary), modified") : state.settings.look.summary)
                 .font(.callout)
                 .foregroundStyle(.secondary)
 
             Divider()
             VStack(spacing: 16) {
-                percentSlider("Изгиб", value: $state.settings.bend)
-                percentSlider("Размытие", value: $state.settings.blur)
-                percentSlider("Затемнение", value: $state.settings.dimming)
+                percentSlider("Bend", value: $state.settings.bend)
+                percentSlider("Blur", value: $state.settings.blur)
+                percentSlider("Dimming", value: $state.settings.dimming)
             }
 
             Divider()
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Text("Исчезает при")
+                    Text("Fades out at")
                     Spacer()
                     Text("\(Int(state.settings.fadeOutAngle))°").monospacedDigit().foregroundStyle(.secondary)
                 }
                 Slider(value: $state.settings.fadeOutAngle, in: EffectSettings.fadeOutRange, step: 1)
-                    .accessibilityLabel("Угол, при котором эффект исчезает")
-                    .accessibilityValue("\(Int(state.settings.fadeOutAngle)) градусов")
-                Text("Когда крышка открыта на \(Int(state.settings.fadeOutAngle))° и шире, экран остаётся обычным.")
+                    .accessibilityLabel("Angle at which the effect fades out")
+                    .accessibilityValue("\(Int(state.settings.fadeOutAngle)) degrees")
+                Text("When the lid is open \(Int(state.settings.fadeOutAngle))° or wider, the screen stays as it is.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            Button("Вернуть стандартный вид") { state.settings = state.settings.resettingAppearance() }
+            Button("Restore Default Look") { state.settings = state.settings.resettingAppearance() }
                 .buttonStyle(.link)
                 .font(.callout)
-                .help("Стиль, ползунки и угол исчезновения вернутся к исходным. Звук и автозапуск не изменятся.")
+                .help("Style, sliders, and fade-out angle return to their defaults. Sound and launch at login stay as they are.")
         }
     }
 
-    private func percentSlider(_ title: String, value: Binding<Double>) -> some View {
+    private func percentSlider(_ title: LocalizedStringKey, value: Binding<Double>) -> some View {
         VStack(spacing: 6) {
             HStack {
                 Text(title)
@@ -214,7 +223,7 @@ private struct EffectInspector: View {
             }
             Slider(value: value, in: 0...1)
                 .accessibilityLabel(title)
-                .accessibilityValue("\(Int((value.wrappedValue * 100).rounded())) процентов")
+                .accessibilityValue("\(Int((value.wrappedValue * 100).rounded())) percent")
         }
     }
 }
@@ -249,7 +258,7 @@ private struct LookTile: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("\(look.title): \(look.summary.lowercased())")
+        .accessibilityLabel(Text(verbatim: "\(look.title): \(look.summary.lowercased())"))
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }

@@ -10,13 +10,13 @@ enum GitHubReleasesFailure: LocalizedError {
     var errorDescription: String? {
         switch self {
         case let .invalidRepository(repository):
-            "Адрес репозитория выпусков «\(repository)» задан неверно."
+            String(localized: "The releases repository “\(repository)” is invalid.")
         case let .noPublishedRelease(repository):
-            "В репозитории \(repository) пока нет опубликованных выпусков."
+            String(localized: "\(repository) has no published releases yet.")
         case let .unexpectedStatus(url, status, body):
-            "GitHub ответил \(status) на \(url.absoluteString): \(body.prefix(300))"
+            String(localized: "GitHub responded \(status) to \(url.absoluteString): \(String(body.prefix(300)))")
         case let .notHTTP(url):
-            "Ответ на \(url.absoluteString) не похож на HTTP."
+            String(localized: "The response from \(url.absoluteString) isn’t HTTP.")
         }
     }
 }

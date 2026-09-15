@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>ru</string>
+	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>Lidfold</string>
 	<key>CFBundleExecutable</key>
@@ -12,6 +12,7 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleLocalizations</key>
 	<array>
+		<string>en</string>
 		<string>ru</string>
 	</array>
 	<key>CFBundleName</key>
@@ -35,6 +36,6 @@
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSScreenCaptureUsageDescription</key>
-	<string>Lidfold берёт изображение встроенного экрана, чтобы складывать его вместе с крышкой. Кадры остаются в памяти этого Mac и никуда не записываются.</string>
+	<string>Lidfold uses the image of the built-in display to fold it along with the lid. Frames stay in this Mac’s memory and are never saved.</string>
 </dict>
 </plist>

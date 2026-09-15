@@ -20,21 +20,21 @@ enum SceneID {
         .windowResizability(.contentSize)
         .commands {
             CommandGroup(after: .appInfo) {
-                Button("Проверить обновления…") { controller.updates.checkFromMenu() }
+                Button("Check for Updates…") { controller.updates.checkFromMenu() }
                     .disabled(controller.updates.checking)
             }
             CommandGroup(replacing: .newItem) {}
             CommandGroup(replacing: .appSettings) {
-                OpenSceneButton(title: "Настройки…", scene: SceneID.general)
+                OpenSceneButton(title: "Settings…", scene: SceneID.general)
                     .keyboardShortcut(",", modifiers: .command)
             }
-            CommandMenu("Эффект") {
+            CommandMenu("Effect") {
                 Button(controller.state.toggleTitle) { controller.toggle() }
                     .keyboardShortcut("b", modifiers: [.command, .option])
             }
         }
 
-        Window("Общие настройки", id: SceneID.general) {
+        Window("General Settings", id: SceneID.general) {
             GeneralWindow(state: controller.state, controller: controller, updates: controller.updates)
                 .frame(width: 480, height: 620)
         }
@@ -62,7 +62,7 @@ enum SceneID {
 
 /// кнопка, которая открывает окно приложения и выводит его вперёд
 struct OpenSceneButton: View {
-    let title: String
+    let title: LocalizedStringKey
     let scene: String
     @Environment(\.openWindow) private var openWindow
 
@@ -80,28 +80,32 @@ private struct StatusMenu: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        Text("\(AppIdentity.name): \(state.measuredAngle.map { "\(Int($0))°" } ?? "угол неизвестен")")
+        if let angle = state.measuredAngle {
+            Text(verbatim: "\(AppIdentity.name): \(Int(angle))°")
+        } else {
+            Text("\(AppIdentity.name): angle unknown")
+        }
         Text(state.statusLine)
         Divider()
         if !state.demoRunning {
-            Button("\(state.toggleTitle)   ⌘⌥B") { controller.toggle() }
+            Button { controller.toggle() } label: { Text(verbatim: "\(state.toggleTitle)   ⌘⌥B") }
         }
-        OpenSceneButton(title: "Настроить эффект…", scene: SceneID.effect)
-        OpenSceneButton(title: "Общие настройки…", scene: SceneID.general)
-        Button(state.demoRunning ? "Остановить демонстрацию   ⌘⌥B" : "Показать демонстрацию") {
-            if state.demoRunning {
-                controller.endDemo()
-            } else {
+        OpenSceneButton(title: "Customize Effect…", scene: SceneID.effect)
+        OpenSceneButton(title: "General Settings…", scene: SceneID.general)
+        if state.demoRunning {
+            Button { controller.endDemo() } label: { Text(verbatim: "\(state.toggleTitle)   ⌘⌥B") }
+        } else {
+            Button("Show Demo") {
                 openWindow(id: SceneID.effect)
                 NSApp.activate()
                 controller.beginDemo()
             }
+            .disabled(!state.screenAccess)
         }
-        .disabled(!state.screenAccess)
         Divider()
-        Button("Проверить обновления…") { controller.updates.checkFromMenu() }
+        Button("Check for Updates…") { controller.updates.checkFromMenu() }
             .disabled(controller.updates.checking)
-        Button("Завершить \(AppIdentity.name)") { NSApp.terminate(nil) }
+        Button("Quit \(AppIdentity.name)") { NSApp.terminate(nil) }
             .keyboardShortcut("q")
     }
 }

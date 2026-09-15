@@ -24,4 +24,4 @@ derived=${LIDFOLD_DERIVED_DATA:-$(mktemp -d ${TMPDIR:-/tmp}/LidfoldTests.XXXXXX)
 results=${LIDFOLD_TEST_RESULTS:-$derived/Tests.xcresult}
 xcodebuild -project Lidfold.xcodeproj -scheme Lidfold -configuration Release \
   -destination 'platform=macOS,arch=arm64' -derivedDataPath $derived -resultBundlePath $results \
-  CODE_SIGNING_ALLOWED=NO ENABLE_TESTABILITY=YES $selection test
+  -testLanguage en CODE_SIGNING_ALLOWED=NO ENABLE_TESTABILITY=YES $selection test

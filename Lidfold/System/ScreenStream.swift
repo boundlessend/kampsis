@@ -47,9 +47,9 @@ enum CaptureFailure: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .noBuiltInDisplay: "Встроенный экран сейчас недоступен."
-        case .appNotListed: "macOS не дала исключить окна приложения из захвата."
-        case .noFrames: "macOS не прислала изображение экрана. Проверьте доступ к записи экрана и попробуйте снова."
+        case .noBuiltInDisplay: String(localized: "The built-in display isn’t available right now.")
+        case .appNotListed: String(localized: "macOS didn’t allow excluding the app’s windows from capture.")
+        case .noFrames: String(localized: "macOS didn’t send a screen image. Check screen recording access and try again.")
         }
     }
 }

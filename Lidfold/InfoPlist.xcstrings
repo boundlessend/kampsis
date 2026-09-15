@@ -1,0 +1,23 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NSScreenCaptureUsageDescription" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Lidfold uses the image of the built-in display to fold it along with the lid. Frames stay in this Mac’s memory and are never saved."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lidfold берёт изображение встроенного экрана, чтобы складывать его вместе с крышкой. Кадры остаются в памяти этого Mac и никуда не записываются."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

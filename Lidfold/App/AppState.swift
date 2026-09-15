@@ -38,7 +38,7 @@ func initialPreviewAngle(fadeOutAngle: Double) -> Double {
     }
     var measuredAngle: Double?
     var sensorReady = false
-    var sensorNote = "Подключаем датчик крышки…"
+    var sensorNote = String(localized: "Connecting to the lid sensor…")
     var screenAccess = false
     var capturing = false
     var overlayShown = false
@@ -62,19 +62,19 @@ func initialPreviewAngle(fadeOutAngle: Double) -> Double {
     }
 
     var statusLine: String {
-        if !settings.isOn { return "Выключен" }
-        if suspended { return "Mac спит или заблокирован" }
-        if !screenAccess { return "Нет доступа к экрану" }
-        if problem != nil { return "Нужно внимание" }
-        if demoRunning { return "Идёт демонстрация" }
-        if !sensorReady { return "Датчик недоступен" }
-        if overlayShown { return "Эффект на экране" }
-        if let measuredAngle, measuredAngle > lidShutAngle, measuredAngle < settings.fadeOutAngle { return "Готовится" }
-        return "Ждёт движения крышки"
+        if !settings.isOn { return String(localized: "Off") }
+        if suspended { return String(localized: "Mac is asleep or locked") }
+        if !screenAccess { return String(localized: "No screen access") }
+        if problem != nil { return String(localized: "Needs attention") }
+        if demoRunning { return String(localized: "Demo running") }
+        if !sensorReady { return String(localized: "Sensor unavailable") }
+        if overlayShown { return String(localized: "Effect on screen") }
+        if let measuredAngle, measuredAngle > lidShutAngle, measuredAngle < settings.fadeOutAngle { return String(localized: "Getting ready") }
+        return String(localized: "Waiting for the lid to move")
     }
 
     var toggleTitle: String {
-        if demoRunning { return "Остановить демонстрацию" }
-        return settings.isOn ? "Выключить эффект" : "Включить эффект"
+        if demoRunning { return String(localized: "Stop Demo") }
+        return settings.isOn ? String(localized: "Turn Effect Off") : String(localized: "Turn Effect On")
     }
 }

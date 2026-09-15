@@ -86,12 +86,12 @@ struct HardwareTests {
 
     @Test(arguments: ["MacBookAir10,1", "MacBookPro17,1", "Mac14,7"])
     func modelsWithoutSensorAreNamed(model: String) {
-        #expect(missingSensorExplanation(model: model, sawOtherSPUSensors: false).contains("нет датчика угла"))
+        #expect(missingSensorExplanation(model: model, sawOtherSPUSensors: false).contains("has no lid angle sensor"))
     }
 
     @Test func unknownModelsAreNotBlocked() {
-        #expect(!missingSensorExplanation(model: "Mac99,1", sawOtherSPUSensors: false).contains("нет датчика угла"))
-        #expect(missingSensorExplanation(model: "Mac14,2", sawOtherSPUSensors: true).contains("не отдаётся"))
+        #expect(!missingSensorExplanation(model: "Mac99,1", sawOtherSPUSensors: false).contains("has no lid angle sensor"))
+        #expect(missingSensorExplanation(model: "Mac14,2", sawOtherSPUSensors: true).contains("reports the lid angle"))
     }
 
     @Test func captureKeepsOnlyRealWindowNumbers() {

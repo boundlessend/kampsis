@@ -109,17 +109,17 @@ import ServiceManagement
 
     func explainAccessRecovery() {
         let alert = NSAlert()
-        alert.messageText = "Доступ включён, но эффект его не видит"
-        alert.informativeText = """
-        macOS могла запомнить разрешение для другой копии \(AppIdentity.name).
+        alert.messageText = String(localized: "Access is on, but the effect can’t see it")
+        alert.informativeText = String(localized: """
+        macOS may have remembered the permission for another copy of \(AppIdentity.name).
 
-        1. Откройте раздел «Запись экрана» в настройках конфиденциальности.
-        2. Выделите \(AppIdentity.name) и удалите кнопкой «−».
-        3. Добавьте установленное приложение кнопкой «+» и включите доступ.
-        4. Перезапустите \(AppIdentity.name), если macOS попросит.
-        """
-        alert.addButton(withTitle: "Открыть настройки")
-        alert.addButton(withTitle: "Закрыть")
+        1. Open Screen Recording in Privacy & Security settings.
+        2. Select \(AppIdentity.name) and remove it with the “−” button.
+        3. Add the installed app with the “+” button and turn access on.
+        4. Restart \(AppIdentity.name) if macOS asks.
+        """)
+        alert.addButton(withTitle: String(localized: "Open Settings"))
+        alert.addButton(withTitle: String(localized: "Close"))
         if alert.runModal() == .alertFirstButtonReturn { openScreenCaptureSettings() }
     }
 
@@ -131,7 +131,7 @@ import ServiceManagement
                 try SMAppService.mainApp.unregister()
             }
         } catch {
-            state.problem = "Автозапуск не изменился: \(error.localizedDescription)"
+            state.problem = String(localized: "Launch at login didn’t change: \(error.localizedDescription)")
         }
         state.launchesAtLogin = SMAppService.mainApp.status == .enabled
         if enabled, SMAppService.mainApp.status == .requiresApproval {
@@ -190,7 +190,7 @@ import ServiceManagement
         switch status {
         case .reading:
             state.sensorReady = true
-            state.sensorNote = "Датчик читается в фоне, 30–120 раз в секунду"
+            state.sensorNote = String(localized: "The sensor is read in the background, 30–120 times per second")
         case let .unavailable(explanation):
             state.sensorReady = false
             state.sensorNote = explanation
@@ -398,7 +398,7 @@ import ServiceManagement
     private func failCapture(_ message: String) {
         Self.log.error("capture failed: \(message, privacy: .public)")
         captureFailed = true
-        state.problem = "Не получилось показать рабочий стол: \(message)"
+        state.problem = String(localized: "Couldn’t show the desktop: \(message)")
         endDemo()
         endCapture()
     }

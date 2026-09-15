@@ -87,9 +87,9 @@ private final class LidPoller: @unchecked Sendable {
             close: { IOHIDDeviceClose($0, IOOptionBits(kIOHIDOptionsTypeNone)) })
         switch pick {
         case .busy:
-            fail("Не удалось открыть датчик крышки. Закройте программы, которые тоже читают угол, и нажмите «Проверить ещё раз».")
+            fail(String(localized: "Couldn’t open the lid sensor. Quit other apps that read the lid angle, then click “Check Again”."))
         case .silent:
-            fail("Датчик крышки открылся, но не отдаёт корректный угол. Нажмите «Проверить ещё раз».")
+            fail(String(localized: "The lid sensor opened but isn’t reporting a valid angle. Click “Check Again”."))
         case let .found(hidDevice, angle):
             self.hidDevice = hidDevice
             lastDegrees = angle
@@ -111,7 +111,7 @@ private final class LidPoller: @unchecked Sendable {
         guard let angle = readLidAngle(hidDevice) else {
             misses += 1
             if misses >= Self.missesBeforeFailure {
-                fail("Датчик перестал отдавать угол крышки. Нажмите «Проверить ещё раз».")
+                fail(String(localized: "The sensor stopped reporting the lid angle. Click “Check Again”."))
             }
             return
         }
@@ -211,8 +211,8 @@ private func spuHIDDevices() -> [IOHIDDevice] {
 /// идентификатор модели Mac, например Mac17,3
 func hardwareModel() -> String {
     var size = 0
-    guard sysctlbyname("hw.model", nil, &size, nil, 0) == 0, size > 0 else { return "модель не определена" }
+    guard sysctlbyname("hw.model", nil, &size, nil, 0) == 0, size > 0 else { return String(localized: "unknown model") }
     var raw = [UInt8](repeating: 0, count: size)
-    guard sysctlbyname("hw.model", &raw, &size, nil, 0) == 0 else { return "модель не определена" }
+    guard sysctlbyname("hw.model", &raw, &size, nil, 0) == 0 else { return String(localized: "unknown model") }
     return String(decoding: raw.prefix { $0 != 0 }, as: UTF8.self)
 }

@@ -1,6 +1,7 @@
 name: Lidfold
 options:
   bundleIdPrefix: io.github.boundlessend
+  developmentLanguage: en
   deploymentTarget:
     macOS: "26.0"
 settings:
@@ -11,6 +12,8 @@ settings:
     CURRENT_PROJECT_VERSION: "1"
     ENABLE_HARDENED_RUNTIME: YES
     ENABLE_APP_SANDBOX: NO
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+    SWIFT_EMIT_LOC_STRINGS: YES
     # отдельная debug-библиотека ломает загрузку тестов через BUNDLE_LOADER
     ENABLE_DEBUG_DYLIB: NO
 targets:

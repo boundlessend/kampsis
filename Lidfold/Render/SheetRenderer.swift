@@ -102,7 +102,7 @@ enum SheetRendererFailure: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case let .textureCache(code): "Не удалось подготовить кадры экрана для Metal (код \(code))."
+        case let .textureCache(code): String(localized: "Couldn’t prepare screen frames for Metal (code \(code)).")
         }
     }
 }

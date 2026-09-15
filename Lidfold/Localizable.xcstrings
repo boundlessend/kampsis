@@ -1,0 +1,1471 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@ has no published releases yet." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В репозитории %@ пока нет опубликованных выпусков."
+          }
+        }
+      }
+    },
+    "%@, modified" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, изменён"
+          }
+        }
+      }
+    },
+    "%@: angle unknown" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: угол неизвестен"
+          }
+        }
+      }
+    },
+    "%lld degrees" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld degree"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld degrees"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld градуса"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld градусов"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld градус"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld градуса"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld percent" : {
+      "localizations" : {
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld процента"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld процентов"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld процент"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld процента"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld%%" : {
+      "shouldTranslate" : false
+    },
+    "%lld°" : {
+      "shouldTranslate" : false
+    },
+    "13″ MacBook Pro with M1" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MacBook Pro 13″ на M1"
+          }
+        }
+      }
+    },
+    "13″ MacBook Pro with M2" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MacBook Pro 13″ на M2"
+          }
+        }
+      }
+    },
+    "Access is on but not working?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступ включён, но не работает?"
+          }
+        }
+      }
+    },
+    "Access is on, but the effect can’t see it" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступ включён, но эффект его не видит"
+          }
+        }
+      }
+    },
+    "Allow Access…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешить доступ…"
+          }
+        }
+      }
+    },
+    "Allow Screen Access…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешить доступ к экрану…"
+          }
+        }
+      }
+    },
+    "Allowed" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешена"
+          }
+        }
+      }
+    },
+    "Angle Source" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Источник угла"
+          }
+        }
+      }
+    },
+    "Angle at which the effect fades out" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Угол, при котором эффект исчезает"
+          }
+        }
+      }
+    },
+    "Apple sensors are visible on this Mac, but none of them reports the lid angle. Send diagnostics from the %@ to help check compatibility." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сенсоры Apple на этом Mac видны, но угол крышки через них не отдаётся. Пришлите диагностику с модели %@, чтобы проверить совместимость."
+          }
+        }
+      }
+    },
+    "At %lld° and wider the effect isn’t visible. Move the slider to the left." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При %lld° и шире эффекта не видно, сдвиньте ползунок левее."
+          }
+        }
+      }
+    },
+    "Bend" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изгиб"
+          }
+        }
+      }
+    },
+    "Blur" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Размытие"
+          }
+        }
+      }
+    },
+    "Buy paint for the balcony" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Купить краски для балкона"
+          }
+        }
+      }
+    },
+    "Call Grandma" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Позвонить бабушке"
+          }
+        }
+      }
+    },
+    "Check Again" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверить ещё раз"
+          }
+        }
+      }
+    },
+    "Check for Updates…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверить обновления…"
+          }
+        }
+      }
+    },
+    "Check once a day" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверять раз в день"
+          }
+        }
+      }
+    },
+    "Click when the lid opens" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Щелчок, когда крышка открыта"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть"
+          }
+        }
+      }
+    },
+    "Connected" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подключён"
+          }
+        }
+      }
+    },
+    "Connecting to the lid sensor…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подключаем датчик крышки…"
+          }
+        }
+      }
+    },
+    "Couldn’t Check for Updates" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось проверить обновления"
+          }
+        }
+      }
+    },
+    "Couldn’t create a Metal command queue." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось создать очередь команд Metal."
+          }
+        }
+      }
+    },
+    "Couldn’t draw the sample desktop." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось нарисовать пример рабочего стола."
+          }
+        }
+      }
+    },
+    "Couldn’t open the lid sensor. Quit other apps that read the lid angle, then click “Check Again”." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось открыть датчик крышки. Закройте программы, которые тоже читают угол, и нажмите «Проверить ещё раз»."
+          }
+        }
+      }
+    },
+    "Couldn’t prepare screen frames for Metal (code %d)." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось подготовить кадры экрана для Metal (код %d)."
+          }
+        }
+      }
+    },
+    "Couldn’t prepare the style thumbnail." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось подготовить миниатюру стиля."
+          }
+        }
+      }
+    },
+    "Couldn’t read the version number “%@”." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось разобрать номер версии «%@»."
+          }
+        }
+      }
+    },
+    "Couldn’t show the desktop: %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не получилось показать рабочий стол: %@"
+          }
+        }
+      }
+    },
+    "Customize Effect…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настроить эффект…"
+          }
+        }
+      }
+    },
+    "Deep" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Глубокий"
+          }
+        }
+      }
+    },
+    "Deep shade as the lid closes" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Плотная тень к закрытию"
+          }
+        }
+      }
+    },
+    "Demo running" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Идёт демонстрация"
+          }
+        }
+      }
+    },
+    "Dimming" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Затемнение"
+          }
+        }
+      }
+    },
+    "Drag the slider to go all the way from an open lid to a closed one." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ведите ползунок, чтобы пройти весь путь от открытой крышки до закрытой."
+          }
+        }
+      }
+    },
+    "Effect" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эффект"
+          }
+        }
+      }
+    },
+    "Effect on screen" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эффект на экране"
+          }
+        }
+      }
+    },
+    "Fades out at" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Исчезает при"
+          }
+        }
+      }
+    },
+    "Finish the book about mountains" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дочитать книгу про горы"
+          }
+        }
+      }
+    },
+    "Five seconds\non your desktop" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пять секунд\nна вашем рабочем столе"
+          }
+        }
+      }
+    },
+    "Frames live only in this Mac’s memory and are replaced right away by the next ones. %@ doesn’t save screenshots, record audio, or send anything over the network." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кадры живут только в памяти этого Mac и сразу заменяются следующими. %@ не сохраняет снимки, не записывает звук и ничего не отправляет в сеть."
+          }
+        }
+      }
+    },
+    "General Settings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Общие настройки"
+          }
+        }
+      }
+    },
+    "General Settings, ⌘," : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Общие настройки, ⌘,"
+          }
+        }
+      }
+    },
+    "General Settings…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Общие настройки…"
+          }
+        }
+      }
+    },
+    "Getting ready" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Готовится"
+          }
+        }
+      }
+    },
+    "GitHub responded %lld to %@: %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub ответил %lld на %@: %@"
+          }
+        }
+      }
+    },
+    "Heavily frosted glass" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сильное размытое стекло"
+          }
+        }
+      }
+    },
+    "Lake.jpg" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Озеро.jpg"
+          }
+        }
+      }
+    },
+    "Later" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Позже"
+          }
+        }
+      }
+    },
+    "Launch at login didn’t change: %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автозапуск не изменился: %@"
+          }
+        }
+      }
+    },
+    "Lid" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Крышка"
+          }
+        }
+      }
+    },
+    "Lid Angle" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Угол крышки"
+          }
+        }
+      }
+    },
+    "Lid angle in the sample" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Угол крышки в примере"
+          }
+        }
+      }
+    },
+    "Lid angle sensor not found (%@). If this model has one, click “Check Again” after the Mac wakes." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Датчик угла крышки не найден (%@). Если он в этой модели есть, нажмите «Проверить ещё раз» после пробуждения Mac."
+          }
+        }
+      }
+    },
+    "Lid: %lld°" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Крышка: %lld°"
+          }
+        }
+      }
+    },
+    "Light bend and a little frost" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лёгкий изгиб и немного инея"
+          }
+        }
+      }
+    },
+    "Lower the lid and the sample folds along with it." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прикройте крышку, и пример сложится вместе с ней."
+          }
+        }
+      }
+    },
+    "Mac Model" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модель Mac"
+          }
+        }
+      }
+    },
+    "Mac is asleep or locked" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac спит или заблокирован"
+          }
+        }
+      }
+    },
+    "MacBook Air with M1" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MacBook Air на M1"
+          }
+        }
+      }
+    },
+    "Matte" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Матовый"
+          }
+        }
+      }
+    },
+    "Metal isn’t available on this Mac." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metal недоступен на этом Mac."
+          }
+        }
+      }
+    },
+    "Needed for the effect\nto work on your screen" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нужен, чтобы эффект\nработал на вашем экране"
+          }
+        }
+      }
+    },
+    "Needs attention" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нужно внимание"
+          }
+        }
+      }
+    },
+    "No Updates" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновлений нет"
+          }
+        }
+      }
+    },
+    "No data" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "нет данных"
+          }
+        }
+      }
+    },
+    "No screen access" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет доступа к экрану"
+          }
+        }
+      }
+    },
+    "Not allowed" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не разрешена"
+          }
+        }
+      }
+    },
+    "Not in use" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не используется"
+          }
+        }
+      }
+    },
+    "Notes" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заметки"
+          }
+        }
+      }
+    },
+    "Notes     File     Edit     View     Window" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заметки     Файл     Правка     Вид     Окно"
+          }
+        }
+      }
+    },
+    "Off" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выключен"
+          }
+        }
+      }
+    },
+    "Open Release Page" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть страницу выпуска"
+          }
+        }
+      }
+    },
+    "Open Settings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть настройки"
+          }
+        }
+      }
+    },
+    "Open at login" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открывать при входе в систему"
+          }
+        }
+      }
+    },
+    "Open macOS Settings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть настройки macOS"
+          }
+        }
+      }
+    },
+    "Pack for the trip" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Собрать рюкзак к поездке"
+          }
+        }
+      }
+    },
+    "Preview" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предпросмотр"
+          }
+        }
+      }
+    },
+    "Quit %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завершить %@"
+          }
+        }
+      }
+    },
+    "Release information comes from GitHub. Whether to download a new version is up to you." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сведения о новых выпусках берутся с GitHub. Скачать версию или нет, решаете вы."
+          }
+        }
+      }
+    },
+    "Restore Default Look" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вернуть стандартный вид"
+          }
+        }
+      }
+    },
+    "Sample desktop under the effect" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пример рабочего стола под эффектом"
+          }
+        }
+      }
+    },
+    "Sample: %lld°" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пример: %lld°"
+          }
+        }
+      }
+    },
+    "Screen Access" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступ к экрану"
+          }
+        }
+      }
+    },
+    "Screen Recording" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запись экрана"
+          }
+        }
+      }
+    },
+    "Sensor" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Датчик"
+          }
+        }
+      }
+    },
+    "Sensor unavailable" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Датчик недоступен"
+          }
+        }
+      }
+    },
+    "Settings…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки…"
+          }
+        }
+      }
+    },
+    "Show Demo" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать демонстрацию"
+          }
+        }
+      }
+    },
+    "Show on Screen" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать на экране"
+          }
+        }
+      }
+    },
+    "Slider" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ползунок"
+          }
+        }
+      }
+    },
+    "Soft" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мягкий"
+          }
+        }
+      }
+    },
+    "Sort the photos" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разобрать фотографии"
+          }
+        }
+      }
+    },
+    "Status" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Состояние"
+          }
+        }
+      }
+    },
+    "Stop" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Остановить"
+          }
+        }
+      }
+    },
+    "Stop Demo" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Остановить демонстрацию"
+          }
+        }
+      }
+    },
+    "Style" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стиль"
+          }
+        }
+      }
+    },
+    "Style, sliders, and fade-out angle return to their defaults. Sound and launch at login stay as they are." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стиль, ползунки и угол исчезновения вернутся к исходным. Звук и автозапуск не изменятся."
+          }
+        }
+      }
+    },
+    "The %@ has no lid angle sensor, so the effect can’t follow the lid. Preview and demo still work." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В %@ нет датчика угла крышки, поэтому эффект не может следовать за ней. Предпросмотр и демонстрация работают."
+          }
+        }
+      }
+    },
+    "The built-in display isn’t available right now." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Встроенный экран сейчас недоступен."
+          }
+        }
+      }
+    },
+    "The effect appears only on the built-in display. A closed MacBook sleeps as usual." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эффект показывается только на встроенном экране. Закрытый MacBook засыпает как обычно."
+          }
+        }
+      }
+    },
+    "The effect shader has no function %@." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В шейдере эффекта нет функции %@."
+          }
+        }
+      }
+    },
+    "The lid sensor is unavailable, but the demo still works." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Датчик крышки недоступен, но демонстрация работает."
+          }
+        }
+      }
+    },
+    "The lid sensor opened but isn’t reporting a valid angle. Click “Check Again”." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Датчик крышки открылся, но не отдаёт корректный угол. Нажмите «Проверить ещё раз»."
+          }
+        }
+      }
+    },
+    "The releases repository “%@” is invalid." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Адрес репозитория выпусков «%@» задан неверно."
+          }
+        }
+      }
+    },
+    "The response from %@ isn’t HTTP." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ответ на %@ не похож на HTTP."
+          }
+        }
+      }
+    },
+    "The sensor is read in the background, 30–120 times per second" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Датчик читается в фоне, 30–120 раз в секунду"
+          }
+        }
+      }
+    },
+    "The sensor stopped reporting the lid angle. Click “Check Again”." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Датчик перестал отдавать угол крышки. Нажмите «Проверить ещё раз»."
+          }
+        }
+      }
+    },
+    "The style thumbnail failed to render: %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Миниатюра стиля не отрисовалась: %@"
+          }
+        }
+      }
+    },
+    "The ⌘⌥B shortcut couldn’t be set up (code %d)." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сочетание ⌘⌥B не подключилось (код %d)."
+          }
+        }
+      }
+    },
+    "This build (%@) is newer than the latest release, %@." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эта сборка (%@) новее последнего выпуска %@."
+          }
+        }
+      }
+    },
+    "Tue 9:41" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вт 9:41"
+          }
+        }
+      }
+    },
+    "Turn Effect Off" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выключить эффект"
+          }
+        }
+      }
+    },
+    "Turn Effect On" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Включить эффект"
+          }
+        }
+      }
+    },
+    "Turn effect on or off" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Включить или выключить эффект"
+          }
+        }
+      }
+    },
+    "Unavailable" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недоступен"
+          }
+        }
+      }
+    },
+    "Updates" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновления"
+          }
+        }
+      }
+    },
+    "Version" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версия"
+          }
+        }
+      }
+    },
+    "Version %@ is available" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вышла версия %@"
+          }
+        }
+      }
+    },
+    "Waiting for the lid to move" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ждёт движения крышки"
+          }
+        }
+      }
+    },
+    "Weekend Plans" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "План на выходные"
+          }
+        }
+      }
+    },
+    "What happens to the image" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Что происходит с изображением"
+          }
+        }
+      }
+    },
+    "When the lid is open %lld° or wider, the screen stays as it is." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Когда крышка открыта на %lld° и шире, экран остаётся обычным."
+          }
+        }
+      }
+    },
+    "Without access, the effect can’t see the desktop. The preview works either way." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Без доступа эффект не видит рабочий стол. Предпросмотр работает и так."
+          }
+        }
+      }
+    },
+    "You have %@ installed." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас установлена %@."
+          }
+        }
+      }
+    },
+    "You have the latest version, %@." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Установлена последняя версия %@."
+          }
+        }
+      }
+    },
+    "macOS didn’t allow excluding the app’s windows from capture." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS не дала исключить окна приложения из захвата."
+          }
+        }
+      }
+    },
+    "macOS didn’t send a screen image. Check screen recording access and try again." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS не прислала изображение экрана. Проверьте доступ к записи экрана и попробуйте снова."
+          }
+        }
+      }
+    },
+    "macOS may have remembered the permission for another copy of %@.\n\n1. Open Screen Recording in Privacy & Security settings.\n2. Select %@ and remove it with the “−” button.\n3. Add the installed app with the “+” button and turn access on.\n4. Restart %@ if macOS asks." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS могла запомнить разрешение для другой копии %@.\n\n1. Откройте раздел «Запись экрана» в настройках конфиденциальности.\n2. Выделите %@ и удалите кнопкой «−».\n3. Добавьте установленное приложение кнопкой «+» и включите доступ.\n4. Перезапустите %@, если macOS попросит."
+          }
+        }
+      }
+    },
+    "sample desktop" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "пример рабочего стола"
+          }
+        }
+      }
+    },
+    "unknown model" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "модель не определена"
+          }
+        }
+      }
+    },
+    "⌘⌥B" : {
+      "shouldTranslate" : false
+    },
+    "⌘⌥B is already used by another app. You can still toggle the effect from the menu." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сочетание ⌘⌥B уже занято другой программой. Эффект можно переключать из меню."
+          }
+        }
+      }
+    },
+    "⌘⌥B stops it" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘⌥B остановит"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

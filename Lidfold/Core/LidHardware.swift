@@ -57,18 +57,18 @@ func pickReadableSensor<Device>(
 
 /// модели, в которых датчика угла нет физически
 private let modelsWithoutLidAngle = [
-    "MacBookAir10,1": "MacBook Air на M1",
-    "MacBookPro17,1": "MacBook Pro 13″ на M1",
-    "Mac14,7": "MacBook Pro 13″ на M2",
+    "MacBookAir10,1": String(localized: "MacBook Air with M1"),
+    "MacBookPro17,1": String(localized: "13″ MacBook Pro with M1"),
+    "Mac14,7": String(localized: "13″ MacBook Pro with M2"),
 ]
 
 /// объяснение для пользователя, почему угол крышки недоступен
 func missingSensorExplanation(model: String, sawOtherSPUSensors: Bool) -> String {
     if let name = modelsWithoutLidAngle[model] {
-        return "В \(name) нет датчика угла крышки, поэтому эффект не может следовать за ней. Предпросмотр и демонстрация работают."
+        return String(localized: "The \(name) has no lid angle sensor, so the effect can’t follow the lid. Preview and demo still work.")
     }
     if sawOtherSPUSensors {
-        return "Сенсоры Apple на этом Mac видны, но угол крышки через них не отдаётся. Пришлите диагностику с модели \(model), чтобы проверить совместимость."
+        return String(localized: "Apple sensors are visible on this Mac, but none of them reports the lid angle. Send diagnostics from the \(model) to help check compatibility.")
     }
-    return "Датчик угла крышки не найден (\(model)). Если он в этой модели есть, нажмите «Проверить ещё раз» после пробуждения Mac."
+    return String(localized: "Lid angle sensor not found (\(model)). If this model has one, click “Check Again” after the Mac wakes.")
 }

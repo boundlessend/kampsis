@@ -50,7 +50,7 @@ enum ReleaseCheckFailure: LocalizedError, Equatable {
 
     var errorDescription: String? {
         switch self {
-        case let .unreadableVersion(text): "Не удалось разобрать номер версии «\(text)»."
+        case let .unreadableVersion(text): String(localized: "Couldn’t read the version number “\(text)”.")
         }
     }
 }

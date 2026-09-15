@@ -3,7 +3,7 @@ import AppKit
 enum SampleDesktopFailure: LocalizedError {
     case contextUnavailable
 
-    var errorDescription: String? { "Не удалось нарисовать пример рабочего стола." }
+    var errorDescription: String? { String(localized: "Couldn’t draw the sample desktop.") }
 }
 
 /// синтетический рабочий стол для предпросмотра: без скриншотов и сторонних изображений
@@ -52,8 +52,8 @@ private func paintMenuBar(_ context: CGContext, width: CGFloat) {
     context.fill(CGRect(x: 0, y: 0, width: width, height: 30))
     let attributes: [NSAttributedString.Key: Any] = [.font: NSFont.systemFont(ofSize: 14, weight: .medium),
                                                      .foregroundColor: NSColor.white]
-    ("Заметки     Файл     Правка     Вид     Окно" as NSString).draw(at: CGPoint(x: 48, y: 6), withAttributes: attributes)
-    ("Вт 9:41" as NSString).draw(at: CGPoint(x: width - 90, y: 6), withAttributes: attributes)
+    (String(localized: "Notes     File     Edit     View     Window") as NSString).draw(at: CGPoint(x: 48, y: 6), withAttributes: attributes)
+    (String(localized: "Tue 9:41") as NSString).draw(at: CGPoint(x: width - 90, y: 6), withAttributes: attributes)
 }
 
 private func paintWindowChrome(_ context: CGContext, frame: CGRect, title: String) {
@@ -75,14 +75,15 @@ private func paintWindowChrome(_ context: CGContext, frame: CGRect, title: Strin
 }
 
 private func paintNotesWindow(_ context: CGContext, frame: CGRect) {
-    paintWindowChrome(context, frame: frame, title: "Заметки")
+    paintWindowChrome(context, frame: frame, title: String(localized: "Notes"))
     let heading: [NSAttributedString.Key: Any] = [.font: NSFont.systemFont(ofSize: 30, weight: .bold),
                                                   .foregroundColor: NSColor(white: 0.12, alpha: 1)]
-    ("План на выходные" as NSString).draw(at: CGPoint(x: frame.minX + 40, y: frame.minY + 78), withAttributes: heading)
+    (String(localized: "Weekend Plans") as NSString).draw(at: CGPoint(x: frame.minX + 40, y: frame.minY + 78), withAttributes: heading)
     let body: [NSAttributedString.Key: Any] = [.font: NSFont.systemFont(ofSize: 18),
                                                .foregroundColor: NSColor(white: 0.3, alpha: 1)]
-    let items = ["Купить краски для балкона", "Позвонить бабушке", "Дочитать книгу про горы",
-                 "Собрать рюкзак к поездке", "Разобрать фотографии"]
+    let items = [String(localized: "Buy paint for the balcony"), String(localized: "Call Grandma"),
+                 String(localized: "Finish the book about mountains"), String(localized: "Pack for the trip"),
+                 String(localized: "Sort the photos")]
     for (index, item) in items.enumerated() {
         let y = frame.minY + 150 + CGFloat(index) * 48
         context.setStrokeColor(rgb(0.7, 0.7, 0.7))
@@ -93,7 +94,7 @@ private func paintNotesWindow(_ context: CGContext, frame: CGRect) {
 }
 
 private func paintPhotoWindow(_ context: CGContext, frame: CGRect) {
-    paintWindowChrome(context, frame: frame, title: "Озеро.jpg")
+    paintWindowChrome(context, frame: frame, title: String(localized: "Lake.jpg"))
     let photo = CGRect(x: frame.minX, y: frame.minY + 47, width: frame.width, height: frame.height - 47)
     context.saveGState()
     context.addPath(CGPath(roundedRect: frame, cornerWidth: 16, cornerHeight: 16, transform: nil))

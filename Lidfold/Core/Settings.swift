@@ -11,17 +11,17 @@ enum Look: String, Codable, CaseIterable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .soft: "Мягкий"
-        case .deep: "Глубокий"
-        case .matte: "Матовый"
+        case .soft: String(localized: "Soft")
+        case .deep: String(localized: "Deep")
+        case .matte: String(localized: "Matte")
         }
     }
 
     var summary: String {
         switch self {
-        case .soft: "Лёгкий изгиб и немного инея"
-        case .deep: "Плотная тень к закрытию"
-        case .matte: "Сильное размытое стекло"
+        case .soft: String(localized: "Light bend and a little frost")
+        case .deep: String(localized: "Deep shade as the lid closes")
+        case .matte: String(localized: "Heavily frosted glass")
         }
     }
 

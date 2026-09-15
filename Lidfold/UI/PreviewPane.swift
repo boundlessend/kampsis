@@ -62,8 +62,8 @@ enum ThumbnailFailure: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .noTarget: "Не удалось подготовить миниатюру стиля."
-        case let .gpu(detail): "Миниатюра стиля не отрисовалась: \(detail)"
+        case .noTarget: String(localized: "Couldn’t prepare the style thumbnail.")
+        case let .gpu(detail): String(localized: "The style thumbnail failed to render: \(detail)")
         }
     }
 }

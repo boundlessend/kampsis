@@ -8,9 +8,9 @@ enum RenderSetupFailure: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .noMetalDevice: "Metal недоступен на этом Mac."
-        case .noCommandQueue: "Не удалось создать очередь команд Metal."
-        case let .missingShaderFunction(name): "В шейдере эффекта нет функции \(name)."
+        case .noMetalDevice: String(localized: "Metal isn’t available on this Mac.")
+        case .noCommandQueue: String(localized: "Couldn’t create a Metal command queue.")
+        case let .missingShaderFunction(name): String(localized: "The effect shader has no function \(name).")
         }
     }
 }

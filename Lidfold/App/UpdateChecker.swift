@@ -85,21 +85,21 @@ import os
         let alert = NSAlert()
         switch verdict {
         case let .available(version, release):
-            alert.messageText = "Вышла версия \(version)"
+            alert.messageText = String(localized: "Version \(version.description) is available")
             let notes = release.notes.map { "\n\n" + String($0.prefix(600)) } ?? ""
-            alert.informativeText = "Сейчас установлена \(installedVersion).\(notes)"
-            alert.addButton(withTitle: "Открыть страницу выпуска")
-            alert.addButton(withTitle: "Позже")
+            alert.informativeText = String(localized: "You have \(installedVersion) installed.") + notes
+            alert.addButton(withTitle: String(localized: "Open Release Page"))
+            alert.addButton(withTitle: String(localized: "Later"))
             NSApp.activate()
             if alert.runModal() == .alertFirstButtonReturn { NSWorkspace.shared.open(release.pageURL) }
         case let .upToDate(version):
-            alert.messageText = "Обновлений нет"
-            alert.informativeText = "Установлена последняя версия \(version)."
+            alert.messageText = String(localized: "No Updates")
+            alert.informativeText = String(localized: "You have the latest version, \(version.description).")
             NSApp.activate()
             alert.runModal()
         case let .aheadOfPublished(installed, published):
-            alert.messageText = "Обновлений нет"
-            alert.informativeText = "Эта сборка (\(installed)) новее последнего выпуска \(published)."
+            alert.messageText = String(localized: "No Updates")
+            alert.informativeText = String(localized: "This build (\(installed.description)) is newer than the latest release, \(published.description).")
             NSApp.activate()
             alert.runModal()
         }
@@ -109,7 +109,7 @@ import os
         Self.log.error("update check failed: \(error.localizedDescription, privacy: .public)")
         let alert = NSAlert()
         alert.alertStyle = .warning
-        alert.messageText = "Не удалось проверить обновления"
+        alert.messageText = String(localized: "Couldn’t Check for Updates")
         alert.informativeText = error.localizedDescription
         NSApp.activate()
         alert.runModal()
