@@ -1,0 +1,20 @@
+{
+  "name": "lidfold-installer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Установка Lidfold для macOS из выпуска на GitHub",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "lidfold-install": "installer/cli.mjs"
+  },
+  "files": [
+    "installer/cli.mjs",
+    "installer/release.json"
+  ],
+  "scripts": {
+    "test": "node --test installer/"
+  }
+}

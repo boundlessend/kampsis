@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Установка Lidfold</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --ground: #f6f6f8;
+    --card: #ffffff;
+    --ink: #1d1d1f;
+    --muted: #5b5b61;
+    --accent: #2f5bd3;
+    --line: #e2e2e7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #1b1b1d;
+      --card: #28282b;
+      --ink: #f2f2f5;
+      --muted: #a8a8ae;
+      --accent: #7ea2ff;
+      --line: #3a3a3e;
+    }
+  }
+  body {
+    margin: 0;
+    padding: 40px 20px 56px;
+    background: var(--ground);
+    color: var(--ink);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  }
+  main { max-width: 620px; margin: 0 auto; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 0 0 8px; }
+  .lead { color: var(--muted); margin: 0 0 28px; }
+  section {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  h2 { font-size: 18px; margin: 0 0 10px; }
+  ol { margin: 0; padding-left: 22px; }
+  li + li { margin-top: 8px; }
+  p { margin: 0; }
+  p + p { margin-top: 10px; }
+  .muted { color: var(--muted); }
+  kbd {
+    font: 14px ui-monospace, SFMono-Regular, Menlo, monospace;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 1px 6px;
+  }
+  b { font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Установка Lidfold</h1>
+  <p class="lead">Нужен MacBook на Apple silicon с macOS 26 или новее. Интернет для установки не нужен.</p>
+
+  <section>
+    <h2>1. Скопируйте приложение</h2>
+    <p>Перетащите значок Lidfold на папку «Программы» в этом же окне. После копирования окно можно закрыть и извлечь диск.</p>
+  </section>
+
+  <section>
+    <h2>2. Откройте в первый раз</h2>
+    <ol>
+      <li>Запустите Lidfold из папки «Программы».</li>
+      <li>Если macOS сообщит, что не может проверить приложение, нажмите <b>Готово</b>.</li>
+      <li>Откройте <b>Системные настройки → Конфиденциальность и безопасность</b>, внизу найдите строку про Lidfold и нажмите <b>Всё равно открыть</b>.</li>
+      <li>Подтвердите запуск. Спрашивать больше не будут.</li>
+    </ol>
+    <p class="muted">Так происходит, потому что сборка подписана собственным сертификатом проекта, а не сертификатом Apple Developer.</p>
+  </section>
+
+  <section>
+    <h2>3. Разрешите доступ к экрану</h2>
+    <ol>
+      <li>В окне Lidfold нажмите <b>Разрешить доступ к экрану…</b>.</li>
+      <li>В открывшемся разделе «Запись экрана» включите Lidfold.</li>
+      <li>Если macOS попросит перезапустить приложение, согласитесь.</li>
+    </ol>
+    <p class="muted">Изображение обрабатывается только в памяти этого Mac: снимки не сохраняются и никуда не отправляются.</p>
+  </section>
+
+  <section>
+    <h2>4. Попробуйте</h2>
+    <p>Медленно прикройте крышку или нажмите <b>Показать на экране</b>. Сочетание <kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>B</kbd> включает и выключает эффект.</p>
+    <p>Lidfold живёт в строке меню. Закрытое окно не завершает приложение: для выхода выберите <b>Завершить Lidfold</b> в меню.</p>
+  </section>
+
+  <section>
+    <h2>Обновления</h2>
+    <p>Пункт <b>Проверить обновления…</b> в меню сравнивает версию с последним выпуском на GitHub и открывает страницу выпуска, если есть новая. Новая версия ставится так же: заменой приложения в «Программах». Доступ к экрану при этом сохраняется.</p>
+  </section>
+</main>
+</body>
+</html>

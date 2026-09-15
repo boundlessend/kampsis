@@ -1,0 +1,48 @@
+name: Lidfold
+options:
+  bundleIdPrefix: local.boundlessend
+  deploymentTarget:
+    macOS: "26.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "26.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_HARDENED_RUNTIME: YES
+    ENABLE_APP_SANDBOX: NO
+    # отдельная debug-библиотека ломает загрузку тестов через BUNDLE_LOADER
+    ENABLE_DEBUG_DYLIB: NO
+targets:
+  Lidfold:
+    type: application
+    platform: macOS
+    sources:
+      - Lidfold
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: local.boundlessend.lidfold
+        INFOPLIST_FILE: Lidfold/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_STYLE: Automatic
+  LidfoldTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - LidfoldTests
+    dependencies:
+      - target: Lidfold
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Lidfold.app/Contents/MacOS/Lidfold"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  Lidfold:
+    build:
+      targets:
+        Lidfold: all
+    test:
+      targets:
+        - LidfoldTests

@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+._*
+
+# локальный кэш хука impeccable
+.impeccable/
+
+# проект генерирует XcodeGen из project.yml
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+DerivedData/
+*.xcresult/
+
+# сборка, скачанные инструменты, выпуски
+.build/
+build/
+dist/
+*.app/
+*.zip
+*.dmg
+*.log
+node_modules/
+*.tgz
+
+# ключи и секреты не попадают в репозиторий; открытый сертификат signing/*.crt хранится
+.env
+.env.*
+*.p12
+*.p8
+*.pem
+*.key
+*.cer
+*.mobileprovision
+*.provisionprofile
+*.keychain*
