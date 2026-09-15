@@ -7,7 +7,7 @@ import ServiceManagement
 @MainActor final class EffectController {
     static let shared = EffectController()
 
-    private static let log = Logger(subsystem: "local.boundlessend.lidfold", category: "effect")
+    private static let log = Logger(subsystem: "io.github.boundlessend.lidfold", category: "effect")
     /// сколько после последнего движения крышки захват ещё держится наготове
     private static let movementGrace = 0.85
     private static let quietRecheckDelay: Duration = .milliseconds(900)

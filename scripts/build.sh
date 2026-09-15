@@ -6,7 +6,7 @@ usage='Использование: scripts/build.sh check|adhoc|selfsigned|devel
 (( $# == 1 )) || { print -u2 -- $usage; exit 2 }
 mode=$1
 root=${0:A:h:h}
-bundle_id=local.boundlessend.lidfold
+bundle_id=io.github.boundlessend.lidfold
 
 case $mode in
   check|adhoc|selfsigned) ;;

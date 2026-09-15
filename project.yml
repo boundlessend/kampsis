@@ -1,6 +1,6 @@
 name: Lidfold
 options:
-  bundleIdPrefix: local.boundlessend
+  bundleIdPrefix: io.github.boundlessend
   deploymentTarget:
     macOS: "26.0"
 settings:
@@ -21,7 +21,7 @@ targets:
       - Lidfold
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: local.boundlessend.lidfold
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.boundlessend.lidfold
         INFOPLIST_FILE: Lidfold/Info.plist
         GENERATE_INFOPLIST_FILE: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

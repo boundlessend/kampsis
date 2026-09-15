@@ -67,7 +67,7 @@ func capturableWindowIDs(_ windowNumbers: [Int]) -> Set<CGWindowID> {
     let frames = FrameSlot()
     private var activeStream: SCStream?
     private var receiver: FrameReceiver?
-    private let queue = DispatchQueue(label: "local.boundlessend.lidfold.capture", qos: .userInteractive)
+    private let queue = DispatchQueue(label: "io.github.boundlessend.lidfold.capture", qos: .userInteractive)
 
     static func builtInDisplay() -> NSScreen? {
         NSScreen.screens.first { screen in
@@ -144,7 +144,7 @@ func capturableWindowIDs(_ windowNumbers: [Int]) -> Set<CGWindowID> {
     }
 }
 
-private let captureLog = Logger(subsystem: "local.boundlessend.lidfold", category: "capture")
+private let captureLog = Logger(subsystem: "io.github.boundlessend.lidfold", category: "capture")
 
 private final class FrameReceiver: NSObject, SCStreamOutput, SCStreamDelegate, Sendable {
     private let frames: FrameSlot

@@ -107,7 +107,7 @@ struct EffectSettings: Codable, Equatable, Sendable {
 }
 
 private let settingsKey = "effect-settings"
-private let settingsLog = Logger(subsystem: "local.boundlessend.lidfold", category: "settings")
+private let settingsLog = Logger(subsystem: "io.github.boundlessend.lidfold", category: "settings")
 
 /// читает настройки; при первом запуске или повреждённой записи возвращает стандартные и пишет в лог
 func loadSettings(from defaults: UserDefaults) -> EffectSettings {

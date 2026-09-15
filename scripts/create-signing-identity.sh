@@ -9,7 +9,7 @@ umask 077
 root=${0:A:h:h}
 private_dir=${LIDFOLD_SIGNING_DIR:-$HOME/Library/Application Support/Lidfold/Signing}
 certificate=$root/signing/lidfold-release.crt
-service=local.boundlessend.lidfold.signing
+service=io.github.boundlessend.lidfold.signing
 
 [[ ! -e $certificate && ! -e $private_dir/identity.p12 ]] || {
   print -u2 'Сертификат выпусков уже есть. Восстановите его закрытую часть, новый создавать нельзя.'

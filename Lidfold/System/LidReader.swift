@@ -8,7 +8,7 @@ enum SensorStatus: Equatable, Sendable {
     case unavailable(String)
 }
 
-private let sensorLog = Logger(subsystem: "local.boundlessend.lidfold", category: "lid-sensor")
+private let sensorLog = Logger(subsystem: "io.github.boundlessend.lidfold", category: "lid-sensor")
 
 /// коннектор к датчику угла крышки: опрос идёт в фоне, результаты приходят на главный поток
 @MainActor final class LidReader {
@@ -51,7 +51,7 @@ private final class LidPoller: @unchecked Sendable {
     private static let movementWindow = 0.5
     private static let missesBeforeFailure = 10
 
-    private let queue = DispatchQueue(label: "local.boundlessend.lidfold.lid", qos: .userInteractive)
+    private let queue = DispatchQueue(label: "io.github.boundlessend.lidfold.lid", qos: .userInteractive)
     private let model: String
     private let deliverReading: @MainActor @Sendable (LidReading) -> Void
     private let deliverStatus: @MainActor @Sendable (SensorStatus) -> Void

@@ -8,7 +8,7 @@ root=${0:A:h:h}
 app=${1:A}
 private_dir=${LIDFOLD_SIGNING_DIR:-$HOME/Library/Application Support/Lidfold/Signing}
 certificate=$root/signing/lidfold-release.crt
-service=local.boundlessend.lidfold.signing
+service=io.github.boundlessend.lidfold.signing
 
 [[ -f $certificate && -f $private_dir/identity.p12 ]] || {
   print -u2 "Нет сертификата выпусков: нужны $certificate и $private_dir/identity.p12."

@@ -23,7 +23,7 @@ enum GitHubReleasesFailure: LocalizedError {
 
 /// коннектор к GitHub Releases API: узнаёт последний опубликованный выпуск
 final class GitHubReleases: Sendable {
-    private static let log = Logger(subsystem: "local.boundlessend.lidfold", category: "updates")
+    private static let log = Logger(subsystem: "io.github.boundlessend.lidfold", category: "updates")
     private static let attempts = 3
 
     let repository: String
