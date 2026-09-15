@@ -21,7 +21,7 @@ struct GeneralWindow: View {
                     set: { controller.setOpensAtLogin($0) }
                 ))
                 LabeledContent("Turn effect on or off") {
-                    Text("⌘⌥B").font(.body.monospaced())
+                    ShortcutRecorder(shortcut: $state.settings.toggleShortcut)
                 }
                 if let shortcutProblem = state.shortcutProblem {
                     Text(shortcutProblem).foregroundStyle(.orange)

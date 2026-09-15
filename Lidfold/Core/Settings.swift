@@ -59,12 +59,13 @@ struct EffectSettings: Codable, Equatable, Sendable {
     var dimming: Double
     var fadeOutAngle: Double
     var chimeOnOpen: Bool
+    var toggleShortcut: ToggleShortcut
 
     static let fadeOutRange: ClosedRange<Double> = 60...135
 
     static let standard = EffectSettings(
         isOn: true, look: .soft, bend: Look.soft.bend, blur: Look.soft.blur,
-        dimming: Look.soft.dimming, fadeOutAngle: 110, chimeOnOpen: false
+        dimming: Look.soft.dimming, fadeOutAngle: 110, chimeOnOpen: false, toggleShortcut: .standard
     )
 
     /// копия с параметрами выбранного стиля, остальное не трогается
@@ -83,11 +84,12 @@ struct EffectSettings: Codable, Equatable, Sendable {
             .contains { abs($0.0 - $0.1) > 0.0001 }
     }
 
-    /// стандартный вид эффекта с сохранением включённости и звука
+    /// стандартный вид эффекта с сохранением включённости, звука и сочетания клавиш
     func resettingAppearance() -> EffectSettings {
         var next = EffectSettings.standard
         next.isOn = isOn
         next.chimeOnOpen = chimeOnOpen
+        next.toggleShortcut = toggleShortcut
         return next
     }
 
@@ -102,6 +104,7 @@ struct EffectSettings: Codable, Equatable, Sendable {
         next.dimming = unit(dimming, look.dimming)
         next.fadeOutAngle = fadeOutAngle.isFinite
             ? fadeOutAngle.clamped(to: Self.fadeOutRange) : EffectSettings.standard.fadeOutAngle
+        next.toggleShortcut = toggleShortcut.isAcceptable ? toggleShortcut : .standard
         return next
     }
 }

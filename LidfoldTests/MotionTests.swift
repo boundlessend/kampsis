@@ -198,6 +198,7 @@ struct MotionTests {
         current.isOn = false
         current.chimeOnOpen = true
         current.fadeOutAngle = 80
+        current.toggleShortcut = ToggleShortcut(keyCode: 35, modifiers: [.control, .shift])
         for look in Look.allCases {
             var chosen = current.applying(look)
             #expect(chosen.look == look)
@@ -214,6 +215,7 @@ struct MotionTests {
         #expect(reset.fadeOutAngle == EffectSettings.standard.fadeOutAngle)
         #expect(!reset.isOn)
         #expect(reset.chimeOnOpen)
+        #expect(reset.toggleShortcut == current.toggleShortcut)
     }
 
     @Test func storedValuesAreClamped() {
@@ -222,11 +224,13 @@ struct MotionTests {
         settings.bend = 4
         settings.blur = -3
         settings.dimming = .nan
+        settings.toggleShortcut = ToggleShortcut(keyCode: 0, modifiers: [.shift])
         let restored = settings.sanitized()
         #expect(restored.fadeOutAngle == 60)
         #expect(restored.bend == 1)
         #expect(restored.blur == 0)
         #expect(restored.dimming == Look.soft.dimming)
+        #expect(restored.toggleShortcut == .standard)
     }
 
     @Test func settingsSurviveRelaunchAndCorruptionFallsBackToStandard() throws {

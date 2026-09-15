@@ -65,11 +65,7 @@ import ServiceManagement
         sensor.onStatus = { [weak self] status in self?.sensorChanged(status) }
         state.onSettingsChange = { [weak self] old, new in self?.settingsChanged(from: old, to: new) }
         if state.settings.isOn { sensor.start() }
-        do {
-            shortcut = try GlobalShortcut { [weak self] in self?.toggle() }
-        } catch {
-            state.shortcutProblem = error.localizedDescription
-        }
+        registerShortcut()
         observeSystem()
         timers.append(Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.refreshScreenAccess() }
@@ -201,6 +197,7 @@ import ServiceManagement
     }
 
     private func settingsChanged(from old: EffectSettings, to new: EffectSettings) {
+        if old.toggleShortcut != new.toggleShortcut { registerShortcut() }
         if old.isOn != new.isOn {
             if new.isOn {
                 if !state.suspended { sensor.start() }
@@ -213,6 +210,17 @@ import ServiceManagement
             }
         }
         reevaluate()
+    }
+
+    /// прежнее сочетание снимается до регистрации нового, иначе то же сочетание не зарегистрировать повторно
+    private func registerShortcut() {
+        shortcut = nil
+        do {
+            shortcut = try GlobalShortcut(state.settings.toggleShortcut) { [weak self] in self?.toggle() }
+            state.shortcutProblem = nil
+        } catch {
+            state.shortcutProblem = error.localizedDescription
+        }
     }
 
     private func refreshScreenAccess() {

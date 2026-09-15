@@ -11,6 +11,26 @@
         }
       }
     },
+    "%@ is already used by another app (code %d). Choose another shortcut or toggle the effect from the menu." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сочетание %@ уже занято другой программой (код %d). Выберите другое или переключайте эффект из меню."
+          }
+        }
+      }
+    },
+    "%@ stops it" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ остановит"
+          }
+        }
+      }
+    },
     "%@, modified" : {
       "localizations" : {
         "ru" : {
@@ -429,6 +449,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не удалось разобрать номер версии «%@»."
+          }
+        }
+      }
+    },
+    "Couldn’t set up the global shortcut (code %d)." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Глобальное сочетание не подключилось (код %d)."
           }
         }
       }
@@ -943,6 +973,16 @@
         }
       }
     },
+    "Press keys…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите клавиши…"
+          }
+        }
+      }
+    },
     "Preview" : {
       "localizations" : {
         "ru" : {
@@ -969,6 +1009,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сведения о новых выпусках берутся с GitHub. Скачать версию или нет, решаете вы."
+          }
+        }
+      }
+    },
+    "Reset" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбросить"
           }
         }
       }
@@ -1099,6 +1149,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Разобрать фотографии"
+          }
+        }
+      }
+    },
+    "Space" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пробел"
           }
         }
       }
@@ -1259,16 +1319,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Миниатюра стиля не отрисовалась: %@"
-          }
-        }
-      }
-    },
-    "The ⌘⌥B shortcut couldn’t be set up (code %d)." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сочетание ⌘⌥B не подключилось (код %d)."
           }
         }
       }
@@ -1479,29 +1529,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "модель не определена"
-          }
-        }
-      }
-    },
-    "⌘⌥B" : {
-      "shouldTranslate" : false
-    },
-    "⌘⌥B is already used by another app. You can still toggle the effect from the menu." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сочетание ⌘⌥B уже занято другой программой. Эффект можно переключать из меню."
-          }
-        }
-      }
-    },
-    "⌘⌥B stops it" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⌘⌥B остановит"
           }
         }
       }

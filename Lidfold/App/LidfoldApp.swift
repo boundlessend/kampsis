@@ -29,8 +29,9 @@ enum SceneID {
                     .keyboardShortcut(",", modifiers: .command)
             }
             CommandMenu("Effect") {
-                Button(controller.state.toggleTitle) { controller.toggle() }
-                    .keyboardShortcut("b", modifiers: [.command, .option])
+                Button { controller.toggle() } label: {
+                    Text(verbatim: "\(controller.state.toggleTitle)   \(shortcutLabel(controller.state.settings.toggleShortcut))")
+                }
             }
         }
 
@@ -79,6 +80,8 @@ private struct StatusMenu: View {
     let controller: EffectController
     @Environment(\.openWindow) private var openWindow
 
+    private var toggleLabel: String { shortcutLabel(state.settings.toggleShortcut) }
+
     var body: some View {
         if let angle = state.measuredAngle {
             Text(verbatim: "\(AppIdentity.name): \(Int(angle))°")
@@ -88,12 +91,12 @@ private struct StatusMenu: View {
         Text(state.statusLine)
         Divider()
         if !state.demoRunning {
-            Button { controller.toggle() } label: { Text(verbatim: "\(state.toggleTitle)   ⌘⌥B") }
+            Button { controller.toggle() } label: { Text(verbatim: "\(state.toggleTitle)   \(toggleLabel)") }
         }
         OpenSceneButton(title: "Customize Effect…", scene: SceneID.effect)
         OpenSceneButton(title: "General Settings…", scene: SceneID.general)
         if state.demoRunning {
-            Button { controller.endDemo() } label: { Text(verbatim: "\(state.toggleTitle)   ⌘⌥B") }
+            Button { controller.endDemo() } label: { Text(verbatim: "\(state.toggleTitle)   \(toggleLabel)") }
         } else {
             Button("Show Demo") {
                 openWindow(id: SceneID.effect)

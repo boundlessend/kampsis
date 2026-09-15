@@ -133,7 +133,7 @@ private struct PreviewColumn: View {
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
                 Group {
-                    if state.demoRunning { Text("⌘⌥B stops it") } else { Text("Five seconds\non your desktop") }
+                    if state.demoRunning { Text("\(shortcutLabel(state.settings.toggleShortcut)) stops it") } else { Text("Five seconds\non your desktop") }
                 }
                 .font(.callout)
                 .foregroundStyle(.secondary)
