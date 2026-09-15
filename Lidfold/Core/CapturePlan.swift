@@ -24,8 +24,6 @@ struct EffectSnapshot: Equatable, Sendable {
     var phase: CapturePhase
     var stopScheduled: Bool
     var hasFrame: Bool
-    var overlayShown: Bool
-    var hideScheduled: Bool
 }
 
 enum EffectCommand: Equatable, Sendable {
@@ -33,9 +31,9 @@ enum EffectCommand: Equatable, Sendable {
     case endCapture
     case scheduleStop
     case cancelScheduledStop
+    /// окно эффекта на экране, пока эффект невидим: у только что показанного окна первые кадры теряются
+    case prepareOverlay
     case presentOverlay
-    case scheduleHide
-    case cancelScheduledHide
 }
 
 /// ниже этого угла крышка считается закрытой
@@ -74,11 +72,8 @@ func planEffect(_ snapshot: EffectSnapshot) -> [EffectCommand] {
     case .starting, .stopping:
         break
     case .running:
-        if snapshot.progress > invisibleProgress, snapshot.hasFrame {
-            if snapshot.hideScheduled { commands.append(.cancelScheduledHide) }
-            commands.append(.presentOverlay)
-        } else if snapshot.progress <= invisibleProgress, snapshot.overlayShown, !snapshot.hideScheduled {
-            commands.append(.scheduleHide)
+        if snapshot.hasFrame {
+            commands.append(snapshot.progress > invisibleProgress ? .presentOverlay : .prepareOverlay)
         }
     }
     return commands

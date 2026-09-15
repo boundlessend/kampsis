@@ -7,7 +7,7 @@ struct DecisionTests {
         isOn: true, screenAccess: true, suspended: false, builtInDisplay: true, demo: false,
         measuredAngle: 80, fadeOutAngle: 110, closingSpeed: 0, progress: foldProgress(angle: 80, fadeOutAngle: 110),
         movedRecently: true, captureFailed: false, rendererBroken: false, phase: .idle,
-        stopScheduled: false, hasFrame: false, overlayShown: false, hideScheduled: false
+        stopScheduled: false, hasFrame: false
     )
 
     private func with(_ change: (inout EffectSnapshot) -> Void) -> EffectSnapshot {
@@ -45,20 +45,16 @@ struct DecisionTests {
         let running = with { $0.phase = .running }
         #expect(planEffect(running) == [])
         #expect(planEffect(with { $0.phase = .running; $0.hasFrame = true }) == [.presentOverlay])
-        #expect(planEffect(with { $0.phase = .running; $0.hasFrame = true; $0.hideScheduled = true })
-            == [.cancelScheduledHide, .presentOverlay])
     }
 
-    @Test func openLidHidesOverlayAfterDelay() {
-        let opened = with {
-            $0.phase = .running; $0.hasFrame = true; $0.overlayShown = true
+    @Test func overlayWaitsTransparentAboveTheThreshold() {
+        let justBelow = with {
+            $0.phase = .running; $0.hasFrame = true
             $0.measuredAngle = 109; $0.progress = foldProgress(angle: 109, fadeOutAngle: 110)
         }
-        #expect(planEffect(with { $0.phase = .running; $0.hasFrame = true; $0.overlayShown = true; $0.progress = 0 })
-            == [.scheduleHide])
-        #expect(opened.progress > invisibleProgress)
-        #expect(planEffect(opened) == [.presentOverlay])
-        #expect(planEffect(with { $0.phase = .running; $0.overlayShown = true; $0.progress = 0; $0.hideScheduled = true }) == [])
+        #expect(justBelow.progress > invisibleProgress)
+        #expect(planEffect(justBelow) == [.presentOverlay])
+        #expect(planEffect(with { $0.phase = .running; $0.hasFrame = true; $0.progress = 0 }) == [.prepareOverlay])
     }
 
     @Test func pausedLidLetsCaptureSettleBeforeStopping() {

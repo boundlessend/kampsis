@@ -12,7 +12,6 @@ import ServiceManagement
     private static let movementGrace = 0.85
     private static let quietRecheckDelay: Duration = .milliseconds(900)
     private static let stopDelay: Duration = .milliseconds(300)
-    private static let hideDelay: Duration = .milliseconds(250)
     private static let firstFrameTimeout = 2.0
     private static let demoCaptureTimeout = 3.0
 
@@ -29,7 +28,6 @@ import ServiceManagement
     private var captureJob: Task<Void, Never>?
     private var captureSession = 0
     private var scheduledStop: Task<Void, Never>?
-    private var scheduledHide: Task<Void, Never>?
     private var quietRecheck: Task<Void, Never>?
     private var demoJob: Task<Void, Never>?
     private var demoValue = 0.0
@@ -320,9 +318,7 @@ import ServiceManagement
             rendererBroken: metalProblem != nil,
             phase: phase,
             stopScheduled: scheduledStop != nil,
-            hasFrame: stream.frames.latest != nil,
-            overlayShown: state.overlayShown,
-            hideScheduled: scheduledHide != nil
+            hasFrame: stream.frames.latest != nil
         )
         planEffect(snapshot).forEach(perform)
     }
@@ -341,16 +337,10 @@ import ServiceManagement
         case .cancelScheduledStop:
             scheduledStop?.cancel()
             scheduledStop = nil
+        case .prepareOverlay:
+            prepareOverlay()
         case .presentOverlay:
             presentOverlay()
-        case .scheduleHide:
-            scheduledHide = after(Self.hideDelay) { controller in
-                controller.scheduledHide = nil
-                if controller.readingProgress <= invisibleProgress { controller.dismissOverlay() }
-            }
-        case .cancelScheduledHide:
-            scheduledHide?.cancel()
-            scheduledHide = nil
         }
     }
 
@@ -443,18 +433,34 @@ import ServiceManagement
         return wasOn
     }
 
+    /// прозрачное окно эффекта уже на экране, курсор не прячется
+    private func prepareOverlay() {
+        guard let overlay = orderedOverlay() else { return }
+        if state.overlayShown {
+            pointer.release()
+            state.overlayShown = false
+        }
+        overlay.renderer.wake()
+    }
+
     private func presentOverlay() {
-        guard let screen = ScreenStream.builtInDisplay(), case let .success(stack) = MetalStack.shared else { return }
-        guard let overlay = overlay ?? makeOverlay(stack: stack, frame: screen.frame) else { return }
-        self.overlay = overlay
-        if overlay.panel.frame != screen.frame { overlay.panel.setFrame(screen.frame, display: true) }
-        overlay.renderer.presentationLog = presentationLog
+        guard let screen = ScreenStream.builtInDisplay(), let overlay = orderedOverlay() else { return }
         if !state.overlayShown {
             pointer.engage(over: screen.frame)
-            overlay.panel.orderFrontRegardless()
             state.overlayShown = true
         }
         overlay.renderer.wake()
+    }
+
+    /// окно эффекта поверх встроенного экрана; создаётся при первом показе
+    private func orderedOverlay() -> (panel: NSPanel, renderer: SheetRenderer)? {
+        guard let screen = ScreenStream.builtInDisplay(), case let .success(stack) = MetalStack.shared else { return nil }
+        guard let overlay = overlay ?? makeOverlay(stack: stack, frame: screen.frame) else { return nil }
+        self.overlay = overlay
+        if overlay.panel.frame != screen.frame { overlay.panel.setFrame(screen.frame, display: true) }
+        overlay.renderer.presentationLog = presentationLog
+        if !overlay.panel.isVisible { overlay.panel.orderFrontRegardless() }
+        return overlay
     }
 
     private func makeOverlay(stack: MetalStack, frame: NSRect) -> (panel: NSPanel, renderer: SheetRenderer)? {
@@ -484,8 +490,6 @@ import ServiceManagement
     }
 
     private func dismissOverlay() {
-        scheduledHide?.cancel()
-        scheduledHide = nil
         overlay?.panel.orderOut(nil)
         overlay?.renderer.surface.paused = true
         state.overlayShown = false
