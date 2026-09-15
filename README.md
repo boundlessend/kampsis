@@ -43,21 +43,6 @@
 
 В образе лежит та же инструкция, она открывается без интернета.
 
-### Homebrew
-
-```sh
-brew tap boundlessend/lidfold https://github.com/boundlessend/lidfold
-brew install --cask boundlessend/lidfold/lidfold
-```
-
-### npx
-
-```sh
-npx github:boundlessend/lidfold
-```
-
-Установщик скачивает архив выпуска и сверяет его SHA-256, подпись и идентификатор приложения. Параметры: `--applications ПАПКА` задаёт папку установки, `--replace` обновляет установленную копию и оставляет прежнюю рядом, `--clear-quarantine` снимает карантин только с Lidfold.app.
-
 ## Обновления
 
 «Проверить обновления…» в меню сравнивает установленную версию с последним выпуском на GitHub и, если вышла новая, открывает страницу выпуска. Автоматическая проверка раз в день выключена, пока её не включить в общих настройках. Ставится новая версия так же, как первая: заменой приложения. Все выпуски подписаны одним сертификатом, поэтому доступ к записи экрана после обновления сохраняется.
@@ -100,7 +85,6 @@ open Lidfold.xcodeproj
 ```sh
 scripts/test.sh unit   # логика; без GPU и экрана, так же запускается в CI
 scripts/test.sh all    # плюс рендер на GPU и плавность на встроенном экране
-npm test               # установщик на настоящем маленьком приложении
 ```
 
 Полный набор запускается на MacBook с разблокированным экраном. Окна тестов и полноэкранная анимация на время закрывают рабочий стол.
@@ -129,11 +113,10 @@ macOS связывает разрешение на запись экрана с 
 
 ### Выпуск
 
-1. Поднимите `MARKETING_VERSION` и `CURRENT_PROJECT_VERSION` в `project.yml` и `version` в `package.json`.
+1. Поднимите `MARKETING_VERSION` и `CURRENT_PROJECT_VERSION` в `project.yml`.
 2. `scripts/build.sh selfsigned`
 3. `scripts/build-dmg.sh dist/Lidfold-vВЕРСИЯ-macos-arm64.zip` (нужен `uv`)
-4. `node scripts/prepare-installers.mjs dist/Lidfold-vВЕРСИЯ-macos-arm64.zip` закрепит архив в `installer/release.json` и `Casks/lidfold.rb`.
-5. Создайте выпуск `vВЕРСИЯ` на GitHub с DMG, zip и файлами `.sha256`. Изменения установщиков публикуйте только после того, как архив уже скачивается.
+4. Создайте выпуск `vВЕРСИЯ` на GitHub с DMG и его `.sha256`.
 
 ## Уязвимости
 

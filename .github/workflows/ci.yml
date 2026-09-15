@@ -21,15 +21,11 @@ jobs:
         run: |
           xcodebuild -version
           command -v xcodegen >/dev/null || brew install xcodegen
-          node --version
       - name: Сборка и тесты без железа
         run: scripts/test.sh unit
-      - name: Установщик
-        run: npm test
       - name: Синтаксис скриптов
         run: |
           for script in scripts/*.sh; do zsh -n "$script"; done
-          if [ -f Casks/lidfold.rb ]; then ruby -c Casks/lidfold.rb; fi
       - name: Результаты тестов
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
