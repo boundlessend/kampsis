@@ -103,6 +103,14 @@ The `development` and `developer-id` modes take the certificate from `KAMPSIS_SI
 
 To investigate hardware problems the app can be launched with `--diagnostics /path/to/status.json`: once a second it writes the sensor state, the capture state and frame counters there, but never the image.
 
+`--capture-check` replaces the app with a one-off capture test: with no windows open it starts the stream, then prints how long the stream took to start, the size and pixel format of the first frame, and how far frames lag behind their own timestamps. Run it from the installed copy so that screen recording permission applies:
+
+```sh
+/Applications/Kampsis.app/Contents/MacOS/Kampsis --capture-check
+```
+
+ScreenCaptureKit only sends a frame when the picture changes, so `frames: none` on a still desktop is normal, not a failure.
+
 ### Release certificate
 
 macOS ties screen recording permission to the app signature. So that updates do not reset that permission, every release is signed with one self-signed certificate, without changing system trust.

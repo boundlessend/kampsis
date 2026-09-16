@@ -54,6 +54,10 @@ enum SceneID {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // в роли хоста тестов приложение не трогает датчик, экран и сеть
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
+        if ProcessInfo.processInfo.arguments.contains("--capture-check") {
+            Task { exit(await runCaptureCheck()) }
+            return
+        }
         EffectController.shared.start()
         NSApp.activate()
     }

@@ -37,11 +37,11 @@ import Testing
         let screen = try #require(ScreenStream.builtInDisplay(), "нужен встроенный экран MacBook")
         let frames = FrameSlot()
         let pixels = try desktopPixels(width: 2560, height: 1662)
-        frames.store(pixels)
+        frames.store(pixels, capturedAt: CACurrentMediaTime())
         let feeder = Task { @MainActor in
             guard freshFrames else { return }
             while !Task.isCancelled {
-                frames.store(pixels)
+                frames.store(pixels, capturedAt: CACurrentMediaTime())
                 try await Task.sleep(for: .seconds(1.0 / 60))
             }
         }

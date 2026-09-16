@@ -192,7 +192,7 @@ private func contrast(_ values: [Int]) -> Double {
         #expect(CVPixelBufferCreate(kCFAllocatorDefault, 160, 100, kCVPixelFormatType_32BGRA, attributes, &created) == kCVReturnSuccess)
         let pixels = try #require(created)
         let frames = FrameSlot()
-        frames.store(pixels)
+        frames.store(pixels, capturedAt: CACurrentMediaTime())
         let renderer = try SheetRenderer(stack: stack, frames: frames) {
             FoldInputs(progress: 0.4, settings: .standard, fadesIn: true, reduceMotion: false)
         }
@@ -203,7 +203,7 @@ private func contrast(_ values: [Int]) -> Double {
         try await wait(upTo: 1) { renderer.surface.paused }
         #expect(renderer.surface.paused)
         let beforeCapture = renderer.drawnFrames
-        frames.store(pixels)
+        frames.store(pixels, capturedAt: CACurrentMediaTime())
         try await Task.sleep(for: .milliseconds(400))
         #expect(renderer.drawnFrames > beforeCapture, "свежий кадр захвата должен будить display link")
         #expect(renderer.surface.paused)
@@ -211,7 +211,7 @@ private func contrast(_ values: [Int]) -> Double {
         panel.orderOut(nil)
         try await Task.sleep(for: .milliseconds(120))
         let whileHidden = renderer.drawnFrames
-        frames.store(pixels)
+        frames.store(pixels, capturedAt: CACurrentMediaTime())
         try await Task.sleep(for: .milliseconds(250))
         #expect(renderer.surface.paused)
         #expect(renderer.drawnFrames == whileHidden)

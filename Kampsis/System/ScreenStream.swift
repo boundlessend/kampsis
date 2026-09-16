@@ -8,6 +8,8 @@ import Synchronization
 struct CapturedFrame: @unchecked Sendable {
     let pixels: CVPixelBuffer
     let number: UInt64
+    /// момент снимка по часам хоста: разница с `CACurrentMediaTime` даёт возраст кадра
+    let captureTime: Double
 }
 
 /// хранит только последний кадр: рендеру промежуточные не нужны
@@ -26,10 +28,10 @@ final class FrameSlot: Sendable {
         contents.withLock { $0.listener = listener }
     }
 
-    func store(_ pixels: CVPixelBuffer) {
+    func store(_ pixels: CVPixelBuffer, capturedAt captureTime: Double) {
         let listener = contents.withLock { box in
             box.counter &+= 1
-            box.frame = CapturedFrame(pixels: pixels, number: box.counter)
+            box.frame = CapturedFrame(pixels: pixels, number: box.counter, captureTime: captureTime)
             return box.listener
         }
         listener?()
@@ -115,6 +117,8 @@ func capturableWindowIDs(_ windowNumbers: [Int]) -> Set<CGWindowID> {
 @MainActor final class ScreenStream {
     static let widestCapture: CGFloat = 2560
     static let captureRate: Int32 = 60
+    /// глубина очереди кадров; единица не годится: последний кадр остаётся у нас и потоку некуда писать новый
+    static let queueDepth = 3
 
     let frames = FrameSlot()
     private var activeStream: SCStream?
@@ -181,7 +185,7 @@ func capturableWindowIDs(_ windowNumbers: [Int]) -> Set<CGWindowID> {
         configuration.width = Int(pixelWidth * scale)
         configuration.height = Int(screen.frame.height * screen.backingScaleFactor * scale)
         configuration.minimumFrameInterval = CMTime(value: 1, timescale: captureRate)
-        configuration.queueDepth = 3
+        configuration.queueDepth = queueDepth
         configuration.pixelFormat = kCVPixelFormatType_32BGRA
         configuration.colorSpaceName = CGColorSpace.sRGB
         configuration.captureDynamicRange = .SDR
@@ -210,7 +214,7 @@ private final class FrameReceiver: NSObject, SCStreamOutput, SCStreamDelegate, S
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
         guard type == .screen, sampleBuffer.isValid, isComplete(sampleBuffer),
               let pixels = sampleBuffer.imageBuffer else { return }
-        frames.store(pixels)
+        frames.store(pixels, capturedAt: sampleBuffer.presentationTimeStamp.seconds)
     }
 
     func stream(_ stream: SCStream, didStopWithError error: any Error) {
