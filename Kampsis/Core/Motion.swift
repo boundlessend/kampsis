@@ -9,6 +9,11 @@ func foldProgress(angle: Double, fadeOutAngle: Double) -> Double {
     return ((fadeOutAngle - angle) / (fadeOutAngle - fullyFoldedAngle)).clamped(to: 0...1)
 }
 
+/// насколько градусов показанный угол может уходить вперёд последнего отсчёта датчика
+func predictionLead(_ prediction: Double) -> Double {
+    prediction.clamped(to: EffectSettings.predictionRange) * 12
+}
+
 /// темп сложения по ходу крышки: при 0 прогресс линейный, к 1 экран темнеет ближе к закрытию, к -1 раньше
 func pacedProgress(_ progress: Double, pace: Double) -> Double {
     pow(progress.clamped(to: 0...1), pow(3, pace))
@@ -78,19 +83,18 @@ enum LidEstimate: Equatable, Sendable {
         static let staleInterval = 0.25
         static let velocityMemory = 0.25
         static let extrapolationHorizon = 0.1
-        static let leadLimit = 4.0
         static let holdTime = 0.15
         static let decayTime = 0.045
     }
 
-    func degrees(at time: Double) -> Double? {
+    func degrees(at time: Double, leadLimit: Double) -> Double? {
         switch self {
         case .unknown:
             nil
         case let .glide(start, target, duration):
             Self.glideAngle(start: start, target: target, duration: duration, time: time)
         case let .coast(reading, velocity, lead):
-            Self.coastAngle(reading: reading, velocity: velocity, lead: lead, time: time)
+            Self.coastAngle(reading: reading, velocity: velocity, lead: lead, time: time, leadLimit: leadLimit)
         }
     }
 
@@ -100,7 +104,7 @@ enum LidEstimate: Equatable, Sendable {
         return max(0, -velocity)
     }
 
-    func receiving(_ reading: LidReading) -> LidEstimate {
+    func receiving(_ reading: LidReading, leadLimit: Double) -> LidEstimate {
         let last: LidReading
         let velocity: Double
         let glideDuration: Double?
@@ -113,7 +117,7 @@ enum LidEstimate: Equatable, Sendable {
             shown = Self.glideAngle(start: start, target: target, duration: duration, time: reading.time)
         case let .coast(from, previousVelocity, lead):
             (last, velocity, glideDuration) = (from, previousVelocity, nil)
-            shown = Self.coastAngle(reading: from, velocity: previousVelocity, lead: lead, time: reading.time)
+            shown = Self.coastAngle(reading: from, velocity: previousVelocity, lead: lead, time: reading.time, leadLimit: leadLimit)
         }
         let interval = reading.time - last.time
         let step = reading.degrees - last.degrees
@@ -144,10 +148,10 @@ enum LidEstimate: Equatable, Sendable {
         return (start + (target.degrees - start) * share).clamped(to: 0...180)
     }
 
-    private static func coastAngle(reading: LidReading, velocity: Double, lead: Double, time: Double) -> Double {
+    private static func coastAngle(reading: LidReading, velocity: Double, lead: Double, time: Double, leadLimit: Double) -> Double {
         let age = max(0, time - reading.time)
         let ahead = (lead + velocity * min(age, Tuning.extrapolationHorizon))
-            .clamped(to: -Tuning.leadLimit...Tuning.leadLimit)
+            .clamped(to: -leadLimit...leadLimit)
         let fade = exp(-max(0, age - Tuning.holdTime) / Tuning.decayTime)
         return (reading.degrees + ahead * fade).clamped(to: 0...180)
     }

@@ -3,6 +3,8 @@ import Testing
 @testable import Kampsis
 
 struct MotionTests {
+    private let standardLead = predictionLead(EffectSettings.standard.prediction)
+
     /// кадры рендера, через которые показанный угол проходит за время `span`
     private func renderedAngles(readings: [LidReading], fps: Double, span: ClosedRange<Double>,
                                 fadeOutAngle: Double) -> [(time: Double, angle: Double, progress: Double)] {
@@ -13,10 +15,10 @@ struct MotionTests {
         for tick in Int(span.lowerBound * fps)...Int(span.upperBound * fps) {
             let moment = Double(tick) / fps
             while next < readings.count, readings[next].time <= moment + 1e-9 {
-                estimate = estimate.receiving(readings[next])
+                estimate = estimate.receiving(readings[next], leadLimit: standardLead)
                 next += 1
             }
-            guard let angle = estimate.degrees(at: moment) else { continue }
+            guard let angle = estimate.degrees(at: moment, leadLimit: standardLead) else { continue }
             smoother = smoother.approaching(foldProgress(angle: angle, fadeOutAngle: fadeOutAngle), at: moment)
             frames.append((moment, angle, smoother.value))
         }
@@ -57,13 +59,13 @@ struct MotionTests {
     func glideEndsExactlyAtLastReading(interval: Double) {
         var estimate = LidEstimate.unknown
         for step in 0...6 {
-            estimate = estimate.receiving(LidReading(degrees: 100 - Double(step), time: Double(step) * interval))
+            estimate = estimate.receiving(LidReading(degrees: 100 - Double(step), time: Double(step) * interval), leadLimit: standardLead)
         }
         let start = 6 * interval
-        var previous = estimate.degrees(at: start)!
+        var previous = estimate.degrees(at: start, leadLimit: standardLead)!
         let frameCount = Int(120 * (interval + 1))
         for index in stride(from: 1, through: frameCount, by: 1) {
-            let angle = estimate.degrees(at: start + Double(index) / 120)!
+            let angle = estimate.degrees(at: start + Double(index) / 120, leadLimit: standardLead)!
             #expect(angle >= 94, "угол ушёл дальше последнего отсчёта")
             #expect(angle <= previous + 0.00001)
             previous = angle
@@ -74,37 +76,37 @@ struct MotionTests {
     @Test func coastBridgesTenHertzReportsAndSettles() {
         var estimate = LidEstimate.unknown
         for (degrees, time) in [(120.0, 0.0), (117, 0.1), (114, 0.2)] {
-            estimate = estimate.receiving(LidReading(degrees: degrees, time: time))
+            estimate = estimate.receiving(LidReading(degrees: degrees, time: time), leadLimit: standardLead)
         }
-        #expect(abs(estimate.degrees(at: 0.25)! - 112.5) < 0.01)
-        #expect(abs(estimate.degrees(at: 0.29)! - 111.3) < 0.01)
-        #expect(abs(estimate.degrees(at: 0.7)! - 114) < 0.01)
+        #expect(abs(estimate.degrees(at: 0.25, leadLimit: standardLead)! - 112.5) < 0.01)
+        #expect(abs(estimate.degrees(at: 0.29, leadLimit: standardLead)! - 111.3) < 0.01)
+        #expect(abs(estimate.degrees(at: 0.7, leadLimit: standardLead)! - 114) < 0.01)
         #expect(abs(estimate.closingSpeed(at: 0.25) - 30) < 0.001)
         #expect(estimate.closingSpeed(at: 0.5) == 0, "устаревшая скорость не расширяет запас захвата")
 
-        estimate = estimate.receiving(LidReading(degrees: 117, time: 0.3))
-        #expect(estimate.degrees(at: 0.35)! > 117, "разворот крышки должен сразу менять направление")
+        estimate = estimate.receiving(LidReading(degrees: 117, time: 0.3), leadLimit: standardLead)
+        #expect(estimate.degrees(at: 0.35, leadLimit: standardLead)! > 117, "разворот крышки должен сразу менять направление")
 
-        estimate = estimate.receiving(LidReading(degrees: 100, time: 2))
-        #expect(estimate.degrees(at: 2.05)! == 100, "после паузы старая скорость не используется")
+        estimate = estimate.receiving(LidReading(degrees: 100, time: 2), leadLimit: standardLead)
+        #expect(estimate.degrees(at: 2.05, leadLimit: standardLead)! == 100, "после паузы старая скорость не используется")
     }
 
     @Test func predictionStaysNearTheSensor() {
         let estimate = LidEstimate.unknown
-            .receiving(LidReading(degrees: 90, time: 0))
-            .receiving(LidReading(degrees: 20, time: 0.1))
+            .receiving(LidReading(degrees: 90, time: 0), leadLimit: standardLead)
+            .receiving(LidReading(degrees: 20, time: 0.1), leadLimit: standardLead)
         for tick in 10...100 {
-            #expect((16...20).contains(estimate.degrees(at: Double(tick) / 100)!))
+            #expect((16...20).contains(estimate.degrees(at: Double(tick) / 100, leadLimit: standardLead)!))
         }
     }
 
     @Test func lateReportDoesNotReverseClosingLid() {
         let estimate = LidEstimate.unknown
-            .receiving(LidReading(degrees: 120, time: 0))
-            .receiving(LidReading(degrees: 117, time: 0.1))
+            .receiving(LidReading(degrees: 120, time: 0), leadLimit: standardLead)
+            .receiving(LidReading(degrees: 117, time: 0.1), leadLimit: standardLead)
         var previous = 117.0
         for tick in 1...14 {
-            let angle = estimate.degrees(at: 0.1 + Double(tick) / 100)!
+            let angle = estimate.degrees(at: 0.1 + Double(tick) / 100, leadLimit: standardLead)!
             #expect(angle <= previous)
             previous = angle
         }
@@ -167,6 +169,19 @@ struct MotionTests {
         #expect(foldProgress(angle: 0, fadeOutAngle: 110) == 1)
         #expect(foldProgress(angle: .nan, fadeOutAngle: 110) == 0)
         #expect(foldProgress(angle: 50, fadeOutAngle: 10) == 0)
+    }
+
+    @Test func anticipationRunsFurtherAheadOfTheSensor() {
+        var timid = LidEstimate.unknown
+        var bold = LidEstimate.unknown
+        for (degrees, time) in [(120.0, 0.0), (117, 0.1), (114, 0.2)] {
+            timid = timid.receiving(LidReading(degrees: degrees, time: time), leadLimit: predictionLead(0))
+            bold = bold.receiving(LidReading(degrees: degrees, time: time), leadLimit: predictionLead(1))
+        }
+        let exact = timid.degrees(at: 0.25, leadLimit: predictionLead(0))!
+        let ahead = bold.degrees(at: 0.25, leadLimit: predictionLead(1))!
+        #expect(exact == 114, "без опережения показывается последний отсчёт")
+        #expect(ahead < exact - 1, "смелое предугадывание уходит дальше по закрытию")
     }
 
     @Test func paceBendsProgressButKeepsItsEnds() {
@@ -238,6 +253,7 @@ struct MotionTests {
         settings.dimming = .nan
         settings.toggleShortcut = ToggleShortcut(keyCode: 0, modifiers: [.shift])
         settings.pace = 5
+        settings.prediction = 5
         let restored = settings.sanitized()
         #expect(restored.fadeOutAngle == 60)
         #expect(restored.bend == 1)
@@ -245,6 +261,7 @@ struct MotionTests {
         #expect(restored.dimming == Look.soft.dimming)
         #expect(restored.toggleShortcut == .standard)
         #expect(restored.pace == 1)
+        #expect(restored.prediction == 1)
     }
 
     @Test func settingsSurviveRelaunchAndCorruptionFallsBackToStandard() throws {

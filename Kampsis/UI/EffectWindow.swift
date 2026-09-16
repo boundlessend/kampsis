@@ -217,6 +217,13 @@ private struct EffectInspector: View {
                         .accessibilityLabel("Animation pace")
                     Text("Slower").font(.callout).foregroundStyle(.secondary)
                 }
+                Text("Anticipation").padding(.top, 8)
+                HStack(spacing: 8) {
+                    Text("Exact").font(.callout).foregroundStyle(.secondary)
+                    Slider(value: $state.settings.prediction, in: EffectSettings.predictionRange)
+                        .accessibilityLabel("Anticipation")
+                    Text("Earlier").font(.callout).foregroundStyle(.secondary)
+                }
             }
             Button("Restore Default Look") { state.settings = state.settings.resettingAppearance() }
                 .buttonStyle(.link)

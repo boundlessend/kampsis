@@ -40,9 +40,6 @@ enum EffectCommand: Equatable, Sendable {
 let lidShutAngle = 5.0
 /// запас над углом исчезновения, в котором захват ещё держится
 let captureAngleMargin = 8.0
-/// за сколько секунд до угла исчезновения начинать захват при быстром закрытии: на Mac17,3 захват
-/// запускается до первого кадра за 100-200 мс, а датчик при быстром движении отдаёт угол раз в ~100 мс
-let captureStartLead = 0.4
 /// прогресс, ниже которого эффект невидим
 let invisibleProgress = 0.001
 
@@ -51,12 +48,10 @@ func captureAllowed(_ snapshot: EffectSnapshot) -> Bool {
     guard snapshot.isOn, snapshot.screenAccess, !snapshot.suspended, snapshot.builtInDisplay else { return false }
     if snapshot.demo { return true }
     guard let angle = snapshot.measuredAngle, angle.isFinite else { return false }
-    return angle > lidShutAngle && angle < snapshot.fadeOutAngle + captureMargin(closingSpeed: snapshot.closingSpeed)
-}
-
-/// запас над углом исчезновения: постоянный, а при быстром закрытии растёт, чтобы первый кадр успел до порога
-func captureMargin(closingSpeed: Double) -> Double {
-    max(captureAngleMargin, closingSpeed * captureStartLead)
+    guard angle > lidShutAngle else { return false }
+    // крышка пошла вниз: захват прогревается сразу, чтобы первый кадр был готов к порогу
+    if snapshot.closingSpeed > 0 { return true }
+    return angle < snapshot.fadeOutAngle + captureAngleMargin
 }
 
 /// что сделать с захватом и оверлеем в текущем состоянии

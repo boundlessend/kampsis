@@ -16,10 +16,13 @@ struct DecisionTests {
         return snapshot
     }
 
-    @Test func fastClosingStartsCaptureAheadOfTheThreshold() {
-        let aboveMargin = with { $0.measuredAngle = 90; $0.fadeOutAngle = 60; $0.progress = 0 }
-        #expect(planEffect(aboveMargin) == [])
-        #expect(planEffect(with { $0.measuredAngle = 90; $0.fadeOutAngle = 60; $0.progress = 0; $0.closingSpeed = 90 }) == [.beginCapture])
+    @Test func closingLidStartsCaptureAtAnyAngle() {
+        let resting = with { $0.measuredAngle = 130; $0.fadeOutAngle = 60; $0.progress = 0 }
+        #expect(planEffect(resting) == [], "неподвижная крышка вне запаса захват не включает")
+        #expect(planEffect(with { $0.measuredAngle = 130; $0.fadeOutAngle = 60; $0.progress = 0; $0.closingSpeed = 20 })
+            == [.beginCapture], "крышка пошла вниз: захват прогревается заранее")
+        #expect(planEffect(with { $0.measuredAngle = 66; $0.fadeOutAngle = 60; $0.progress = 0 }) == [.beginCapture],
+                "в запасе над углом исчезновения захват держится и без движения")
     }
 
     @Test func captureGatesOverrideDemo() {

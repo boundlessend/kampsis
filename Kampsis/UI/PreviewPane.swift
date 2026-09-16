@@ -39,7 +39,8 @@ struct PreviewPane: NSViewRepresentable {
         let measuredAngle = state.measuredAngle
         let reduceMotion = reduceMotion
         renderer.inputs = { [state] in
-            let liveAngle = usesLid ? (state.lidEstimate.degrees(at: CACurrentMediaTime()) ?? measuredAngle) : nil
+            let lead = predictionLead(settings.prediction)
+            let liveAngle = usesLid ? (state.lidEstimate.degrees(at: CACurrentMediaTime(), leadLimit: lead) ?? measuredAngle) : nil
             return FoldInputs(
                 progress: previewProgress(usesLid: usesLid, manualAngle: manualAngle,
                                           liveAngle: liveAngle, fadeOutAngle: settings.fadeOutAngle),

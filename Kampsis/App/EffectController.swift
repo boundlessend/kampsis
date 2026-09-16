@@ -167,7 +167,7 @@ import ServiceManagement
     // MARK: события
 
     private func receive(_ reading: LidReading) {
-        state.lidEstimate = state.lidEstimate.receiving(reading)
+        state.lidEstimate = state.lidEstimate.receiving(reading, leadLimit: predictionLead(state.settings.prediction))
         state.measuredAngle = reading.degrees
         lastLidMovement = reading.time
         quietRecheck?.cancel()
@@ -296,7 +296,8 @@ import ServiceManagement
     /// для кадра берётся угол, предсказанный между отсчётами датчика
     private func predictedProgress(at time: Double) -> Double {
         if state.demoRunning { return demoValue }
-        guard state.settings.isOn, !state.suspended, let angle = state.lidEstimate.degrees(at: time) else { return 0 }
+        guard state.settings.isOn, !state.suspended,
+              let angle = state.lidEstimate.degrees(at: time, leadLimit: predictionLead(state.settings.prediction)) else { return 0 }
         return foldProgress(angle: angle, fadeOutAngle: state.settings.fadeOutAngle)
     }
 
