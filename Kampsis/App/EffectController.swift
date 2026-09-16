@@ -14,6 +14,10 @@ import ServiceManagement
     private static let stopDelay: Duration = .milliseconds(300)
     private static let firstFrameTimeout = 2.0
     private static let demoCaptureTimeout = 3.0
+    /// сколько раз подряд поток поднимается заново, прежде чем сбой показывается человеку
+    private static let restartLimit = 2
+    /// поток, проживший столько, считается здоровым: следующий сбой это новый случай
+    private static let healthyCapture = 60.0
 
     let state = AppState(store: .standard)
     let sensor = LidReader()
@@ -33,6 +37,8 @@ import ServiceManagement
     private var demoValue = 0.0
     private var isOnBeforeDemo: Bool?
     private var captureFailed = false
+    private var restartsLeft = EffectController.restartLimit
+    private var captureRunningSince = Double.infinity
     private var lastLidMovement = -Double.infinity
     private var chimeLatch = ChimeLatch.disarmed
     private var machineAsleep = false
@@ -83,7 +89,7 @@ import ServiceManagement
 
     func retry() {
         state.problem = metalProblem
-        captureFailed = false
+        allowCaptureAgain()
         sensor.stop()
         state.lidEstimate = .unknown
         if state.settings.isOn, !state.suspended { sensor.start() }
@@ -136,7 +142,7 @@ import ServiceManagement
     func beginDemo() {
         guard state.screenAccess, !state.suspended, !state.demoRunning else { return }
         state.problem = nil
-        captureFailed = false
+        allowCaptureAgain()
         isOnBeforeDemo = state.settings.isOn
         demoValue = 0
         state.demoRunning = true
@@ -227,7 +233,7 @@ import ServiceManagement
         state.screenAccess = granted
         if granted {
             state.problem = nil
-            captureFailed = false
+            allowCaptureAgain()
         } else {
             endDemo()
             endCapture()
@@ -245,7 +251,7 @@ import ServiceManagement
             state.lidEstimate = .unknown
         } else {
             state.problem = metalProblem
-            captureFailed = false
+            allowCaptureAgain()
             if state.settings.isOn { sensor.start() }
             refreshScreenAccess()
             reevaluate()
@@ -262,6 +268,8 @@ import ServiceManagement
         observe(distributed, Notification.Name("com.apple.screenIsLocked")) { $0.sessionLocked = true; $0.applySleepState() }
         observe(distributed, Notification.Name("com.apple.screenIsUnlocked")) { $0.sessionLocked = false; $0.applySleepState() }
         observe(.default, NSApplication.didChangeScreenParametersNotification) { controller in
+            // список экранов сменился: сбой «нет экрана для захвата» больше не актуален
+            controller.allowCaptureAgain()
             controller.endCapture()
             _ = controller.after(.milliseconds(400)) { $0.reevaluate() }
         }
@@ -354,13 +362,14 @@ import ServiceManagement
             guard let self else { return }
             do {
                 let visibleWindows = NSApp.windows.filter { $0.isVisible && $0 !== self.overlay?.panel }
-                try await self.stream.start(showing: visibleWindows) { [weak self] message in
+                try await self.stream.start(showing: visibleWindows) { [weak self] trouble in
                     guard let self, self.captureSession == session else { return }
-                    self.failCapture(message)
+                    self.failCapture(trouble)
                 }
                 try await self.waitForFirstFrame()
                 guard self.captureSession == session else { return }
                 self.phase = .running
+                self.captureRunningSince = CACurrentMediaTime()
                 self.state.capturing = true
                 self.captureJob = nil
                 self.reevaluate()
@@ -369,7 +378,7 @@ import ServiceManagement
             } catch {
                 guard self.captureSession == session else { return }
                 self.captureJob = nil
-                self.failCapture(error.localizedDescription)
+                self.failCapture(captureTrouble(error))
             }
         }
     }
@@ -391,16 +400,37 @@ import ServiceManagement
             self.overlay?.renderer.reset()
             self.captureJob = nil
             self.phase = .idle
+            self.captureRunningSince = .infinity
             self.reevaluate()
         }
     }
 
-    private func failCapture(_ message: String) {
-        Self.log.error("capture failed: \(message, privacy: .public)")
+    /// сбой захвата: восстановимый поднимается заново, пока не кончились попытки, иначе эффект встаёт до вмешательства
+    private func failCapture(_ trouble: CaptureTrouble) {
+        if CACurrentMediaTime() - captureRunningSince > Self.healthyCapture { restartsLeft = Self.restartLimit }
+        if trouble.recovery == .restart, restartsLeft > 0 {
+            restartsLeft -= 1
+            Self.log.error("""
+            capture restarting: message=\(trouble.message, privacy: .public) \
+            attemptsLeft=\(self.restartsLeft, privacy: .public)
+            """)
+            endCapture()
+            return
+        }
+        Self.log.error("""
+        capture failed: message=\(trouble.message, privacy: .public) \
+        recovery=\(String(describing: trouble.recovery), privacy: .public)
+        """)
         captureFailed = true
-        state.problem = String(localized: "Couldn’t show the desktop: \(message)")
+        state.problem = String(localized: "Couldn’t show the desktop: \(trouble.message)")
         endDemo()
         endCapture()
+    }
+
+    /// разрешает новые попытки захвата: условия изменились, прежний сбой больше ничего не говорит
+    private func allowCaptureAgain() {
+        captureFailed = false
+        restartsLeft = Self.restartLimit
     }
 
     private func waitForFirstFrame() async throws {
@@ -473,7 +503,8 @@ import ServiceManagement
                                   reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
             }
         } catch {
-            failCapture(error.localizedDescription)
+            // шейдер не собрался: перезапуск захвата этого не исправит
+            failCapture(CaptureTrouble(message: error.localizedDescription, recovery: .blocked))
             return nil
         }
         let panel = NSPanel(contentRect: frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)

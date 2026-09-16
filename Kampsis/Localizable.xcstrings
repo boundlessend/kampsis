@@ -1123,6 +1123,26 @@
         }
       }
     },
+    "Screen capture didn’t start." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Захват экрана не запустился."
+          }
+        }
+      }
+    },
+    "Screen capture was stopped from the menu bar." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Захват экрана остановили из строки меню."
+          }
+        }
+      }
+    },
     "Sensor" : {
       "localizations" : {
         "ru" : {
@@ -1553,6 +1573,16 @@
         }
       }
     },
+    "macOS didn’t allow screen recording." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS не разрешила запись экрана."
+          }
+        }
+      }
+    },
     "macOS didn’t send a screen image. Check screen recording access and try again." : {
       "localizations" : {
         "ru" : {
@@ -1563,12 +1593,32 @@
         }
       }
     },
+    "macOS has no display to capture right now." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас у macOS нет экрана для захвата."
+          }
+        }
+      }
+    },
     "macOS may have remembered the permission for another copy of %@.\n\n1. Open Screen Recording in Privacy & Security settings.\n2. Select %@ and remove it with the “−” button.\n3. Add the installed app with the “+” button and turn access on.\n4. Restart %@ if macOS asks." : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "macOS могла запомнить разрешение для другой копии %@.\n\n1. Откройте раздел «Запись экрана» в настройках конфиденциальности.\n2. Выделите %@ и удалите кнопкой «−».\n3. Добавьте установленное приложение кнопкой «+» и включите доступ.\n4. Перезапустите %@, если macOS попросит."
+          }
+        }
+      }
+    },
+    "macOS stopped the screen capture." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS остановила захват экрана."
           }
         }
       }

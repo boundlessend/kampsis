@@ -52,6 +52,58 @@ enum CaptureFailure: LocalizedError {
         case .noFrames: String(localized: "macOS didn’t send a screen image. Check screen recording access and try again.")
         }
     }
+
+    var recovery: CaptureRecovery {
+        switch self {
+        case .noBuiltInDisplay, .appNotListed: .blocked
+        case .noFrames: .restart
+        }
+    }
+}
+
+/// что делать после сбоя захвата
+enum CaptureRecovery: Equatable, Sendable {
+    /// поток уронила система или соединение: новая попытка может помочь
+    case restart
+    /// пока условия не изменятся, повторять бессмысленно
+    case blocked
+}
+
+/// разобранный сбой захвата: что сказать человеку и стоит ли пробовать снова
+struct CaptureTrouble: Equatable, Sendable {
+    let message: String
+    let recovery: CaptureRecovery
+}
+
+/// разбирает сбой захвата: свои ошибки знают решение сами, у ScreenCaptureKit решение по коду
+func captureTrouble(_ error: any Error) -> CaptureTrouble {
+    if let failure = error as? CaptureFailure {
+        return CaptureTrouble(message: failure.localizedDescription, recovery: failure.recovery)
+    }
+    let system = error as NSError
+    guard system.domain == SCStreamErrorDomain, let code = SCStreamError.Code(rawValue: system.code) else {
+        return CaptureTrouble(message: error.localizedDescription, recovery: .restart)
+    }
+    return captureTrouble(code, systemMessage: error.localizedDescription)
+}
+
+/// сообщение и решение по коду ScreenCaptureKit; незнакомый код идёт с системным описанием
+func captureTrouble(_ code: SCStreamError.Code, systemMessage: String) -> CaptureTrouble {
+    switch code {
+    case .userDeclined, .missingEntitlements:
+        CaptureTrouble(message: String(localized: "macOS didn’t allow screen recording."), recovery: .blocked)
+    case .userStopped:
+        CaptureTrouble(message: String(localized: "Screen capture was stopped from the menu bar."), recovery: .blocked)
+    case .noDisplayList, .noWindowList, .noCaptureSource:
+        CaptureTrouble(message: String(localized: "macOS has no display to capture right now."), recovery: .blocked)
+    case .systemStoppedStream:
+        CaptureTrouble(message: String(localized: "macOS stopped the screen capture."), recovery: .restart)
+    case .failedToStart, .internalError, .failedApplicationConnectionInvalid,
+         .failedApplicationConnectionInterrupted, .failedNoMatchingApplicationContext:
+        CaptureTrouble(message: String(localized: "Screen capture didn’t start."), recovery: .restart)
+    default:
+        CaptureTrouble(message: systemMessage, recovery: .restart)
+    }
 }
 
 /// номера окон AppKit, пригодные для фильтра захвата
@@ -77,7 +129,7 @@ func capturableWindowIDs(_ windowNumbers: [Int]) -> Set<CGWindowID> {
     }
 
     /// окна `showing` остаются на снимке, хотя остальные окна приложения исключены
-    func start(showing windows: [NSWindow], onStop: @escaping @MainActor @Sendable (String) -> Void) async throws {
+    func start(showing windows: [NSWindow], onStop: @escaping @MainActor @Sendable (CaptureTrouble) -> Void) async throws {
         guard activeStream == nil else { return }
         guard let screen = Self.builtInDisplay(), let displayID = Self.displayID(of: screen) else {
             throw CaptureFailure.noBuiltInDisplay
@@ -148,9 +200,9 @@ private let captureLog = Logger(subsystem: "io.github.boundlessend.kampsis", cat
 
 private final class FrameReceiver: NSObject, SCStreamOutput, SCStreamDelegate, Sendable {
     private let frames: FrameSlot
-    private let onStop: @MainActor @Sendable (String) -> Void
+    private let onStop: @MainActor @Sendable (CaptureTrouble) -> Void
 
-    init(frames: FrameSlot, onStop: @escaping @MainActor @Sendable (String) -> Void) {
+    init(frames: FrameSlot, onStop: @escaping @MainActor @Sendable (CaptureTrouble) -> Void) {
         self.frames = frames
         self.onStop = onStop
     }
@@ -162,9 +214,12 @@ private final class FrameReceiver: NSObject, SCStreamOutput, SCStreamDelegate, S
     }
 
     func stream(_ stream: SCStream, didStopWithError error: any Error) {
-        let reason = error.localizedDescription
-        captureLog.error("capture stream stopped: \(reason, privacy: .public)")
-        DispatchQueue.main.async { [onStop] in MainActor.assumeIsolated { onStop(reason) } }
+        let trouble = captureTrouble(error)
+        captureLog.error("""
+        capture stream stopped: recovery=\(String(describing: trouble.recovery), privacy: .public) \
+        message=\(trouble.message, privacy: .public) raw=\(error.localizedDescription, privacy: .public)
+        """)
+        DispatchQueue.main.async { [onStop] in MainActor.assumeIsolated { onStop(trouble) } }
     }
 
     /// ScreenCaptureKit шлёт и служебные буферы без нового изображения

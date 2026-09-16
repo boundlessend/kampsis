@@ -1,3 +1,4 @@
+import ScreenCaptureKit
 import Testing
 @testable import Kampsis
 
@@ -89,6 +90,34 @@ struct DecisionTests {
     @Test func demoCapturesWithoutLidAngle() {
         #expect(planEffect(with { $0.measuredAngle = nil; $0.movedRecently = false; $0.progress = 0.2; $0.demo = true })
             == [.beginCapture])
+    }
+
+    @Test func captureTroublesSplitIntoRestartAndBlocked() {
+        let blocked: [SCStreamError.Code] = [.userDeclined, .missingEntitlements, .userStopped,
+                                             .noDisplayList, .noWindowList, .noCaptureSource]
+        for code in blocked {
+            let trouble = captureTrouble(code, systemMessage: "системное описание")
+            #expect(trouble.recovery == .blocked, "\(code)")
+            #expect(trouble.message != "системное описание", "у известного кода своё сообщение: \(code)")
+        }
+        let restarted: [SCStreamError.Code] = [.systemStoppedStream, .failedToStart, .internalError,
+                                               .failedApplicationConnectionInvalid,
+                                               .failedApplicationConnectionInterrupted,
+                                               .failedNoMatchingApplicationContext]
+        for code in restarted {
+            #expect(captureTrouble(code, systemMessage: "системное описание").recovery == .restart, "\(code)")
+        }
+        #expect(captureTrouble(.invalidParameter, systemMessage: "системное описание")
+            == CaptureTrouble(message: "системное описание", recovery: .restart), "незнакомый код идёт как есть")
+    }
+
+    @Test func ownCaptureFailuresCarryTheirOwnRecovery() {
+        #expect(captureTrouble(CaptureFailure.noBuiltInDisplay).recovery == .blocked)
+        #expect(captureTrouble(CaptureFailure.appNotListed).recovery == .blocked)
+        #expect(captureTrouble(CaptureFailure.noFrames).recovery == .restart)
+        let fromSystem = NSError(domain: SCStreamErrorDomain, code: SCStreamError.Code.userDeclined.rawValue)
+        #expect(captureTrouble(fromSystem).recovery == .blocked, "код ScreenCaptureKit разбирается из NSError")
+        #expect(captureTrouble(CocoaError(.fileNoSuchFile)).recovery == .restart, "чужая ошибка: пробуем ещё раз")
     }
 
     @Test func pointerIsHiddenOnceAndShownOnlyByUs() {
