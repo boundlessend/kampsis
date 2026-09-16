@@ -1,5 +1,5 @@
-## Что меняется
+## What changes
 
-## Как проверено
+## How it was checked
 
-Команды, железо (если важно) и что осталось непроверенным.
+Commands, hardware (if it matters) and what is left unchecked.

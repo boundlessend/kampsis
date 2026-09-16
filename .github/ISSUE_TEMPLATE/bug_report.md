@@ -1,21 +1,21 @@
 ---
-name: Ошибка
-about: Что-то работает не так, и это можно повторить
+name: Bug
+about: Something behaves wrong and can be reproduced
 labels: bug
 ---
 
-**Mac и система:** модель (например, Mac17,3), версия macOS
+**Mac and system:** model (for example Mac17,3), macOS version
 
-**Версия Kampsis и откуда она:** DMG или своя сборка
+**Kampsis version and where it came from:** DMG or your own build
 
-**Где проявляется:** предпросмотр, демонстрация на экране, движение крышки
+**Where it shows up:** preview, demo on the screen, lid movement
 
-**Шаги:**
+**Steps:**
 
 1.
 
-**Что ожидали и что получилось:**
+**What you expected and what happened:**
 
-**Настройки эффекта:** стиль, изгиб, размытие, затемнение, угол исчезновения
+**Effect settings:** style, bend, blur, dimming, fade-out angle
 
-Снимки экрана прикладывайте только без личного содержимого. Раздел «Состояние» в общих настройках и вывод `scripts/diagnose-lid.sh` помогают больше всего.
+Attach screenshots only without personal content. The Status section in General Settings and the output of `scripts/diagnose-lid.sh` help the most.
