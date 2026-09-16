@@ -26,7 +26,7 @@ func chimeWAV() -> Data {
 }
 
 @MainActor final class ChimePlayer {
-    private static let log = Logger(subsystem: "io.github.boundlessend.lidfold", category: "chime")
+    private static let log = Logger(subsystem: "io.github.boundlessend.kampsis", category: "chime")
     private let sound = chimeWAV()
     private var player: AVAudioPlayer?
 

@@ -6,7 +6,7 @@ enum AppIdentity {
     static var name: String { infoValue("CFBundleName") }
     static var version: String { infoValue("CFBundleShortVersionString") }
     static var build: String { infoValue("CFBundleVersion") }
-    static var releasesRepository: String { infoValue("LidfoldReleasesRepository") }
+    static var releasesRepository: String { infoValue("KampsisReleasesRepository") }
 
     private static func infoValue(_ key: String) -> String {
         guard let value = Bundle.main.object(forInfoDictionaryKey: key) as? String else {

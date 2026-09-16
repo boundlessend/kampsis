@@ -7,8 +7,8 @@ usage='Использование: scripts/test.sh unit|all'
 root=${0:A:h:h}
 case $1 in
   unit)
-    selection=(-only-testing:LidfoldTests/MotionTests -only-testing:LidfoldTests/DecisionTests
-               -only-testing:LidfoldTests/HardwareTests -only-testing:LidfoldTests/ReleaseTests)
+    selection=(-only-testing:KampsisTests/MotionTests -only-testing:KampsisTests/DecisionTests
+               -only-testing:KampsisTests/HardwareTests -only-testing:KampsisTests/ReleaseTests)
     ;;
   all)
     selection=()
@@ -20,8 +20,8 @@ command -v xcodegen >/dev/null || { print -u2 'нужен XcodeGen: brew install
 
 cd $root
 xcodegen generate --quiet
-derived=${LIDFOLD_DERIVED_DATA:-$(mktemp -d ${TMPDIR:-/tmp}/LidfoldTests.XXXXXX)}
-results=${LIDFOLD_TEST_RESULTS:-$derived/Tests.xcresult}
-xcodebuild -project Lidfold.xcodeproj -scheme Lidfold -configuration Release \
+derived=${KAMPSIS_DERIVED_DATA:-$(mktemp -d ${TMPDIR:-/tmp}/KampsisTests.XXXXXX)}
+results=${KAMPSIS_TEST_RESULTS:-$derived/Tests.xcresult}
+xcodebuild -project Kampsis.xcodeproj -scheme Kampsis -configuration Release \
   -destination 'platform=macOS,arch=arm64' -derivedDataPath $derived -resultBundlePath $results \
   -testLanguage en CODE_SIGNING_ALLOWED=NO ENABLE_TESTABILITY=YES $selection test

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Lidfold
+@testable import Kampsis
 
 struct MotionTests {
     /// кадры рендера, через которые показанный угол проходит за время `span`
@@ -248,7 +248,7 @@ struct MotionTests {
     }
 
     @Test func settingsSurviveRelaunchAndCorruptionFallsBackToStandard() throws {
-        let suite = "LidfoldTests.\(UUID().uuidString)"
+        let suite = "KampsisTests.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
         #expect(loadSettings(from: defaults) == .standard)

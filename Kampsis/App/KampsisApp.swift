@@ -6,7 +6,7 @@ enum SceneID {
     static let general = "general"
 }
 
-@main struct LidfoldApp: App {
+@main struct KampsisApp: App {
     @NSApplicationDelegateAdaptor(LaunchDelegate.self) private var launch
     private let controller = EffectController.shared
 

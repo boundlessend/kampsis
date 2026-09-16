@@ -7,16 +7,16 @@ set -euo pipefail
 umask 077
 
 root=${0:A:h:h}
-private_dir=${LIDFOLD_SIGNING_DIR:-$HOME/Library/Application Support/Lidfold/Signing}
-certificate=$root/signing/lidfold-release.crt
-service=io.github.boundlessend.lidfold.signing
+private_dir=${KAMPSIS_SIGNING_DIR:-$HOME/Library/Application Support/Kampsis/Signing}
+certificate=$root/signing/kampsis-release.crt
+service=io.github.boundlessend.kampsis.signing
 
 [[ ! -e $certificate && ! -e $private_dir/identity.p12 ]] || {
   print -u2 'Сертификат выпусков уже есть. Восстановите его закрытую часть, новый создавать нельзя.'
   exit 2
 }
 
-stage=$(mktemp -d ${TMPDIR:-/tmp}/LidfoldIdentity.XXXXXX)
+stage=$(mktemp -d ${TMPDIR:-/tmp}/KampsisIdentity.XXXXXX)
 trap 'rm -rf $stage' EXIT
 cat > $stage/openssl.cnf <<'EOF'
 [req]
@@ -24,8 +24,8 @@ prompt = no
 distinguished_name = release_name
 x509_extensions = release_extensions
 [release_name]
-CN = Lidfold Release Signing
-O = Lidfold
+CN = Kampsis Release Signing
+O = Kampsis
 [release_extensions]
 basicConstraints = critical,CA:FALSE
 keyUsage = critical,digitalSignature
@@ -34,7 +34,7 @@ EOF
 /usr/bin/openssl rand -base64 48 > $stage/password
 /usr/bin/openssl req -x509 -new -newkey rsa:3072 -nodes -days 7300 -config $stage/openssl.cnf \
   -keyout $stage/key.pem -out $stage/certificate.pem
-/usr/bin/openssl pkcs12 -export -name 'Lidfold Release Signing' -inkey $stage/key.pem -in $stage/certificate.pem \
+/usr/bin/openssl pkcs12 -export -name 'Kampsis Release Signing' -inkey $stage/key.pem -in $stage/certificate.pem \
   -out $stage/identity.p12 -passout file:$stage/password
 security add-generic-password -a release -s $service -w "$(cat $stage/password)" -T /usr/bin/security
 

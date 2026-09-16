@@ -74,7 +74,7 @@ enum ThumbnailFailure: LocalizedError {
     static let height = 200
     static let progress = 0.32
 
-    private static let log = Logger(subsystem: "io.github.boundlessend.lidfold", category: "thumbnails")
+    private static let log = Logger(subsystem: "io.github.boundlessend.kampsis", category: "thumbnails")
     private static var cache: [Look: NSImage] = [:]
 
     /// для интерфейса: при сбое пишет в лог и возвращает nil, плитка покажет заглушку

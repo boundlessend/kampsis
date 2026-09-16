@@ -1,5 +1,5 @@
 import Testing
-@testable import Lidfold
+@testable import Kampsis
 
 struct HardwareTests {
     private final class FakeSensor {

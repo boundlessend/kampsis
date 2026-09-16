@@ -28,7 +28,7 @@ text_size = 13
 label_pos = "bottom"
 hide_extensions = ["Установка.html"]
 icon_locations = {
-    "Lidfold.app": (170, 210),
+    "Kampsis.app": (170, 210),
     "Программы": (470, 210),
     "Установка.html": (320, 310),
 }

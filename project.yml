@@ -1,4 +1,4 @@
-name: Lidfold
+name: Kampsis
 options:
   bundleIdPrefix: io.github.boundlessend
   developmentLanguage: en
@@ -17,35 +17,35 @@ settings:
     # отдельная debug-библиотека ломает загрузку тестов через BUNDLE_LOADER
     ENABLE_DEBUG_DYLIB: NO
 targets:
-  Lidfold:
+  Kampsis:
     type: application
     platform: macOS
     sources:
-      - Lidfold
+      - Kampsis
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.github.boundlessend.lidfold
-        INFOPLIST_FILE: Lidfold/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.boundlessend.kampsis
+        INFOPLIST_FILE: Kampsis/Info.plist
         GENERATE_INFOPLIST_FILE: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_STYLE: Automatic
-  LidfoldTests:
+  KampsisTests:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - LidfoldTests
+      - KampsisTests
     dependencies:
-      - target: Lidfold
+      - target: Kampsis
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Lidfold.app/Contents/MacOS/Lidfold"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Kampsis.app/Contents/MacOS/Kampsis"
         BUNDLE_LOADER: "$(TEST_HOST)"
 schemes:
-  Lidfold:
+  Kampsis:
     build:
       targets:
-        Lidfold: all
+        Kampsis: all
     test:
       targets:
-        - LidfoldTests
+        - KampsisTests

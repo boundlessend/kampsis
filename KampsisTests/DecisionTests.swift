@@ -1,5 +1,5 @@
 import Testing
-@testable import Lidfold
+@testable import Kampsis
 
 struct DecisionTests {
     /// крышка приоткрыта до 80°, всё разрешено, захвата ещё нет

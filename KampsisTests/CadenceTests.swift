@@ -3,7 +3,7 @@ import CoreVideo
 import Metal
 import MetalKit
 import Testing
-@testable import Lidfold
+@testable import Kampsis
 
 /// плавность на реальном встроенном экране: запускается только на MacBook, анимация закрывает экран на ~10 с
 @MainActor @Suite(.serialized) struct CadenceTests {

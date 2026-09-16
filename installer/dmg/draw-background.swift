@@ -36,7 +36,7 @@ func caption(_ text: String, top: CGFloat, size: CGFloat, weight: NSFont.Weight,
     ]).draw(in: CGRect(x: 20, y: top, width: window.width - 40, height: size * 1.5))
 }
 
-caption("Lidfold", top: 34, size: 30, weight: .bold, shade: 0.12)
+caption("Kampsis", top: 34, size: 30, weight: .bold, shade: 0.12)
 caption("Перетащите значок в папку «Программы»", top: 84, size: 16, weight: .regular, shade: 0.36)
 caption("Как открыть в первый раз и дать доступ к экрану, написано в файле «Установка»", top: 396,
         size: 13, weight: .regular, shade: 0.42)

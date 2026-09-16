@@ -1,10 +1,10 @@
 import Foundation
 import Testing
-@testable import Lidfold
+@testable import Kampsis
 
 struct ReleaseTests {
     private func release(_ tag: String) -> PublishedRelease {
-        PublishedRelease(tagName: tag, pageURL: URL(string: "https://github.com/boundlessend/lidfold/releases/tag/\(tag)")!,
+        PublishedRelease(tagName: tag, pageURL: URL(string: "https://github.com/boundlessend/kampsis/releases/tag/\(tag)")!,
                          notes: nil)
     }
 
@@ -31,8 +31,8 @@ struct ReleaseTests {
 
     @Test func githubResponseDecodes() throws {
         let body = Data("""
-        {"url": "https://api.github.com/repos/boundlessend/lidfold/releases/1", "tag_name": "v0.2.0",
-         "html_url": "https://github.com/boundlessend/lidfold/releases/tag/v0.2.0", "body": "Исправления", "draft": false}
+        {"url": "https://api.github.com/repos/boundlessend/kampsis/releases/1", "tag_name": "v0.2.0",
+         "html_url": "https://github.com/boundlessend/kampsis/releases/tag/v0.2.0", "body": "Исправления", "draft": false}
         """.utf8)
         let decoded = try JSONDecoder().decode(PublishedRelease.self, from: body)
         #expect(decoded.tagName == "v0.2.0")

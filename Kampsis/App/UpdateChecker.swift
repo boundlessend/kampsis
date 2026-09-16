@@ -4,7 +4,7 @@ import os
 
 /// проверка новых выпусков на GitHub: вручную из меню или раз в сутки, если пользователь включил
 @MainActor @Observable final class UpdateChecker {
-    private static let log = Logger(subsystem: "io.github.boundlessend.lidfold", category: "updates")
+    private static let log = Logger(subsystem: "io.github.boundlessend.kampsis", category: "updates")
     private static let automaticKey = "automatic-update-checks"
     private static let lastCheckKey = "last-update-check"
     private static let checkInterval: TimeInterval = 24 * 60 * 60

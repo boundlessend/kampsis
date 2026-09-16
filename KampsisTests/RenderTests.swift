@@ -4,7 +4,7 @@ import Metal
 import MetalKit
 import SwiftUI
 import Testing
-@testable import Lidfold
+@testable import Kampsis
 
 /// отрисованный кадр BGRA; в тестах источники серые, поэтому яркость читается из одного канала
 private struct RenderedFrame {
@@ -86,7 +86,7 @@ private func contrast(_ values: [Int]) -> Double {
         return RenderedFrame(width: width, height: height, bgra: bgra)
     }
 
-    /// PNG для глазной проверки: $TMPDIR/LidfoldRenderTests
+    /// PNG для глазной проверки: $TMPDIR/KampsisRenderTests
     private func keep(_ frame: RenderedFrame, as name: String) throws {
         var bgra = frame.bgra
         let data = try bgra.withUnsafeMutableBytes { raw -> Data in
@@ -97,7 +97,7 @@ private func contrast(_ values: [Int]) -> Double {
             let image = try #require(context.makeImage())
             return try #require(NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:]))
         }
-        let folder = URL.temporaryDirectory.appending(path: "LidfoldRenderTests", directoryHint: .isDirectory)
+        let folder = URL.temporaryDirectory.appending(path: "KampsisRenderTests", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         try data.write(to: folder.appending(path: "\(name).png"))
     }
@@ -156,7 +156,7 @@ private func contrast(_ values: [Int]) -> Double {
     }
 
     @Test func swiftUIPreviewWakesAfterSliderAndStyleChanges() async throws {
-        let suite = "LidfoldPreviewTests.\(UUID().uuidString)"
+        let suite = "KampsisPreviewTests.\(UUID().uuidString)"
         let store = try #require(UserDefaults(suiteName: suite))
         defer { store.removePersistentDomain(forName: suite) }
         let state = AppState(store: store)

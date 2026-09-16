@@ -1,5 +1,5 @@
 // рисует временную иконку приложения во все размеры набора AppIcon
-// запуск: swift scripts/draw-icon.swift Lidfold/Assets.xcassets/AppIcon.appiconset
+// запуск: swift scripts/draw-icon.swift Kampsis/Assets.xcassets/AppIcon.appiconset
 import AppKit
 
 guard CommandLine.arguments.count == 2 else {

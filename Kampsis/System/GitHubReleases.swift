@@ -23,7 +23,7 @@ enum GitHubReleasesFailure: LocalizedError {
 
 /// коннектор к GitHub Releases API: узнаёт последний опубликованный выпуск
 final class GitHubReleases: Sendable {
-    private static let log = Logger(subsystem: "io.github.boundlessend.lidfold", category: "updates")
+    private static let log = Logger(subsystem: "io.github.boundlessend.kampsis", category: "updates")
     private static let attempts = 3
 
     let repository: String
@@ -46,7 +46,7 @@ final class GitHubReleases: Sendable {
         var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 20)
         request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         request.setValue("2022-11-28", forHTTPHeaderField: "X-GitHub-Api-Version")
-        request.setValue("Lidfold", forHTTPHeaderField: "User-Agent")
+        request.setValue("Kampsis", forHTTPHeaderField: "User-Agent")
 
         var attempt = 1
         while true {

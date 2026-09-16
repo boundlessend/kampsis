@@ -3,12 +3,12 @@
 set -euo pipefail
 umask 077
 
-(( $# == 1 )) || { print -u2 'Использование: scripts/sign-selfsigned.sh Lidfold.app'; exit 2 }
+(( $# == 1 )) || { print -u2 'Использование: scripts/sign-selfsigned.sh Kampsis.app'; exit 2 }
 root=${0:A:h:h}
 app=${1:A}
-private_dir=${LIDFOLD_SIGNING_DIR:-$HOME/Library/Application Support/Lidfold/Signing}
-certificate=$root/signing/lidfold-release.crt
-service=io.github.boundlessend.lidfold.signing
+private_dir=${KAMPSIS_SIGNING_DIR:-$HOME/Library/Application Support/Kampsis/Signing}
+certificate=$root/signing/kampsis-release.crt
+service=io.github.boundlessend.kampsis.signing
 
 [[ -f $certificate && -f $private_dir/identity.p12 ]] || {
   print -u2 "Нет сертификата выпусков: нужны $certificate и $private_dir/identity.p12."
@@ -16,7 +16,7 @@ service=io.github.boundlessend.lidfold.signing
   exit 2
 }
 
-stage=$(mktemp -d ${TMPDIR:-/tmp}/LidfoldSign.XXXXXX)
+stage=$(mktemp -d ${TMPDIR:-/tmp}/KampsisSign.XXXXXX)
 trap 'rm -rf $stage' EXIT
 security find-generic-password -a release -s $service -w > $stage/password
 /usr/bin/openssl pkcs12 -in $private_dir/identity.p12 -passin file:$stage/password -clcerts -nokeys \

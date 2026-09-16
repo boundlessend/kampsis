@@ -4,7 +4,7 @@ import Metal
 import os
 import QuartzCore
 
-private let renderLog = Logger(subsystem: "io.github.boundlessend.lidfold", category: "render")
+private let renderLog = Logger(subsystem: "io.github.boundlessend.kampsis", category: "render")
 
 /// параметры одного кадра эффекта
 struct FoldInputs: Equatable, Sendable {
