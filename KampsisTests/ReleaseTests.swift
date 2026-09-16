@@ -40,6 +40,17 @@ struct ReleaseTests {
         #expect(decoded.pageURL.host() == "github.com")
     }
 
+    @Test func bundleCarriesPrivacyManifest() throws {
+        let url = try #require(Bundle.main.url(forResource: "PrivacyInfo", withExtension: "xcprivacy"),
+                               "манифест приватности не попал в сборку")
+        let manifest = try PropertyListSerialization.propertyList(from: Data(contentsOf: url), options: [], format: nil)
+        let fields = try #require(manifest as? [String: Any])
+        #expect(fields["NSPrivacyTracking"] as? Bool == false)
+        #expect((fields["NSPrivacyTrackingDomains"] as? [Any])?.isEmpty == true)
+        #expect((fields["NSPrivacyCollectedDataTypes"] as? [Any])?.isEmpty == true)
+        #expect((fields["NSPrivacyAccessedAPITypes"] as? [Any])?.isEmpty == false, "причины доступа к API не указаны")
+    }
+
     @Test func repositoryMustLookLikeOwnerAndName() {
         #expect(throws: GitHubReleasesFailure.self) { try GitHubReleases(repository: "not a repo", session: .shared) }
         #expect(throws: GitHubReleasesFailure.self) { try GitHubReleases(repository: "owner/name/extra", session: .shared) }
