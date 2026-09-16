@@ -111,6 +111,8 @@ To investigate hardware problems the app can be launched with `--diagnostics /pa
 
 ScreenCaptureKit only sends a frame when the picture changes, so `frames: none` on a still desktop is normal, not a failure.
 
+Screen recording permission belongs to the app responsible for the process, and for a command started in a terminal that is the terminal itself. So `granted` in the check can mean the terminal's permission rather than the app's. To see what the app itself is allowed, launch Kampsis normally and read the status line, or `--diagnostics`.
+
 ### Release certificate
 
 macOS ties screen recording permission to the app signature. So that updates do not reset that permission, every release is signed with one self-signed certificate, without changing system trust.
