@@ -1,4 +1,4 @@
-# настройки dmgbuild: окно Finder с приложением, ярлыком «Программы» и инструкцией
+# настройки dmgbuild: окно Finder с приложением, ярлыком Applications и инструкцией
 # пути приходят из scripts/build-dmg.sh через -D app=... -D assets=...
 from pathlib import Path
 
@@ -7,8 +7,8 @@ assets = Path(defines["assets"])
 
 format = "UDZO"
 filesystem = "HFS+"
-files = [str(app), (str(assets / "guide.html"), "Установка.html")]
-symlinks = {"Программы": "/Applications"}
+files = [str(app), (str(assets / "guide.html"), "Install.html")]
+symlinks = {"Applications": "/Applications"}
 icon = str(app / "Contents/Resources/AppIcon.icns")
 background = str(assets / "background.tiff")
 
@@ -26,9 +26,9 @@ arrange_by = None
 icon_size = 96
 text_size = 13
 label_pos = "bottom"
-hide_extensions = ["Установка.html"]
+hide_extensions = ["Install.html"]
 icon_locations = {
     "Kampsis.app": (170, 210),
-    "Программы": (470, 210),
-    "Установка.html": (320, 310),
+    "Applications": (470, 210),
+    "Install.html": (320, 310),
 }

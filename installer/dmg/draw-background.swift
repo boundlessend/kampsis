@@ -1,4 +1,4 @@
-// рисует фон окна DMG: заголовок, стрелка от приложения к «Программам» и подсказка про инструкцию
+// рисует фон окна DMG: заголовок, стрелка от приложения к Applications и подсказка про инструкцию
 // запуск: swift installer/dmg/draw-background.swift installer/dmg/background.tiff
 import AppKit
 
@@ -37,11 +37,11 @@ func caption(_ text: String, top: CGFloat, size: CGFloat, weight: NSFont.Weight,
 }
 
 caption("Kampsis", top: 34, size: 30, weight: .bold, shade: 0.12)
-caption("Перетащите значок в папку «Программы»", top: 84, size: 16, weight: .regular, shade: 0.36)
-caption("Как открыть в первый раз и дать доступ к экрану, написано в файле «Установка»", top: 396,
+caption("Drag the icon into the Applications folder", top: 84, size: 16, weight: .regular, shade: 0.36)
+caption("Opening it the first time and granting screen access are covered in Install", top: 396,
         size: 13, weight: .regular, shade: 0.42)
 
-// стрелка между значками приложения и «Программ»
+// стрелка между значками приложения и Applications
 let shaft = CGRect(x: 282, y: 208.5, width: 64, height: 3)
 canvas.setFillColor(CGColor(srgbRed: 0.2, green: 0.36, blue: 0.82, alpha: 1))
 canvas.addPath(CGPath(roundedRect: shaft, cornerWidth: 1.5, cornerHeight: 1.5, transform: nil))

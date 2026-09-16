@@ -1,123 +1,123 @@
 # Kampsis
 
-Приложение для строки меню macOS. Когда вы прикрываете крышку MacBook, рабочий стол на встроенном экране складывается в перспективе, покрывается инеем и темнеет. Стоит открыть крышку, и экран снова обычный.
+A macOS menu bar app. When you lower your MacBook lid, the desktop on the built-in display folds away in perspective, frosts over and dims. Open the lid and the screen is back to normal.
 
-## Возможности
+## Features
 
-- Три стиля: мягкий, глубокий и матовый. Изгиб, размытие, затемнение и угол, при котором эффект исчезает, настраиваются отдельно.
-- Предпросмотр на примере рабочего стола: угол задаётся ползунком или берётся с крышки.
-- Пятисекундная демонстрация прямо на экране.
-- Сочетание клавиш, по умолчанию <kbd>⌘</kbd><kbd>⌥</kbd><kbd>B</kbd>, включает и выключает эффект и останавливает демонстрацию. Его можно поменять в общих настройках.
-- По желанию: щелчок при открытии крышки и запуск при входе в систему.
-- Проверка новых выпусков на GitHub вручную или раз в день.
-- Захват экрана и отрисовка работают, только пока эффект может понадобиться.
+- Three styles: soft, deep and matte. Bend, blur, dimming and the angle where the effect fades out are adjustable on their own.
+- A preview on a sample desktop: the angle comes from a slider or from the lid itself.
+- A five second demo on the real screen.
+- A keyboard shortcut, <kbd>⌘</kbd><kbd>⌥</kbd><kbd>B</kbd> by default, turns the effect on and off and stops the demo. You can change it in General Settings.
+- Optional: a click when the lid opens, and launch at login.
+- New releases are checked on GitHub, manually or once a day.
+- Screen capture and rendering only run while the effect may be needed.
 
-## Требования
+## Requirements
 
-- macOS 26 или новее, Mac на Apple silicon.
-- MacBook с датчиком угла крышки, см. таблицу ниже.
-- Разрешение на запись экрана. Без него работает только предпросмотр.
-- Эффект показывается лишь на встроенном экране, внешние мониторы не затрагиваются.
+- macOS 26 or newer, a Mac with Apple silicon.
+- A MacBook with a lid angle sensor, see the table below.
+- Screen recording permission. Without it only the preview works.
+- The effect appears on the built-in display only, external monitors are left alone.
 
-### Какие MacBook подходят
+### Which MacBooks work
 
-Процессор M-серии сам по себе не гарантирует наличие датчика. Перечень составлен по данным проекта [LidAngleSensor](https://github.com/samhenrigold/LidAngleSensor).
+An M-series chip alone does not guarantee the sensor. The list is based on data from the [LidAngleSensor](https://github.com/samhenrigold/LidAngleSensor) project.
 
-| Модели | Датчик угла | Что с Kampsis |
+| Models | Lid angle sensor | With Kampsis |
 | --- | --- | --- |
-| MacBook Pro 14″ и 16″ на Apple silicon с 2021 года | есть | чтение датчика проверено на Mac17,3 |
-| MacBook Air на M2, M3, M4 | есть | не проверено; у части моделей угол не отдаётся через стандартный HID |
-| MacBook Air на M1 | нет, только «открыто или закрыто» | работают предпросмотр и демонстрация |
-| MacBook Pro 13″ на M1 и M2 | нет | работают предпросмотр и демонстрация |
-| MacBook на Intel | у отдельных моделей есть | сборки только под Apple silicon |
+| 14″ and 16″ MacBook Pro with Apple silicon, 2021 and later | yes | sensor reading verified on a Mac17,3 |
+| MacBook Air with M2, M3, M4 | yes | untested; on some models the angle is not exposed over standard HID |
+| MacBook Air with M1 | no, open or closed only | preview and demo work |
+| 13″ MacBook Pro with M1 and M2 | no | preview and demo work |
+| Intel MacBook | some models have it | builds are Apple silicon only |
 
-Новые модели не блокируются по списку: наличие датчика определяется при запуске. Отчёт о совместимости печатает `scripts/diagnose-lid.sh`. Скрипт только читает модель, версию macOS и список HID-устройств Apple.
+New models are not blocked by that list: the sensor is detected at launch. `scripts/diagnose-lid.sh` prints a compatibility report. The script only reads the model, the macOS version and the list of Apple HID devices.
 
-## Установка
+## Installing
 
-### Образ DMG
+### DMG image
 
-1. Скачайте `Kampsis-vВЕРСИЯ-macos-arm64.dmg` из [выпусков](https://github.com/boundlessend/kampsis/releases) и перетащите приложение в «Программы».
-2. При первом запуске macOS предупредит, что не может проверить приложение. Откройте «Системные настройки → Конфиденциальность и безопасность» и нажмите «Всё равно открыть». Так происходит потому, что сборка подписана собственным сертификатом проекта, а не Apple Developer ID.
-3. В окне Kampsis нажмите «Разрешить доступ к экрану…» и включите Kampsis в разделе «Запись экрана». Перезапустите приложение, если macOS попросит.
+1. Download `Kampsis-vVERSION-macos-arm64.dmg` from [releases](https://github.com/boundlessend/kampsis/releases) and drag the app into Applications.
+2. On first launch macOS says it cannot verify the app. Open System Settings → Privacy & Security and click Open Anyway. This happens because the build is signed with the project's own certificate rather than an Apple Developer ID.
+3. In the Kampsis window click Allow Screen Access… and turn Kampsis on under Screen Recording. Restart the app if macOS asks you to.
 
-В образе лежит та же инструкция, она открывается без интернета.
+The image carries the same instructions, and they open without an internet connection.
 
-## Обновления
+## Updates
 
-«Проверить обновления…» в меню сравнивает установленную версию с последним выпуском на GitHub и, если вышла новая, открывает страницу выпуска. При первом запуске Kampsis спрашивает, проверять ли обновления раз в день. Ответ можно поменять в общих настройках. Ставится новая версия так же, как первая: заменой приложения. Все выпуски подписаны одним сертификатом, поэтому доступ к записи экрана после обновления сохраняется.
+Check for Updates… in the menu compares the installed version with the latest GitHub release and opens the release page when a newer one exists. On first launch Kampsis asks whether to check once a day; you can change the answer in General Settings. A new version is installed the same way as the first one, by replacing the app. Every release is signed with the same certificate, so screen recording permission survives an update.
 
-## Приватность
+## Privacy
 
-- Учётных записей, аналитики и отправки отчётов о сбоях нет.
-- Кадры встроенного экрана обрабатываются в памяти через ScreenCaptureKit и Metal и не записываются в файлы. Звук, микрофон и курсор не захватываются. Окно эффекта исключено из захвата, открытые окна настроек остаются на картинке.
-- Захват останавливается, когда эффект выключен, когда Mac спит или заблокирован и вскоре после того, как крышка открыта шире угла исчезновения.
-- Настройки хранятся в UserDefaults, угол крышки читается локально через HID.
-- Проверка обновлений делает запрос к `api.github.com`. GitHub видит обычные сведения о соединении, например IP-адрес. Ни изображение, ни настройки в запрос не попадают.
+- No accounts, no analytics, no crash reporting.
+- Frames of the built-in display are processed in memory through ScreenCaptureKit and Metal and never written to files. Audio, the microphone and the cursor are not captured. The effect window is excluded from capture; open settings windows stay in the picture.
+- Capture stops when the effect is off, when the Mac sleeps or is locked, and shortly after the lid opens past the fade-out angle.
+- Settings live in UserDefaults, the lid angle is read locally over HID.
+- Checking for updates makes a request to `api.github.com`. GitHub sees the usual connection details, such as an IP address. Neither the image nor the settings are part of that request.
 
-## Ограничения
+## Limitations
 
-- Эффект рисуется поверх экрана: окна и места кликов под ним не сдвигаются.
-- Иней нарисован собственным шейдером, это не системный материал Liquid Glass.
-- Формат отчёта датчика не описан Apple как публичный контракт и может измениться.
-- Чтобы спрятать курсор над окнами других приложений, используется недокументированное свойство соединения WindowServer. Если его нет, курсор над чужими окнами останется видимым.
-- Захват идёт в SDR, до 2560 точек по ширине и 60 кадров в секунду. Отрисовка на экранах ProMotion идёт до 120 кадров, но на каждом Mac это не гарантировано.
-- Защищённое содержимое может не попасть в захват. Сон и поведение экрана при закрытой крышке остаются за macOS.
+- The effect is drawn on top of the screen: windows and click targets underneath do not move.
+- The frost is drawn by the app's own shader, it is not the system Liquid Glass material.
+- The sensor report format is not documented by Apple as a public contract and may change.
+- Hiding the cursor above other apps' windows relies on an undocumented WindowServer connection property. Without it the cursor stays visible over foreign windows.
+- Capture runs in SDR, up to 2560 points wide and 60 frames per second. Rendering goes up to 120 frames on ProMotion displays, but that is not guaranteed on every Mac.
+- Protected content may be missing from the capture. Sleep and screen behaviour with a closed lid stay with macOS.
 
-## Разработка
+## Development
 
-Нужны Mac на Apple silicon с macOS 26, Xcode 26 и XcodeGen (`brew install xcodegen`). Проект Xcode генерируется из `project.yml` и в репозиторий не попадает.
+You need a Mac with Apple silicon on macOS 26, Xcode 26 and XcodeGen (`brew install xcodegen`). The Xcode project is generated from `project.yml` and is not part of the repository.
 
 ```sh
 xcodegen generate
 open Kampsis.xcodeproj
 ```
 
-Где что лежит:
+Where things live:
 
-- `Kampsis/Core`: чистая логика без системных вызовов (настройки, оценка угла крышки, решения о захвате, разбор датчика, версии).
-- `Kampsis/System`: коннекторы к IOKit, ScreenCaptureKit, Carbon, WindowServer и GitHub.
-- `Kampsis/Render`: шейдер, размытие, поверхность Metal и пример рабочего стола.
-- `Kampsis/App` и `Kampsis/UI`: состояние, оркестрация и интерфейс SwiftUI.
+- `Kampsis/Core`: pure logic without system calls (settings, lid angle estimation, capture decisions, sensor parsing, versions).
+- `Kampsis/System`: connectors to IOKit, ScreenCaptureKit, Carbon, WindowServer and GitHub.
+- `Kampsis/Render`: the shader, the blur, the Metal surface and the sample desktop.
+- `Kampsis/App` and `Kampsis/UI`: state, orchestration and the SwiftUI interface.
 
-### Тесты
-
-```sh
-scripts/test.sh unit   # логика; без GPU и экрана, так же запускается в CI
-scripts/test.sh all    # плюс рендер на GPU и плавность на встроенном экране
-```
-
-Полный набор запускается на MacBook с разблокированным экраном. Окна тестов и полноэкранная анимация на время закрывают рабочий стол.
-
-### Сборка
+### Tests
 
 ```sh
-scripts/build.sh check          # без подписи, только проверить сборку
-scripts/build.sh adhoc          # локальная копия без сертификата
-scripts/build.sh selfsigned     # выпуск, подписанный сертификатом проекта
-scripts/build.sh development    # сертификат Apple Development
-scripts/build.sh developer-id   # Developer ID; дальше scripts/notarize.sh
+scripts/test.sh unit   # logic; no GPU and no screen, this is what CI runs
+scripts/test.sh all    # plus GPU rendering and smoothness on the built-in display
 ```
 
-Режимы `development` и `developer-id` берут сертификат из `KAMPSIS_SIGN_IDENTITY` и команду из `KAMPSIS_TEAM_ID`. Архивы и контрольные суммы появляются в `dist/`, существующие файлы не перезаписываются. У ad-hoc подписи хеш меняется с каждой сборкой, и macOS после обновления снова спрашивает доступ к экрану.
+The full run needs a MacBook with an unlocked screen. Test windows and a full-screen animation cover the desktop for a while.
 
-Для разбора проблем на железе приложение можно запустить с `--diagnostics /путь/к/status.json`: раз в секунду оно пишет туда состояние датчика, захвата и счётчики кадров, но не изображение.
+### Building
 
-### Сертификат выпусков
+```sh
+scripts/build.sh check          # unsigned, just check that it builds
+scripts/build.sh adhoc          # a local copy without a certificate
+scripts/build.sh selfsigned     # a release signed with the project certificate
+scripts/build.sh development    # an Apple Development certificate
+scripts/build.sh developer-id   # Developer ID; then scripts/notarize.sh
+```
 
-macOS связывает разрешение на запись экрана с подписью приложения. Чтобы обновления не сбрасывали доступ, все выпуски подписываются одним самоподписанным сертификатом без изменения доверия в системе.
+The `development` and `developer-id` modes take the certificate from `KAMPSIS_SIGN_IDENTITY` and the team from `KAMPSIS_TEAM_ID`. Archives and checksums appear in `dist/`, existing files are never overwritten. An ad-hoc signature changes its hash on every build, so macOS asks for screen recording permission again after each update.
 
-- `scripts/create-signing-identity.sh` запускается один раз за всю жизнь проекта. Он кладёт открытый сертификат в `signing/kampsis-release.crt` для репозитория, закрытую часть в `~/Library/Application Support/Kampsis/Signing/identity.p12`, а пароль в связку ключей.
-- Резервную копию `identity.p12` и пароля храните вне репозитория. Если создать новый сертификат, у всех существующих установок сбросится доступ к экрану.
-- `scripts/sign-selfsigned.sh` подписывает через закреплённую версию rcodesign, а `scripts/verify-release-signature.sh` проверяет, что подпись сделана именно этим сертификатом.
+To investigate hardware problems the app can be launched with `--diagnostics /path/to/status.json`: once a second it writes the sensor state, the capture state and frame counters there, but never the image.
 
-### Выпуск
+### Release certificate
 
-1. Поднимите `MARKETING_VERSION` и `CURRENT_PROJECT_VERSION` в `project.yml`.
+macOS ties screen recording permission to the app signature. So that updates do not reset that permission, every release is signed with one self-signed certificate, without changing system trust.
+
+- `scripts/create-signing-identity.sh` runs once in the lifetime of the project. It puts the public certificate into `signing/kampsis-release.crt` for the repository, the private part into `~/Library/Application Support/Kampsis/Signing/identity.p12`, and the password into the keychain.
+- Keep a backup copy of `identity.p12` and the password outside the repository. Creating a new certificate resets screen recording permission for every existing installation.
+- `scripts/sign-selfsigned.sh` signs through a pinned version of rcodesign, and `scripts/verify-release-signature.sh` checks that the signature really comes from that certificate.
+
+### Release
+
+1. Raise `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml`.
 2. `scripts/build.sh selfsigned`
-3. `scripts/build-dmg.sh dist/Kampsis-vВЕРСИЯ-macos-arm64.zip` (нужен `uv`)
-4. Создайте выпуск `vВЕРСИЯ` на GitHub с DMG и его `.sha256`.
+3. `scripts/build-dmg.sh dist/Kampsis-vVERSION-macos-arm64.zip` (needs `uv`)
+4. Create a `vVERSION` release on GitHub with the DMG and its `.sha256`.
 
-## Уязвимости
+## Vulnerabilities
 
-Сообщайте через закрытое сообщение об уязвимости на GitHub. Если оно недоступно, откройте задачу с просьбой о приватном контакте без подробностей. Исправления выходят только для последней версии.
+Report through a private security advisory on GitHub. If that is unavailable, open an issue asking for a private contact, without details. Fixes ship for the latest version only.

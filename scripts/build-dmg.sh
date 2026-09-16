@@ -1,5 +1,5 @@
 #!/bin/zsh
-# упаковывает zip выпуска в DMG с ярлыком «Программы» и инструкцией, затем проверяет содержимое образа
+# упаковывает zip выпуска в DMG с ярлыком Applications и инструкцией, затем проверяет содержимое образа
 set -euo pipefail
 
 (( $# == 1 )) || { print -u2 'Использование: scripts/build-dmg.sh dist/Kampsis-vВЕРСИЯ-macos-arm64.zip'; exit 2 }
@@ -37,11 +37,11 @@ hdiutil attach -readonly -nobrowse -quiet -mountpoint $mountpoint $stage/Kampsis
 $root/scripts/verify-release-signature.sh $mountpoint/Kampsis.app
 changes=$(/usr/bin/rsync -rlcn --delete --itemize-changes $app/ $mountpoint/Kampsis.app/)
 [[ -z $changes ]] || { print -u2 "приложение в образе отличается от архива: $changes"; exit 2 }
-[[ -L $mountpoint/Программы && $(readlink $mountpoint/Программы) == /Applications ]] || {
-  print -u2 'в образе нет ярлыка «Программы»'
+[[ -L $mountpoint/Applications && $(readlink $mountpoint/Applications) == /Applications ]] || {
+  print -u2 'в образе нет ярлыка Applications'
   exit 2
 }
-cmp $root/installer/dmg/guide.html $mountpoint/Установка.html
+cmp $root/installer/dmg/guide.html $mountpoint/Install.html
 [[ -f $mountpoint/.DS_Store ]] || { print -u2 'в образе нет раскладки окна Finder'; exit 2 }
 hdiutil detach -quiet $mountpoint
 
