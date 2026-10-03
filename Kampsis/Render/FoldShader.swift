@@ -11,7 +11,6 @@ struct FoldUniforms {
     float opacity;
     float flatten;
     float aspect;
-    float unused;
 };
 
 struct Varyings {

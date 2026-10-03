@@ -24,7 +24,6 @@ private struct FoldUniforms {
     var opacity: Float
     var flatten: Float
     var aspect: Float
-    var unused: Float
 }
 
 /// кодирует кадр эффекта в буфер команд: фон, два размытия и сетку экрана
@@ -60,8 +59,7 @@ private struct FoldUniforms {
             dimming: Float(inputs.settings.dimming),
             opacity: inputs.fadesIn ? min(1, Float(inputs.progress) / 0.015) : 1,
             flatten: inputs.reduceMotion ? 1 : 0,
-            aspect: Float(size.width / max(1, size.height)),
-            unused: 0
+            aspect: Float(size.width / max(1, size.height))
         )
         encoder.setVertexBytes(&uniforms, length: MemoryLayout<FoldUniforms>.stride, index: 0)
         encoder.setFragmentBytes(&uniforms, length: MemoryLayout<FoldUniforms>.stride, index: 0)
@@ -128,7 +126,7 @@ enum SheetRendererFailure: LocalizedError {
     private var lastChange = 0.0
     private let inFlight = DispatchSemaphore(value: SheetRenderer.maximumInFlight)
 
-    /// `frames` отсутствует у превью: оно рисует пример рабочего стола
+    /// превью использует пример рабочего стола, поэтому `frames` у него отсутствует
     init(stack: MetalStack, frames: FrameSlot?, inputs: @escaping () -> FoldInputs) throws {
         self.stack = stack
         self.frames = frames

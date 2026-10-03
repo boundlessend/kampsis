@@ -1,5 +1,3 @@
-import Foundation
-
 enum CapturePhase: Equatable, Sendable {
     case idle
     case starting
@@ -7,7 +5,7 @@ enum CapturePhase: Equatable, Sendable {
     case stopping
 }
 
-/// всё, от чего зависит решение о захвате экрана и показе оверлея
+/// состояние для решения о захвате и показе эффекта
 struct EffectSnapshot: Equatable, Sendable {
     var isOn: Bool
     var screenAccess: Bool
@@ -74,7 +72,7 @@ func planEffect(_ snapshot: EffectSnapshot) -> [EffectCommand] {
     return commands
 }
 
-/// захват больше не нужен: гасим сразу, если причина окончательная, иначе с задержкой на случай возврата крышки
+/// останавливает захват сразу при запрете, иначе оставляет время на возврат крышки
 private func planWindDown(_ snapshot: EffectSnapshot) -> [EffectCommand] {
     switch snapshot.phase {
     case .idle, .stopping:

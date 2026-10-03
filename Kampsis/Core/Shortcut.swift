@@ -1,5 +1,3 @@
-import Foundation
-
 /// модификаторы сочетания клавиш
 struct ShortcutModifiers: OptionSet, Codable, Hashable, Sendable {
     let rawValue: Int

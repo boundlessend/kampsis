@@ -6,9 +6,7 @@ import QuartzCore
     var onDrawable: ((any CAMetalDrawable) -> Void)?
     var onVisible: (() -> Void)?
     var onResize: (() -> Void)?
-    var preferredFramesPerSecond: Int {
-        didSet { applyFrameRate() }
-    }
+    let preferredFramesPerSecond: Int
 
     private let metalLayer = CAMetalLayer()
     private var link: CAMetalDisplayLink?
