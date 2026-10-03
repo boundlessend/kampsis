@@ -14,7 +14,7 @@ func predictionLead(_ prediction: Double) -> Double {
     prediction.clamped(to: EffectSettings.predictionRange) * 12
 }
 
-/// темп сложения по ходу крышки: при 0 прогресс линейный, к 1 экран темнеет ближе к закрытию, к -1 раньше
+/// меняет темп сложения: 0 линейный, 1 медленнее, -1 быстрее
 func pacedProgress(_ progress: Double, pace: Double) -> Double {
     pow(progress.clamped(to: 0...1), pow(3, pace))
 }
@@ -63,10 +63,7 @@ struct LidReading: Equatable, Sendable {
     let time: Double
 }
 
-/// оценка угла крышки между отсчётами датчика
-///
-/// датчик отдаёт целые градусы с неровным шагом по времени: медленное движение
-/// приходит редкими ступеньками, быстрое идёт отсчётами примерно раз в 100 мс
+/// сглаживает редкие ступеньки датчика и предсказывает быстрое движение крышки
 enum LidEstimate: Equatable, Sendable {
     case unknown
     /// медленное движение: ведём угол от показанного значения к новому отсчёту за длительность интервала
@@ -87,6 +84,7 @@ enum LidEstimate: Equatable, Sendable {
         static let decayTime = 0.045
     }
 
+    /// угол для кадра; опережение ограничено параметром `leadLimit`
     func degrees(at time: Double, leadLimit: Double) -> Double? {
         switch self {
         case .unknown:
@@ -104,6 +102,7 @@ enum LidEstimate: Equatable, Sendable {
         return max(0, -velocity)
     }
 
+    /// выбирает сглаживание или предсказание по шагу и давности отсчёта
     func receiving(_ reading: LidReading, leadLimit: Double) -> LidEstimate {
         let last: LidReading
         let velocity: Double

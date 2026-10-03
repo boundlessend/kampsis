@@ -441,7 +441,7 @@ import ServiceManagement
         }
     }
 
-    /// `false`, если захват не начался вовремя или ожидание отменили
+    /// ждёт готовности захвата; возвращает false при отмене или таймауте
     private func waitForCapture() async -> Bool {
         let deadline = CACurrentMediaTime() + Self.demoCaptureTimeout
         while !state.capturing {
@@ -503,7 +503,7 @@ import ServiceManagement
                                   reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
             }
         } catch {
-            // шейдер не собрался: перезапуск захвата этого не исправит
+            // сбой подготовки рендера: перезапуск захвата не поможет
             failCapture(CaptureTrouble(message: error.localizedDescription, recovery: .blocked))
             return nil
         }

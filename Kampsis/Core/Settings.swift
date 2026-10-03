@@ -50,7 +50,7 @@ enum Look: String, Codable, CaseIterable, Identifiable, Sendable {
     }
 }
 
-/// всё, что пользователь настраивает в эффекте
+/// сохраняемые параметры эффекта
 struct EffectSettings: Codable, Equatable, Sendable {
     var isOn: Bool
     var look: Look
@@ -131,6 +131,7 @@ func loadSettings(from defaults: UserDefaults) -> EffectSettings {
     }
 }
 
+/// сохраняет параметры эффекта и сообщает в лог об ошибке кодирования
 func saveSettings(_ settings: EffectSettings, to defaults: UserDefaults) {
     do {
         defaults.set(try JSONEncoder().encode(settings), forKey: settingsKey)

@@ -86,7 +86,7 @@ private func contrast(_ values: [Int]) -> Double {
         return RenderedFrame(width: width, height: height, bgra: bgra)
     }
 
-    /// PNG для глазной проверки: $TMPDIR/KampsisRenderTests
+    /// кадры для визуальной проверки в $TMPDIR/KampsisRenderTests
     private func keep(_ frame: RenderedFrame, as name: String) throws {
         var bgra = frame.bgra
         let data = try bgra.withUnsafeMutableBytes { raw -> Data in

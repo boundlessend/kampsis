@@ -31,7 +31,7 @@ import Testing
         return buffer
     }
 
-    /// `freshFrames` имитирует захват 60 кадров в секунду во время анимации
+    /// параметр `freshFrames` имитирует захват 60 кадров в секунду во время анимации
     @Test(arguments: [false, true])
     func overlayPresentsSteadilyAtDisplayRate(freshFrames: Bool) async throws {
         let screen = try #require(ScreenStream.builtInDisplay(), "нужен встроенный экран MacBook")

@@ -3,7 +3,7 @@ import Foundation
 let appleVendorID = 0x05AC
 /// продукт Apple SPU: под ним живут и датчик крышки, и другие сенсоры
 let appleSPUProductID = 0x8104
-/// HID usage page «датчики» и usage, под которым macOS отдаёт угол крышки
+/// страница HID «датчики» и usage угла крышки
 let sensorUsagePage = 0x20
 let lidAngleUsage = 0x8A
 

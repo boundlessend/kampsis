@@ -16,6 +16,7 @@ func percentile(_ sorted: [Double], _ share: Double) -> Double {
     sorted[Int(Double(sorted.count - 1) * share)]
 }
 
+/// частота показа и интервалы между кадрами по ограниченной выборке
 func summarizePresentation(times: [Double], totalFrames: Int) -> PresentationSummary {
     let ordered = Set(times).sorted()
     guard ordered.count > 1, let first = ordered.first, let last = ordered.last, last > first else {
@@ -88,6 +89,7 @@ struct DiagnosticsReport: Codable, Sendable {
     let presentation: PresentationSummary?
 }
 
+/// атомарно заменяет файл диагностики без сохранения изображения экрана
 func writeDiagnostics(_ report: DiagnosticsReport, to url: URL) throws {
     let encoder = JSONEncoder()
     encoder.outputFormatting = [.prettyPrinted, .sortedKeys]

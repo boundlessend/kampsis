@@ -21,7 +21,7 @@ import MetalPerformanceShaders
         downscaler = MPSImageBilinearScale(device: device)
     }
 
-    /// `sourceNumber` задаёт версию содержимого; без неё источник считается изменяемым и не кешируется
+    /// кеширует размытие по версии `sourceNumber`; без версии считает заново
     func blurred(_ source: any MTLTexture, sigma: Float, sourceNumber: UInt64?,
                  into command: any MTLCommandBuffer) -> (any MTLTexture)? {
         let scaledSigma = sigma / Float(downsample)

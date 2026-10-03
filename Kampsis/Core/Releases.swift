@@ -55,6 +55,7 @@ enum ReleaseCheckFailure: LocalizedError, Equatable {
     }
 }
 
+/// сравнивает установленную версию с последним опубликованным выпуском
 func updateVerdict(installed: String, latest: PublishedRelease) throws(ReleaseCheckFailure) -> UpdateVerdict {
     guard let current = SemanticVersion(installed) else { throw .unreadableVersion(installed) }
     guard let published = SemanticVersion(latest.tagName) else { throw .unreadableVersion(latest.tagName) }

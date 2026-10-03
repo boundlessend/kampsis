@@ -5,6 +5,7 @@ import ScreenCaptureKit
 import Synchronization
 
 /// кадр экрана с порядковым номером, чтобы рендер отличал новый кадр от уже показанного
+/// буфер после захвата только читается; сильная ссылка удерживает его от повторного использования
 struct CapturedFrame: @unchecked Sendable {
     let pixels: CVPixelBuffer
     let number: UInt64
@@ -165,6 +166,7 @@ func capturableWindowIDs(_ windowNumbers: [Int]) -> Set<CGWindowID> {
         }
     }
 
+    /// ждёт остановки потока и освобождает последний кадр
     func stop() async {
         if let activeStream {
             do {
@@ -226,7 +228,7 @@ private final class FrameReceiver: NSObject, SCStreamOutput, SCStreamDelegate, S
         DispatchQueue.main.async { [onStop] in MainActor.assumeIsolated { onStop(trouble) } }
     }
 
-    /// ScreenCaptureKit шлёт и служебные буферы без нового изображения
+    /// отбрасывает служебные буферы ScreenCaptureKit без нового изображения
     private func isComplete(_ sampleBuffer: CMSampleBuffer) -> Bool {
         guard let attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, createIfNecessary: false)
                 as? [[SCStreamFrameInfo: Any]],
