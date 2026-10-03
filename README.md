@@ -9,6 +9,7 @@ A macOS menu bar app. When you lower your MacBook lid, the desktop on the built-
 - A five second demo on the real screen.
 - A keyboard shortcut, <kbd>⌘</kbd><kbd>⌥</kbd><kbd>B</kbd> by default, turns the effect on and off and stops the demo. You can change it in General Settings.
 - Optional: a click when the lid opens, and launch at login.
+- English on first launch. Choose English or Russian in General Settings, then reopen the app to apply it.
 - New releases are checked on GitHub, manually or once a day.
 - Screen capture and rendering only run while the effect may be needed.
 
@@ -21,11 +22,12 @@ A macOS menu bar app. When you lower your MacBook lid, the desktop on the built-
 
 ### Which MacBooks work
 
-An M-series chip alone does not guarantee the sensor. The list is based on data from the [LidAngleSensor](https://github.com/samhenrigold/LidAngleSensor) project.
+The supported and verified hardware for this version is Mac17,3. Other models are experimental. An M-series chip alone does not guarantee the sensor. The sensor list below is based on data from the [LidAngleSensor](https://github.com/samhenrigold/LidAngleSensor) project.
 
 | Models | Lid angle sensor | With Kampsis |
 | --- | --- | --- |
-| 14″ and 16″ MacBook Pro with Apple silicon, 2021 and later | yes | sensor reading verified on a Mac17,3 |
+| Mac17,3 | yes | supported and verified |
+| Other 14″ and 16″ MacBook Pro with Apple silicon, 2021 and later | yes | experimental, untested |
 | MacBook Air with M2, M3, M4 | yes | untested; on some models the angle is not exposed over standard HID |
 | MacBook Air with M1 | no, open or closed only | preview and demo work |
 | 13″ MacBook Pro with M1 and M2 | no | preview and demo work |
@@ -42,6 +44,17 @@ New models are not blocked by that list: the sensor is detected at launch. `scri
 3. In the Kampsis window click Allow Screen Access… and turn Kampsis on under Screen Recording. Restart the app if macOS asks you to.
 
 The image carries the same instructions, and they open without an internet connection.
+
+### Homebrew
+
+The repository includes a cask in `Casks/kampsis.rb`. Once the repository and the `v0.1.0` DMG release are public:
+
+```sh
+brew tap boundlessend/kampsis https://github.com/boundlessend/kampsis
+brew install --cask boundlessend/kampsis/kampsis
+```
+
+The cask requires Apple silicon and macOS 26. The private development repository does not yet provide a public download.
 
 ## Updates
 
@@ -126,7 +139,8 @@ macOS ties screen recording permission to the app signature. So that updates do 
 1. Raise `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml`.
 2. `scripts/build.sh selfsigned`
 3. `scripts/build-dmg.sh dist/Kampsis-vVERSION-macos-arm64.zip` (needs `uv`)
-4. Create a `vVERSION` release on GitHub with the DMG and its `.sha256`.
+4. Update `version` and `sha256` in `Casks/kampsis.rb` to match the DMG.
+5. Create a `vVERSION` release on GitHub with the DMG and its `.sha256`. Describe changes in GitHub Release Notes; there is no separate changelog. The initial version is `0.1.0`.
 
 ## Vulnerabilities
 
