@@ -13,8 +13,8 @@ guard let master = NSImage(contentsOf: masterURL), let tiff = master.tiffReprese
     FileHandle.standardError.write(Data("не читается мастер: \(masterURL.path)\n".utf8))
     exit(1)
 }
-guard source.width == 1024, source.height == 1024 else {
-    FileHandle.standardError.write(Data("мастер должен быть 1024x1024, получено \(source.width)x\(source.height)\n".utf8))
+guard source.width == source.height, source.width >= 1024 else {
+    FileHandle.standardError.write(Data("мастер должен быть квадратным, не меньше 1024x1024, получено \(source.width)x\(source.height)\n".utf8))
     exit(1)
 }
 try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
