@@ -264,6 +264,19 @@ struct MotionTests {
         #expect(restored.prediction == 1)
     }
 
+    @Test func languageStartsInEnglishAndPreservesTheChoiceOnRelaunch() throws {
+        let suite = "KampsisTests.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.register(defaults: ["AppleLanguages": ["ru"]])
+        prepareAppLanguage(in: defaults, domain: suite)
+        #expect(defaults.persistentDomain(forName: suite)?["AppleLanguages"] as? [String] == ["en"])
+        defaults.set(["ru"], forKey: "AppleLanguages")
+        let relaunched = try #require(UserDefaults(suiteName: suite))
+        prepareAppLanguage(in: relaunched, domain: suite)
+        #expect(relaunched.persistentDomain(forName: suite)?["AppleLanguages"] as? [String] == ["ru"])
+    }
+
     @Test func settingsSurviveRelaunchAndCorruptionFallsBackToStandard() throws {
         let suite = "KampsisTests.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))

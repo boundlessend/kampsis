@@ -8,7 +8,15 @@ enum SceneID {
 
 @main struct KampsisApp: App {
     @NSApplicationDelegateAdaptor(LaunchDelegate.self) private var launch
-    private let controller = EffectController.shared
+    private let controller: EffectController
+
+    init() {
+        guard let domain = Bundle.main.bundleIdentifier else {
+            preconditionFailure("у приложения нет bundle identifier")
+        }
+        prepareAppLanguage(in: .standard, domain: domain)
+        controller = EffectController.shared
+    }
 
     var body: some Scene {
         Window(AppIdentity.name, id: SceneID.effect) {

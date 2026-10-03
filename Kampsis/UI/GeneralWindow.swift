@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// поведение, доступ к экрану, состояние датчика и обновления
@@ -6,6 +7,7 @@ struct GeneralWindow: View {
     let controller: EffectController
     let updates: UpdateChecker
     @State private var privacyShown = false
+    @State private var language: AppLanguage = Bundle.main.preferredLocalizations.first == "ru" ? .russian : .english
 
     private var sensorLine: String {
         if !state.settings.isOn || state.suspended { return String(localized: "Not in use") }
@@ -15,6 +17,20 @@ struct GeneralWindow: View {
     var body: some View {
         Form {
             Section {
+                Picker("Language", selection: $language) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(verbatim: language.title).tag(language)
+                    }
+                }
+                .onChange(of: language) { _, selected in
+                    UserDefaults.standard.set([selected.rawValue], forKey: "AppleLanguages")
+                    let alert = NSAlert()
+                    alert.messageText = String(localized: "Restart to change language")
+                    alert.informativeText = String(localized: "The new language will apply the next time you open Kampsis.")
+                    alert.addButton(withTitle: String(localized: "Quit Now"))
+                    alert.addButton(withTitle: String(localized: "Later"))
+                    if alert.runModal() == .alertFirstButtonReturn { NSApp.terminate(nil) }
+                }
                 Toggle("Click when the lid opens", isOn: $state.settings.chimeOnOpen)
                 Toggle("Open at login", isOn: Binding(
                     get: { state.launchesAtLogin },

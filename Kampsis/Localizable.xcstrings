@@ -1,6 +1,50 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "The new language will apply the next time you open Kampsis." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новый язык применится при следующем запуске Kampsis."
+          }
+        }
+      }
+    },
+    "Restart to change language" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перезапустите приложение для смены языка"
+          }
+        }
+      }
+    },
+    "Quit Now" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выйти сейчас"
+          }
+        }
+      }
+    },
+    "Language" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Язык"
+          }
+        }
+      }
+    },
     "%@ has no published releases yet." : {
       "localizations" : {
         "ru" : {
