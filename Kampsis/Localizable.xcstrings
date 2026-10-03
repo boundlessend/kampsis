@@ -1,6 +1,39 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Left-click to toggle the effect. Right-click for the menu." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Левый клик переключает эффект. Правый клик открывает меню."
+          }
+        }
+      }
+    },
+    "Show icon in menu bar" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать иконку в строке меню"
+          }
+        }
+      }
+    },
+    "Show icon in Dock" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать иконку в Dock"
+          }
+        }
+      }
+    },
     "The new language will apply the next time you open Kampsis." : {
       "extractionState" : "manual",
       "localizations" : {

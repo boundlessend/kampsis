@@ -32,6 +32,8 @@ struct GeneralWindow: View {
                     if alert.runModal() == .alertFirstButtonReturn { NSApp.terminate(nil) }
                 }
                 Toggle("Click when the lid opens", isOn: $state.settings.chimeOnOpen)
+                Toggle("Show icon in Dock", isOn: $state.showsDockIcon)
+                Toggle("Show icon in menu bar", isOn: $state.showsMenuBarIcon)
                 Toggle("Open at login", isOn: Binding(
                     get: { state.launchesAtLogin },
                     set: { controller.setOpensAtLogin($0) }

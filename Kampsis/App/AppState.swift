@@ -28,7 +28,20 @@ func initialPreviewAngle(fadeOutAngle: Double) -> Double {
     (fadeOutAngle - (fadeOutAngle - fullyFoldedAngle) * 0.32).rounded()
 }
 
+/// состояние интерфейса и сохраняемые настройки приложения
 @MainActor @Observable final class AppState {
+    private static let dockIconKey = "shows-dock-icon"
+    private static let menuBarIconKey = "shows-menu-bar-icon"
+
+    var showsDockIcon: Bool {
+        didSet {
+            store.set(showsDockIcon, forKey: Self.dockIconKey)
+            onDockIconChange?(showsDockIcon)
+        }
+    }
+    var showsMenuBarIcon: Bool {
+        didSet { store.set(showsMenuBarIcon, forKey: Self.menuBarIconKey) }
+    }
     var settings: EffectSettings {
         didSet {
             guard settings != oldValue else { return }
@@ -51,11 +64,14 @@ func initialPreviewAngle(fadeOutAngle: Double) -> Double {
     var shortcutProblem: String?
 
     @ObservationIgnored var lidEstimate = LidEstimate.unknown
+    @ObservationIgnored var onDockIconChange: ((Bool) -> Void)?
     @ObservationIgnored var onSettingsChange: ((EffectSettings, EffectSettings) -> Void)?
     @ObservationIgnored private let store: UserDefaults
 
     init(store: UserDefaults) {
         self.store = store
+        showsDockIcon = store.bool(forKey: Self.dockIconKey)
+        showsMenuBarIcon = store.object(forKey: Self.menuBarIconKey) == nil || store.bool(forKey: Self.menuBarIconKey)
         let settings = loadSettings(from: store)
         self.settings = settings
         previewAngle = initialPreviewAngle(fadeOutAngle: settings.fadeOutAngle)

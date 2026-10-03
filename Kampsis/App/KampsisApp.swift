@@ -23,6 +23,7 @@ enum SceneID {
             EffectWindow(state: controller.state, controller: controller)
                 .frame(width: 860, height: 640)
                 .onExitCommand { controller.endDemo() }
+                .modifier(SettingsReopenAccess(state: controller.state, delegate: launch))
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
@@ -45,20 +46,18 @@ enum SceneID {
 
         Window("General Settings", id: SceneID.general) {
             GeneralWindow(state: controller.state, controller: controller, updates: controller.updates)
-                .frame(width: 480, height: 620)
+                .frame(width: 560, height: 620)
         }
         .windowResizability(.contentSize)
         .defaultPosition(.center)
         .defaultLaunchBehavior(.suppressed)
-
-        MenuBarExtra(AppIdentity.name, systemImage: controller.state.settings.isOn ? "macbook" : "pause.circle") {
-            StatusMenu(state: controller.state, controller: controller)
-        }
-        .menuBarExtraStyle(.menu)
     }
 }
 
 @MainActor final class LaunchDelegate: NSObject, NSApplicationDelegate {
+    var openWindow: ((String) -> Void)?
+    private var menuBar: MenuBarController?
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         // в роли хоста тестов приложение не трогает датчик, экран и сеть
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
@@ -66,11 +65,47 @@ enum SceneID {
             Task { exit(await runCaptureCheck()) }
             return
         }
-        EffectController.shared.start()
+        let controller = EffectController.shared
+        controller.state.onDockIconChange = { [weak self] shown in self?.applyDockVisibility(shown) }
+        applyDockVisibility(controller.state.showsDockIcon)
+        controller.start()
+        menuBar = MenuBarController(controller: controller)
+        menuBar?.openWindow = { [weak self] scene in self?.openWindow?(scene) }
         NSApp.activate()
     }
 
+    /// повторное открытие из Applications возвращает настройки, даже если обе иконки скрыты
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows _: Bool) -> Bool {
+        guard let openWindow else { return true }
+        openWindow(SceneID.general)
+        return false
+    }
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
+
+    private func applyDockVisibility(_ shown: Bool) {
+        NSApp.setActivationPolicy(shown ? .regular : .accessory)
+    }
+}
+
+/// сохраняет действие SwiftUI для открытия настроек после закрытия всех окон
+private struct SettingsReopenAccess: ViewModifier {
+    let state: AppState
+    let delegate: LaunchDelegate
+    @Environment(\.openWindow) private var openWindow
+
+    func body(content: Content) -> some View {
+        content.onAppear {
+            let openWindow = openWindow
+            delegate.openWindow = { scene in
+                openWindow(id: scene)
+                NSApp.activate()
+            }
+            if !state.showsDockIcon, !state.showsMenuBarIcon {
+                delegate.openWindow?(SceneID.general)
+            }
+        }
+    }
 }
 
 /// кнопка, которая открывает окно приложения и выводит его вперёд
@@ -84,43 +119,5 @@ struct OpenSceneButton: View {
             openWindow(id: scene)
             NSApp.activate()
         }
-    }
-}
-
-private struct StatusMenu: View {
-    let state: AppState
-    let controller: EffectController
-    @Environment(\.openWindow) private var openWindow
-
-    private var toggleLabel: String { shortcutLabel(state.settings.toggleShortcut) }
-
-    var body: some View {
-        if let angle = state.measuredAngle {
-            Text(verbatim: "\(AppIdentity.name): \(Int(angle))°")
-        } else {
-            Text("\(AppIdentity.name): angle unknown")
-        }
-        Text(state.statusLine)
-        Divider()
-        if !state.demoRunning {
-            Button { controller.toggle() } label: { Text(verbatim: "\(state.toggleTitle)   \(toggleLabel)") }
-        }
-        OpenSceneButton(title: "Customize Effect…", scene: SceneID.effect)
-        OpenSceneButton(title: "General Settings…", scene: SceneID.general)
-        if state.demoRunning {
-            Button { controller.endDemo() } label: { Text(verbatim: "\(state.toggleTitle)   \(toggleLabel)") }
-        } else {
-            Button("Show Demo") {
-                openWindow(id: SceneID.effect)
-                NSApp.activate()
-                controller.beginDemo()
-            }
-            .disabled(!state.screenAccess)
-        }
-        Divider()
-        Button("Check for Updates…") { controller.updates.checkFromMenu() }
-            .disabled(controller.updates.checking)
-        Button("Quit \(AppIdentity.name)") { NSApp.terminate(nil) }
-            .keyboardShortcut("q")
     }
 }

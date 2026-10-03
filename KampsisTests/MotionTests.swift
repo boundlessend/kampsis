@@ -277,6 +277,23 @@ struct MotionTests {
         #expect(relaunched.persistentDomain(forName: suite)?["AppleLanguages"] as? [String] == ["ru"])
     }
 
+    @Test @MainActor func iconVisibilityPersistsWithoutChangingEffectSettings() throws {
+        let suite = "KampsisTests.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let state = AppState(store: defaults)
+        #expect(!state.showsDockIcon)
+        #expect(state.showsMenuBarIcon)
+        let custom = EffectSettings.standard.applying(.matte)
+        state.settings = custom
+        state.showsDockIcon = true
+        state.showsMenuBarIcon = false
+        let relaunched = AppState(store: try #require(UserDefaults(suiteName: suite)))
+        #expect(relaunched.showsDockIcon)
+        #expect(!relaunched.showsMenuBarIcon)
+        #expect(relaunched.settings == custom)
+    }
+
     @Test func settingsSurviveRelaunchAndCorruptionFallsBackToStandard() throws {
         let suite = "KampsisTests.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
