@@ -30,7 +30,7 @@ final class GitHubReleases: Sendable {
     private let url: URL
     private let session: URLSession
 
-    /// `repository` в виде владелец/имя, как в адресе на GitHub
+    /// принимает репозиторий в формате владелец/имя
     init(repository: String, session: URLSession) throws(GitHubReleasesFailure) {
         guard repository.wholeMatch(of: #/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+/#) != nil,
               let url = URL(string: "https://api.github.com/repos/\(repository)/releases/latest") else {
@@ -50,14 +50,18 @@ final class GitHubReleases: Sendable {
 
         var attempt = 1
         while true {
+            try Task.checkCancellation()
             do {
-                return try await fetch(request, url: url)
+                let release = try await fetch(request)
+                try Task.checkCancellation()
+                return release
             } catch let failure as GitHubReleasesFailure {
                 guard case let .unexpectedStatus(_, status, _) = failure, status >= 500, attempt < Self.attempts else {
                     throw failure
                 }
                 Self.log.warning("releases request retry: attempt=\(attempt, privacy: .public) status=\(status, privacy: .public)")
             } catch let failure as URLError {
+                if failure.code == .cancelled { throw CancellationError() }
                 guard attempt < Self.attempts else { throw failure }
                 Self.log.warning("releases request retry: attempt=\(attempt, privacy: .public) error=\(failure.code.rawValue, privacy: .public)")
             }
@@ -66,7 +70,7 @@ final class GitHubReleases: Sendable {
         }
     }
 
-    private func fetch(_ request: URLRequest, url: URL) async throws -> PublishedRelease {
+    private func fetch(_ request: URLRequest) async throws -> PublishedRelease {
         let (body, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse else { throw GitHubReleasesFailure.notHTTP(url: url) }
         switch http.statusCode {

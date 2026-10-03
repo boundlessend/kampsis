@@ -85,6 +85,8 @@ import os
         do {
             let verdict = try await fetchVerdict()
             if case .available = verdict { presentVerdict(verdict) }
+        } catch is CancellationError {
+            return
         } catch {
             Self.log.warning("background update check failed: \(error.localizedDescription, privacy: .public)")
         }

@@ -23,6 +23,7 @@ private let measuringWindow = 1.0
     """)
 
     let stream = ScreenStream()
+    var stoppedWith: CaptureTrouble?
     // насколько кадр доходит позже своей метки времени: положительное значение означает очередь или тормоза
     let lateness = Mutex<[Double]>([])
     stream.frames.onStore { [frames = stream.frames] in
@@ -33,42 +34,53 @@ private let measuringWindow = 1.0
     let startedAt = CACurrentMediaTime()
     do {
         // окон у приложения нет: так проверяется, что macOS перечисляет его в SCShareableContent
-        try await stream.start(showing: []) { trouble in
-            print("stream stopped: \(trouble.message) [\(String(describing: trouble.recovery))]")
+        try await stream.start(showing: []) { stoppedWith = $0 }
+        let readyAt = CACurrentMediaTime()
+        print("stream started in \(oneDecimal((readyAt - startedAt) * 1000)) ms, queue depth \(ScreenStream.queueDepth)")
+
+        let deadline = readyAt + firstFrameWait
+        while stream.frames.latest == nil, stoppedWith == nil, CACurrentMediaTime() < deadline {
+            try await Task.sleep(for: .milliseconds(5))
         }
-    } catch {
-        let trouble = captureTrouble(error)
-        print("FAIL start: \(trouble.message) [\(String(describing: trouble.recovery))]")
-        return 1
-    }
-    let readyAt = CACurrentMediaTime()
-    print("stream started in \(oneDecimal((readyAt - startedAt) * 1000)) ms, queue depth \(ScreenStream.queueDepth)")
+        guard let first = stream.frames.latest else {
+            await stream.stop()
+            if let trouble = stoppedWith {
+                print("FAIL capture: \(trouble.message) [\(String(describing: trouble.recovery))]")
+            } else {
+                print("FAIL: no frame in \(firstFrameWait) s; access may be remembered for another copy of the app")
+            }
+            return 1
+        }
+        print("""
+        first frame: \(CVPixelBufferGetWidth(first.pixels))x\(CVPixelBufferGetHeight(first.pixels)) \
+        \(pixelFormatName(CVPixelBufferGetPixelFormatType(first.pixels))), \
+        \(oneDecimal((CACurrentMediaTime() - readyAt) * 1000)) ms after the stream started
+        """)
 
-    let deadline = readyAt + firstFrameWait
-    while stream.frames.latest == nil, CACurrentMediaTime() < deadline {
-        try? await Task.sleep(for: .milliseconds(5))
-    }
-    guard let first = stream.frames.latest else {
+        lateness.withLock { $0.removeAll() }
+        let until = CACurrentMediaTime() + measuringWindow
+        while stoppedWith == nil, CACurrentMediaTime() < until {
+            // смена вывода заставляет ScreenCaptureKit прислать новые кадры
+            fputs(".", stdout)
+            fflush(stdout)
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        print("")
+    } catch is CancellationError {
         await stream.stop()
-        print("FAIL: no frame in \(firstFrameWait) s; access may be remembered for another copy of the app")
+        print("CANCELLED: capture check stopped")
+        return 1
+    } catch {
+        await stream.stop()
+        let trouble = captureTrouble(error)
+        print("FAIL capture: \(trouble.message) [\(String(describing: trouble.recovery))]")
         return 1
     }
-    print("""
-    first frame: \(CVPixelBufferGetWidth(first.pixels))x\(CVPixelBufferGetHeight(first.pixels)) \
-    \(pixelFormatName(CVPixelBufferGetPixelFormatType(first.pixels))), \
-    \(oneDecimal((CACurrentMediaTime() - readyAt) * 1000)) ms after the stream started
-    """)
-
-    lateness.withLock { $0.removeAll() }
-    let until = CACurrentMediaTime() + measuringWindow
-    while CACurrentMediaTime() < until {
-        // ScreenCaptureKit присылает кадр только на изменение экрана, поэтому проверка сама шевелит вывод
-        fputs(".", stdout)
-        fflush(stdout)
-        try? await Task.sleep(for: .milliseconds(50))
-    }
-    print("")
     await stream.stop()
+    if let trouble = stoppedWith {
+        print("FAIL capture: \(trouble.message) [\(String(describing: trouble.recovery))]")
+        return 1
+    }
 
     let measured = lateness.withLock { $0 }.sorted()
     guard let slowest = measured.last else {
@@ -86,7 +98,7 @@ private let measuringWindow = 1.0
     return 0
 }
 
-/// одна цифра после запятой: читать миллисекунды с длинным хвостом неудобно
+/// миллисекунды с одной цифрой после запятой
 private func oneDecimal(_ value: Double) -> String {
     String(format: "%.1f", value)
 }

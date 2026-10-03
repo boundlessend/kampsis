@@ -51,6 +51,13 @@ struct ReleaseTests {
         #expect((fields["NSPrivacyAccessedAPITypes"] as? [Any])?.isEmpty == false, "причины доступа к API не указаны")
     }
 
+    @Test @MainActor func cancelledReleaseCheckStopsBeforeRequestingTheNetwork() async throws {
+        let releases = try GitHubReleases(repository: AppIdentity.releasesRepository, session: .shared)
+        let task = Task { try await releases.latest() }
+        task.cancel()
+        await #expect(throws: CancellationError.self) { try await task.value }
+    }
+
     @Test func repositoryMustLookLikeOwnerAndName() {
         #expect(throws: GitHubReleasesFailure.self) { try GitHubReleases(repository: "not a repo", session: .shared) }
         #expect(throws: GitHubReleasesFailure.self) { try GitHubReleases(repository: "owner/name/extra", session: .shared) }
