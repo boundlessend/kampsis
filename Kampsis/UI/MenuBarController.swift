@@ -18,13 +18,13 @@ import Observation
             let state = controller.state
             if state.showsMenuBarIcon {
                 if item == nil {
-                    item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+                    item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
                     item?.button?.target = self
                     item?.button?.action = #selector(clicked)
                     item?.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
                 }
-                let symbol = state.settings.isOn ? "macbook" : "pause.circle"
-                item?.button?.image = NSImage(systemSymbolName: symbol, accessibilityDescription: state.toggleTitle)
+                item?.button?.image = NSImage(systemSymbolName: "macbook", accessibilityDescription: state.toggleTitle)
+                item?.button?.appearsDisabled = !state.settings.isOn
                 item?.button?.toolTip = String(localized: "Left-click to toggle the effect. Right-click for the menu.")
                 item?.button?.setAccessibilityLabel(AppIdentity.name)
                 item?.button?.setAccessibilityHelp(state.toggleTitle)
