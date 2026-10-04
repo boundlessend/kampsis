@@ -12,6 +12,7 @@ import os
 
     private(set) var checking = false
     private(set) var checksAutomatically: Bool
+    private(set) var availableRelease: PublishedRelease?
 
     @ObservationIgnored private let releases: Result<GitHubReleases, GitHubReleasesFailure>
     @ObservationIgnored private let installedVersion: String
@@ -27,6 +28,7 @@ import os
 
     func start() {
         guard store.object(forKey: Self.automaticKey) != nil else {
+            guard !isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent) else { return }
             Task { askAboutAutomaticChecks() }
             return
         }
@@ -50,6 +52,16 @@ import os
         schedule?.cancel()
         schedule = nil
         if enabled { scheduleChecks() }
+    }
+
+    func stop() {
+        schedule?.cancel()
+        schedule = nil
+    }
+
+    func openAvailableRelease() {
+        guard let availableRelease else { return }
+        NSWorkspace.shared.open(availableRelease.pageURL)
     }
 
     /// проверка по просьбе пользователя: показывает любой итог, включая ошибку
@@ -83,8 +95,7 @@ import os
         checking = true
         defer { checking = false }
         do {
-            let verdict = try await fetchVerdict()
-            if case .available = verdict { presentVerdict(verdict) }
+            _ = try await fetchVerdict()
         } catch is CancellationError {
             return
         } catch {
@@ -94,8 +105,11 @@ import os
 
     private func fetchVerdict() async throws -> UpdateVerdict {
         let latest = try await releases.get().latest()
+        try Task.checkCancellation()
+        let verdict = try updateVerdict(installed: installedVersion, latest: latest)
         store.set(Date(), forKey: Self.lastCheckKey)
-        return try updateVerdict(installed: installedVersion, latest: latest)
+        if case .available = verdict { availableRelease = latest } else { availableRelease = nil }
+        return verdict
     }
 
     private func presentVerdict(_ verdict: UpdateVerdict) {

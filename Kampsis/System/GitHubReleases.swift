@@ -3,20 +3,33 @@ import os
 
 enum GitHubReleasesFailure: LocalizedError {
     case invalidRepository(String)
-    case noPublishedRelease(repository: String)
-    case unexpectedStatus(url: URL, status: Int, body: String)
-    case notHTTP(url: URL)
+    case releaseUnavailable(repository: String)
+    case rateLimited
+    case accessDenied
+    case unexpectedStatus(Int)
+    case invalidResponse
+    case network(URLError.Code)
 
     var errorDescription: String? {
         switch self {
         case let .invalidRepository(repository):
             String(localized: "The releases repository “\(repository)” is invalid.")
-        case let .noPublishedRelease(repository):
-            String(localized: "\(repository) has no published releases yet.")
-        case let .unexpectedStatus(url, status, body):
-            String(localized: "GitHub responded \(status) to \(url.absoluteString): \(String(body.prefix(300)))")
-        case let .notHTTP(url):
-            String(localized: "The response from \(url.absoluteString) isn’t HTTP.")
+        case let .releaseUnavailable(repository):
+            String(localized: "The latest release in \(repository) isn’t publicly available. The repository may be private or have no published release. Try again later.")
+        case .rateLimited:
+            String(localized: "GitHub’s request limit has been reached. Wait a while, then check again.")
+        case .accessDenied:
+            String(localized: "GitHub denied access to the release information. Try again later.")
+        case let .unexpectedStatus(status):
+            String(localized: "GitHub couldn’t provide release information (HTTP \(status)). Try again later.")
+        case .invalidResponse:
+            String(localized: "GitHub returned unreadable release information. Try again later.")
+        case .network(.notConnectedToInternet), .network(.networkConnectionLost):
+            String(localized: "The update check lost its internet connection. Check your connection and try again.")
+        case .network(.timedOut):
+            String(localized: "GitHub didn’t respond in time. Try again later.")
+        case .network:
+            String(localized: "Couldn’t connect to GitHub. Check your connection and try again.")
         }
     }
 }
@@ -56,13 +69,13 @@ final class GitHubReleases: Sendable {
                 try Task.checkCancellation()
                 return release
             } catch let failure as GitHubReleasesFailure {
-                guard case let .unexpectedStatus(_, status, _) = failure, status >= 500, attempt < Self.attempts else {
+                guard case let .unexpectedStatus(status) = failure, status >= 500, attempt < Self.attempts else {
                     throw failure
                 }
                 Self.log.warning("releases request retry: attempt=\(attempt, privacy: .public) status=\(status, privacy: .public)")
             } catch let failure as URLError {
                 if failure.code == .cancelled { throw CancellationError() }
-                guard attempt < Self.attempts else { throw failure }
+                guard attempt < Self.attempts else { throw GitHubReleasesFailure.network(failure.code) }
                 Self.log.warning("releases request retry: attempt=\(attempt, privacy: .public) error=\(failure.code.rawValue, privacy: .public)")
             }
             try await Task.sleep(for: .seconds(attempt * 2))
@@ -72,15 +85,23 @@ final class GitHubReleases: Sendable {
 
     private func fetch(_ request: URLRequest) async throws -> PublishedRelease {
         let (body, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse else { throw GitHubReleasesFailure.notHTTP(url: url) }
-        switch http.statusCode {
-        case 200:
+        guard let http = response as? HTTPURLResponse else { throw GitHubReleasesFailure.invalidResponse }
+        if http.statusCode != 200 { throw releaseResponseFailure(http, repository: repository) }
+        do {
             return try JSONDecoder().decode(PublishedRelease.self, from: body)
-        case 404:
-            throw GitHubReleasesFailure.noPublishedRelease(repository: repository)
-        default:
-            throw GitHubReleasesFailure.unexpectedStatus(url: url, status: http.statusCode,
-                                                         body: String(decoding: body, as: UTF8.self))
+        } catch is DecodingError {
+            throw GitHubReleasesFailure.invalidResponse
         }
+    }
+}
+
+/// безопасное объяснение ответа API без URL и содержимого серверного ответа
+func releaseResponseFailure(_ response: HTTPURLResponse, repository: String) -> GitHubReleasesFailure {
+    switch response.statusCode {
+    case 404: .releaseUnavailable(repository: repository)
+    case 429: .rateLimited
+    case 403 where response.value(forHTTPHeaderField: "X-RateLimit-Remaining") == "0": .rateLimited
+    case 401, 403: .accessDenied
+    default: .unexpectedStatus(response.statusCode)
     }
 }

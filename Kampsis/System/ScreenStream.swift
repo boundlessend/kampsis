@@ -115,13 +115,21 @@ func capturableWindowIDs(_ windowNumbers: [Int]) -> Set<CGWindowID> {
 }
 
 /// коннектор к ScreenCaptureKit: захватывает только встроенный экран без собственных окон эффекта
-@MainActor final class ScreenStream {
+@MainActor protocol ScreenCapturing: AnyObject {
+    var frames: FrameSlot { get }
+    var hasScreenAccess: Bool { get }
+    func start(showing windows: [NSWindow], onStop: @escaping @MainActor @Sendable (CaptureTrouble) -> Void) async throws
+    func stop() async
+}
+
+@MainActor final class ScreenStream: ScreenCapturing {
     static let widestCapture: CGFloat = 2560
     static let captureRate: Int32 = 60
     /// глубина очереди кадров; единица не годится: последний кадр остаётся у нас и потоку некуда писать новый
     static let queueDepth = 3
 
     let frames = FrameSlot()
+    var hasScreenAccess: Bool { CGPreflightScreenCaptureAccess() }
     private var activeStream: SCStream?
     private var receiver: FrameReceiver?
     private let queue = DispatchQueue(label: "io.github.boundlessend.kampsis.capture", qos: .userInteractive)

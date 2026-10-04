@@ -1,6 +1,9 @@
 import AppKit
 import CoreGraphics
 import Darwin
+import os
+
+private let pointerLog = Logger(subsystem: "io.github.boundlessend.kampsis", category: "pointer")
 
 enum PointerAction: Equatable, Sendable {
     case hide
@@ -22,9 +25,17 @@ func pointerAction(hiddenByUs: Bool, overEffect: Bool) -> PointerAction? {
     private var coveredArea: NSRect?
     private var monitors: [Any] = []
     private var appSwitchObserver: (any NSObjectProtocol)?
+    private var restoreJob: Task<Void, Never>?
+    private var restoreSession = 0
+    var onProblem: ((String?) -> Void)?
     private(set) var hiddenByUs = false
 
+    var backgroundProblem: String? { backgroundControl.problem }
+
     func engage(over frame: NSRect) {
+        restoreSession += 1
+        restoreJob?.cancel()
+        restoreJob = nil
         coveredArea = frame
         sync()
         guard monitors.isEmpty else { return }
@@ -53,6 +64,21 @@ func pointerAction(hiddenByUs: Bool, overEffect: Bool) -> PointerAction? {
         if let appSwitchObserver { NSWorkspace.shared.notificationCenter.removeObserver(appSwitchObserver) }
         appSwitchObserver = nil
         showIfHidden()
+        guard hiddenByUs, restoreJob == nil else { return }
+        restoreSession += 1
+        let session = restoreSession
+        restoreJob = Task { [weak self] in
+            guard let self else { return }
+            defer { if self.restoreSession == session { self.restoreJob = nil } }
+            for _ in 0..<3 {
+                do { try await Task.sleep(for: .milliseconds(100)) } catch { return }
+                self.showIfHidden()
+                if !self.hiddenByUs { return }
+            }
+            let problem = String(localized: "The cursor couldn’t be restored. Move the pointer or switch to another app, then click “Check Again”.")
+            pointerLog.error("cursor restore failed after retries")
+            self.onProblem?(problem)
+        }
     }
 
     private func sync() {
@@ -66,7 +92,10 @@ func pointerAction(hiddenByUs: Bool, overEffect: Bool) -> PointerAction? {
 
     private func hide() {
         backgroundControl.allowBackgroundChanges(true)
-        guard CGDisplayHideCursor(CGMainDisplayID()) == .success else {
+        onProblem?(backgroundControl.problem)
+        let status = CGDisplayHideCursor(CGMainDisplayID())
+        guard status == .success else {
+            pointerLog.warning("cursor hide failed: code=\(status.rawValue, privacy: .public)")
             backgroundControl.allowBackgroundChanges(false)
             return
         }
@@ -75,9 +104,15 @@ func pointerAction(hiddenByUs: Bool, overEffect: Bool) -> PointerAction? {
 
     /// при неудаче курсор остаётся «нашим», следующая попытка повторит показ
     private func showIfHidden() {
-        guard hiddenByUs, CGDisplayShowCursor(CGMainDisplayID()) == .success else { return }
+        guard hiddenByUs else { return }
+        let status = CGDisplayShowCursor(CGMainDisplayID())
+        guard status == .success else {
+            pointerLog.warning("cursor restore failed: code=\(status.rawValue, privacy: .public)")
+            return
+        }
         backgroundControl.allowBackgroundChanges(false)
         hiddenByUs = false
+        onProblem?(backgroundControl.problem)
     }
 }
 
@@ -91,20 +126,30 @@ func pointerAction(hiddenByUs: Bool, overEffect: Bool) -> PointerAction? {
     private let mainConnection: MainConnection?
     private let setProperty: SetProperty?
     private var allowed = false
+    private(set) var problem: String?
 
     init() {
         let process = dlopen(nil, RTLD_LAZY)
         mainConnection = dlsym(process, "CGSMainConnectionID").map { unsafeBitCast($0, to: MainConnection.self) }
         setProperty = dlsym(process, "CGSSetConnectionProperty").map { unsafeBitCast($0, to: SetProperty.self) }
         if let process { dlclose(process) }
+        if mainConnection == nil || setProperty == nil {
+            problem = String(localized: "This macOS version doesn’t provide background cursor control. The pointer may stay visible over the effect.")
+            pointerLog.warning("background cursor API unavailable")
+        }
     }
 
     func allowBackgroundChanges(_ allow: Bool) {
         guard allow != allowed, let mainConnection, let setProperty else { return }
         let connection = mainConnection()
         let value: CFBoolean = allow ? kCFBooleanTrue : kCFBooleanFalse
-        if setProperty(connection, connection, "SetsCursorInBackground" as CFString, value) == 0 {
+        let status = setProperty(connection, connection, "SetsCursorInBackground" as CFString, value)
+        if status == 0 {
             allowed = allow
+            problem = nil
+        } else {
+            problem = String(localized: "macOS couldn’t change background cursor visibility (code \(status)).")
+            pointerLog.warning("background cursor property rejected: code=\(status, privacy: .public) enabled=\(allow, privacy: .public)")
         }
     }
 }

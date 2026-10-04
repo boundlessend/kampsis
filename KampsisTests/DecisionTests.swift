@@ -1,8 +1,18 @@
 import ScreenCaptureKit
+import Carbon
 import Testing
 @testable import Kampsis
 
 struct DecisionTests {
+    @Test func loginLaunchIsReadFromTheOpenApplicationEvent() {
+        #expect(!isLoginLaunch(nil))
+        let event = NSAppleEventDescriptor(eventClass: kCoreEventClass, eventID: kAEOpenApplication,
+                                           targetDescriptor: nil, returnID: AEReturnID(kAutoGenerateReturnID),
+                                           transactionID: AETransactionID(kAnyTransactionID))
+        #expect(!isLoginLaunch(event))
+        event.setParam(NSAppleEventDescriptor(enumCode: keyAELaunchedAsLogInItem), forKeyword: keyAEPropData)
+        #expect(isLoginLaunch(event))
+    }
     /// крышка приоткрыта до 80°, всё разрешено, захвата ещё нет
     private let ready = EffectSnapshot(
         isOn: true, screenAccess: true, suspended: false, builtInDisplay: true, demo: false,

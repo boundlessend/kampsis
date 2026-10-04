@@ -18,11 +18,13 @@ enum ShortcutFailure: LocalizedError {
 /// глобальное сочетание через Carbon: работает без разрешения на мониторинг ввода
 @MainActor final class GlobalShortcut {
     private static let signature: OSType = 0x4C44_464C
+    let value: ToggleShortcut
     private let onPress: () -> Void
     private var eventHandler: EventHandlerRef?
     private var hotKey: EventHotKeyRef?
 
     init(_ shortcut: ToggleShortcut, onPress: @escaping () -> Void) throws {
+        value = shortcut
         self.onPress = onPress
         var pressed = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
         let owner = Unmanaged.passUnretained(self).toOpaque()

@@ -78,6 +78,9 @@ struct DiagnosticsReport: Codable, Sendable {
     let capturing: Bool
     let overlayShown: Bool
     let pointerHidden: Bool
+    let pointerProblem: String?
+    let loginNeedsApproval: Bool
+    let loginProblem: String?
     let isOn: Bool
     let demo: Bool
     let metalReady: Bool
@@ -89,9 +92,20 @@ struct DiagnosticsReport: Codable, Sendable {
     let presentation: PresentationSummary?
 }
 
-/// атомарно заменяет файл диагностики без сохранения изображения экрана
-func writeDiagnostics(_ report: DiagnosticsReport, to url: URL) throws {
+/// кодирует технический отчёт без изображения экрана
+func diagnosticsData(_ report: DiagnosticsReport) throws -> Data {
     let encoder = JSONEncoder()
     encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-    try encoder.encode(report).write(to: url, options: .atomic)
+    return try encoder.encode(report)
+}
+
+/// атомарно сохраняет тот же отчёт, который доступен из интерфейса
+func writeDiagnostics(_ report: DiagnosticsReport, to url: URL) throws {
+    try diagnosticsData(report).write(to: url, options: .atomic)
+}
+
+enum DiagnosticsFailure: LocalizedError {
+    case clipboardUnavailable
+
+    var errorDescription: String? { String(localized: "Couldn’t copy diagnostics. Try again.") }
 }

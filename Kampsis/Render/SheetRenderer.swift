@@ -97,10 +97,19 @@ private final class MappedFrame: @unchecked Sendable {
 
 enum SheetRendererFailure: LocalizedError {
     case textureCache(CVReturn)
+    case commandBufferUnavailable
+    case encodingFailed
+    case gpuFailed(Int?)
+    case textureMappingFailed(CVReturn)
 
     var errorDescription: String? {
         switch self {
         case let .textureCache(code): String(localized: "Couldn’t prepare screen frames for Metal (code \(code)).")
+        case .commandBufferUnavailable: String(localized: "Metal couldn’t prepare a frame. Click “Check Again”.")
+        case .encodingFailed: String(localized: "Metal couldn’t render the effect. Click “Check Again”.")
+        case let .gpuFailed(.some(code)): String(localized: "The GPU stopped rendering the effect (code \(code)). Click “Check Again”.")
+        case .gpuFailed(nil): String(localized: "The GPU stopped rendering the effect. Click “Check Again”.")
+        case let .textureMappingFailed(code): String(localized: "Metal couldn’t read the screen image (code \(code)). Click “Check Again”.")
         }
     }
 }
@@ -113,6 +122,7 @@ enum SheetRendererFailure: LocalizedError {
 
     var inputs: () -> FoldInputs
     var presentationLog: PresentationLog?
+    var onFailure: ((SheetRendererFailure) -> Void)?
     let surface: MetalSurfaceView
     let painter: FoldPainter
     private(set) var drawnFrames = 0
@@ -124,6 +134,8 @@ enum SheetRendererFailure: LocalizedError {
     private var smoother = ProgressSmoother.resting
     private var lastDrawn: (inputs: FoldInputs, size: CGSize, frameNumber: UInt64?)?
     private var lastChange = 0.0
+    private(set) var failed = false
+    private var generation = 0
     private let inFlight = DispatchSemaphore(value: SheetRenderer.maximumInFlight)
 
     /// превью использует пример рабочего стола, поэтому `frames` у него отсутствует
@@ -152,11 +164,13 @@ enum SheetRendererFailure: LocalizedError {
 
     /// будит display link, если поверхность видна
     func wake() {
-        guard surface.paused, surface.isOnScreen else { return }
+        guard !failed, surface.paused, surface.isOnScreen else { return }
         surface.paused = false
     }
 
     func reset() {
+        generation += 1
+        failed = false
         smoother = .resting
         lastDrawn = nil
         current = nil
@@ -180,6 +194,7 @@ enum SheetRendererFailure: LocalizedError {
         var shown = wanted
         shown.progress = Double(Float(smoother.value))
         adoptLatestFrame()
+        guard !failed else { return }
         let size = surface.drawableSize
         let frameNumber = current?.number
         if let lastDrawn, lastDrawn.inputs == shown, lastDrawn.size == size, lastDrawn.frameNumber == frameNumber {
@@ -194,20 +209,37 @@ enum SheetRendererFailure: LocalizedError {
         } else {
             (source, sourceNumber) = (current?.texture, frameNumber)
         }
-        guard let source, let command = stack.queue.makeCommandBuffer() else { return }
+        guard let source else { return }
+        guard let command = stack.queue.makeCommandBuffer() else {
+            fail(.commandBufferUnavailable)
+            return
+        }
         let pass = MTLRenderPassDescriptor()
         pass.colorAttachments[0].texture = drawable.texture
         pass.colorAttachments[0].loadAction = .clear
         pass.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0)
         pass.colorAttachments[0].storeAction = .store
         guard painter.encode(source: source, sourceNumber: sourceNumber, inputs: shown,
-                             pass: pass, command: command, size: size) else { return }
+                             pass: pass, command: command, size: size) else {
+            fail(.encodingFailed)
+            return
+        }
 
         let keepAlive = current
         let semaphore = inFlight
-        command.addCompletedHandler { _ in
+        let submittedGeneration = generation
+        command.addCompletedHandler { [weak self] completed in
             withExtendedLifetime(keepAlive) {}
             semaphore.signal()
+            if completed.status == .error {
+                let code = (completed.error as NSError?)?.code
+                DispatchQueue.main.async { [weak self] in
+                    MainActor.assumeIsolated {
+                        guard let self, self.generation == submittedGeneration else { return }
+                        self.fail(.gpuFailed(code))
+                    }
+                }
+            }
         }
         if let presentationLog {
             drawable.addPresentedHandler { presentationLog.record($0.presentedTime) }
@@ -220,6 +252,14 @@ enum SheetRendererFailure: LocalizedError {
         drawnFrames += 1
     }
 
+    private func fail(_ failure: SheetRendererFailure) {
+        guard !failed else { return }
+        failed = true
+        surface.paused = true
+        renderLog.error("render failed: message=\(failure.localizedDescription, privacy: .public)")
+        onFailure?(failure)
+    }
+
     private func adoptLatestFrame() {
         guard let textureCache, let latest = frames?.latest, latest.number != current?.number else { return }
         var cvTexture: CVMetalTexture?
@@ -229,6 +269,7 @@ enum SheetRendererFailure: LocalizedError {
         )
         guard status == kCVReturnSuccess, let cvTexture, let texture = CVMetalTextureGetTexture(cvTexture) else {
             renderLog.warning("capture current not mapped to texture: status=\(status, privacy: .public) frame=\(latest.number, privacy: .public)")
+            fail(.textureMappingFailed(status))
             return
         }
         current = MappedFrame(pixels: latest.pixels, cvTexture: cvTexture, texture: texture, number: latest.number)

@@ -122,6 +122,30 @@ private func contrast(_ values: [Int]) -> Double {
 
     // MARK: миниатюры и превью
 
+    @Test func unmappableCaptureStopsRenderingAndReportsItsFailure() async throws {
+        var created: CVPixelBuffer?
+        let status = CVPixelBufferCreate(kCFAllocatorDefault, 32, 32, kCVPixelFormatType_OneComponent8,
+                                         [kCVPixelBufferIOSurfacePropertiesKey: [:]] as CFDictionary, &created)
+        #expect(status == kCVReturnSuccess)
+        let pixels = try #require(created)
+        let frames = FrameSlot()
+        frames.store(pixels, capturedAt: CACurrentMediaTime())
+        let renderer = try SheetRenderer(stack: stack, frames: frames) {
+            FoldInputs(progress: 0.1, settings: .standard, fadesIn: true, reduceMotion: false)
+        }
+        var failure: SheetRendererFailure?
+        renderer.onFailure = { failure = $0 }
+        let panel = floatingPanel(with: renderer.surface)
+        defer { panel.close(); renderer.reset() }
+        try await wait(upTo: 3) { failure != nil }
+        #expect(failure != nil)
+        #expect(renderer.failed)
+        #expect(renderer.surface.paused)
+        #expect(renderer.drawnFrames == 0)
+        renderer.reset()
+        #expect(!renderer.failed)
+    }
+
     @Test func lookThumbnailsDifferAndAreCached() throws {
         let pixelSets = try Look.allCases.map { look -> Data in
             let image = try StyleThumbnails.image(for: look)

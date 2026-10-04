@@ -5,7 +5,7 @@ import ServiceManagement
 
 /// связывает датчик, захват, оверлей и настройки; решения о захвате принимает `planEffect`
 @MainActor final class EffectController {
-    static let shared = EffectController()
+    static let shared = EffectController(store: .standard, stream: ScreenStream())
 
     private static let log = Logger(subsystem: "io.github.boundlessend.kampsis", category: "effect")
     /// сколько после последнего движения крышки захват ещё держится наготове
@@ -13,22 +13,22 @@ import ServiceManagement
     private static let quietRecheckDelay: Duration = .milliseconds(900)
     private static let stopDelay: Duration = .milliseconds(300)
     private static let firstFrameTimeout = 2.0
-    private static let demoCaptureTimeout = 3.0
+    private static let demoCaptureTimeout = firstFrameTimeout * Double(restartLimit + 1) + 4
     /// сколько раз подряд поток поднимается заново, прежде чем сбой показывается человеку
     private static let restartLimit = 2
     /// поток, проживший столько, считается здоровым: следующий сбой это новый случай
     private static let healthyCapture = 60.0
 
-    let state = AppState(store: .standard)
+    let state: AppState
     let sensor = LidReader()
     let updates: UpdateChecker
-    private let stream = ScreenStream()
+    private let stream: any ScreenCapturing
     private let pointer = PointerHider()
     private let chime = ChimePlayer()
     private var shortcut: GlobalShortcut?
 
     private var launched = false
-    private var phase = CapturePhase.idle
+    private(set) var phase = CapturePhase.idle
     private var captureJob: Task<Void, Never>?
     private var captureSession = 0
     private var scheduledStop: Task<Void, Never>?
@@ -50,11 +50,13 @@ import ServiceManagement
     private var timers: [Timer] = []
     private var observers: [(center: NotificationCenter, token: any NSObjectProtocol)] = []
 
-    private init() {
+    init(store: UserDefaults, stream: any ScreenCapturing) {
+        state = AppState(store: store)
+        self.stream = stream
         let releases = Result { () throws(GitHubReleasesFailure) in
             try GitHubReleases(repository: AppIdentity.releasesRepository, session: .shared)
         }
-        updates = UpdateChecker(releases: releases, installedVersion: AppIdentity.version, store: .standard)
+        updates = UpdateChecker(releases: releases, installedVersion: AppIdentity.version, store: store)
     }
 
     // MARK: действия пользователя
@@ -62,12 +64,14 @@ import ServiceManagement
     func start() {
         guard !launched else { return }
         launched = true
-        state.screenAccess = CGPreflightScreenCaptureAccess()
-        state.launchesAtLogin = SMAppService.mainApp.status == .enabled
+        state.screenAccess = stream.hasScreenAccess
+        refreshLoginStatus()
         state.problem = metalProblem
         sensor.onReading = { [weak self] reading in self?.receive(reading) }
         sensor.onStatus = { [weak self] status in self?.sensorChanged(status) }
         state.onSettingsChange = { [weak self] old, new in self?.settingsChanged(from: old, to: new) }
+        pointer.onProblem = { [weak self] problem in self?.state.pointerProblem = problem }
+        state.pointerProblem = pointer.backgroundProblem
         if state.settings.isOn { sensor.start() }
         registerShortcut()
         observeSystem()
@@ -91,7 +95,7 @@ import ServiceManagement
         state.problem = metalProblem
         allowCaptureAgain()
         sensor.stop()
-        state.lidEstimate = .unknown
+        state.clearSensorReading()
         if state.settings.isOn, !state.suspended { sensor.start() }
         refreshScreenAccess()
         reevaluate()
@@ -130,13 +134,43 @@ import ServiceManagement
             } else {
                 try SMAppService.mainApp.unregister()
             }
+            state.loginProblem = nil
         } catch {
-            state.problem = String(localized: "Launch at login didn’t change: \(error.localizedDescription)")
+            state.loginProblem = String(localized: "Launch at login didn’t change: \(error.localizedDescription)")
         }
-        state.launchesAtLogin = SMAppService.mainApp.status == .enabled
+        refreshLoginStatus()
         if enabled, SMAppService.mainApp.status == .requiresApproval {
             SMAppService.openSystemSettingsLoginItems()
         }
+    }
+
+    func refreshLoginStatus() {
+        let status = SMAppService.mainApp.status
+        state.loginNeedsApproval = status == .requiresApproval
+        state.launchesAtLogin = status == .enabled || state.loginNeedsApproval
+    }
+
+    func openLoginSettings() { SMAppService.openSystemSettingsLoginItems() }
+
+    /// освобождает наблюдателей и ждёт остановки текущего захвата
+    func stop() async {
+        launched = false
+        updates.stop()
+        endDemo()
+        quietRecheck?.cancel()
+        quietRecheck = nil
+        sensor.stop()
+        state.clearSensorReading()
+        state.onSettingsChange = nil
+        timers.forEach { $0.invalidate() }
+        timers.removeAll()
+        for (center, token) in observers { center.removeObserver(token) }
+        observers.removeAll()
+        shortcut = nil
+        endCapture()
+        await captureJob?.value
+        overlay?.panel.close()
+        overlay = nil
     }
 
     func beginDemo() {
@@ -149,8 +183,11 @@ import ServiceManagement
         state.settings.isOn = true
         reevaluate()
         demoJob = Task { [weak self] in
-            guard let self, await self.waitForCapture() else {
-                self?.endDemo()
+            guard let self else { return }
+            do { try await self.waitForCapture() }
+            catch is CancellationError { return }
+            catch {
+                self.failCapture(CaptureTrouble(message: error.localizedDescription, recovery: .blocked))
                 return
             }
             let began = CACurrentMediaTime()
@@ -201,14 +238,16 @@ import ServiceManagement
     }
 
     private func settingsChanged(from old: EffectSettings, to new: EffectSettings) {
-        if old.toggleShortcut != new.toggleShortcut { registerShortcut() }
+        if old.toggleShortcut != new.toggleShortcut, !registerShortcut() {
+            state.settings.toggleShortcut = old.toggleShortcut
+        }
         if old.isOn != new.isOn {
             if new.isOn {
                 if !state.suspended { sensor.start() }
             } else {
                 _ = finishDemo()
                 sensor.stop()
-                state.lidEstimate = .unknown
+                state.clearSensorReading()
                 chimeLatch = .disarmed
                 endCapture()
             }
@@ -216,19 +255,21 @@ import ServiceManagement
         reevaluate()
     }
 
-    /// прежнее сочетание снимается до регистрации нового, иначе то же сочетание не зарегистрировать повторно
-    private func registerShortcut() {
-        shortcut = nil
+    /// действующее сочетание сохраняется, пока новая регистрация не завершилась успешно
+    @discardableResult private func registerShortcut() -> Bool {
+        if shortcut?.value == state.settings.toggleShortcut { return true }
         do {
             shortcut = try GlobalShortcut(state.settings.toggleShortcut) { [weak self] in self?.toggle() }
             state.shortcutProblem = nil
+            return true
         } catch {
             state.shortcutProblem = error.localizedDescription
+            return false
         }
     }
 
     private func refreshScreenAccess() {
-        let granted = CGPreflightScreenCaptureAccess()
+        let granted = stream.hasScreenAccess
         guard granted != state.screenAccess else { return }
         state.screenAccess = granted
         if granted {
@@ -247,6 +288,7 @@ import ServiceManagement
             endDemo()
             endCapture()
             sensor.stop()
+            state.clearSensorReading()
             chimeLatch = .disarmed
             state.lidEstimate = .unknown
         } else {
@@ -273,7 +315,7 @@ import ServiceManagement
             controller.endCapture()
             _ = controller.after(.milliseconds(400)) { $0.reevaluate() }
         }
-        observe(.default, NSApplication.didBecomeActiveNotification) { $0.refreshScreenAccess() }
+        observe(.default, NSApplication.didBecomeActiveNotification) { $0.refreshScreenAccess(); $0.refreshLoginStatus() }
         observe(.default, NSApplication.willTerminateNotification) { $0.dismissOverlay() }
     }
 
@@ -354,6 +396,8 @@ import ServiceManagement
     }
 
     private func beginCapture() {
+        // прозрачное окно заранее регистрирует приложение для фильтра ScreenCaptureKit при фоновом запуске
+        guard orderedOverlay() != nil else { return }
         captureSession += 1
         let session = captureSession
         phase = .starting
@@ -441,14 +485,16 @@ import ServiceManagement
         }
     }
 
-    /// ждёт готовности захвата; возвращает false при отмене или таймауте
-    private func waitForCapture() async -> Bool {
+    /// ждёт захват с запасом на повторные попытки; отмена отличается от таймаута
+    private func waitForCapture() async throws {
         let deadline = CACurrentMediaTime() + Self.demoCaptureTimeout
         while !state.capturing {
-            guard CACurrentMediaTime() < deadline else { return false }
-            do { try await Task.sleep(for: .milliseconds(30)) } catch { return false }
+            try Task.checkCancellation()
+            guard state.demoRunning, !captureFailed else { throw CancellationError() }
+            guard CACurrentMediaTime() < deadline else { throw CaptureFailure.noFrames }
+            try await Task.sleep(for: .milliseconds(30))
         }
-        return true
+        try Task.checkCancellation()
     }
 
     /// снимает демонстрацию без восстановления включённости; возвращает включённость до неё
@@ -507,6 +553,9 @@ import ServiceManagement
             failCapture(CaptureTrouble(message: error.localizedDescription, recovery: .blocked))
             return nil
         }
+        renderer.onFailure = { [weak self] failure in
+            self?.failCapture(CaptureTrouble(message: failure.localizedDescription, recovery: .blocked))
+        }
         let panel = NSPanel(contentRect: frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.title = "\(AppIdentity.name) overlay"
         panel.backgroundColor = .clear
@@ -547,9 +596,8 @@ import ServiceManagement
         })
     }
 
-    private func dumpDiagnostics() {
-        guard let diagnosticsTarget else { return }
-        let report = DiagnosticsReport(
+    func diagnosticsReport() -> DiagnosticsReport {
+        DiagnosticsReport(
             appVersion: AppIdentity.version,
             buildNumber: AppIdentity.build,
             model: sensor.modelIdentifier,
@@ -561,6 +609,9 @@ import ServiceManagement
             capturing: state.capturing,
             overlayShown: state.overlayShown,
             pointerHidden: pointer.hiddenByUs,
+            pointerProblem: state.pointerProblem,
+            loginNeedsApproval: state.loginNeedsApproval,
+            loginProblem: state.loginProblem,
             isOn: state.settings.isOn,
             demo: state.demoRunning,
             metalReady: metalProblem == nil,
@@ -571,8 +622,18 @@ import ServiceManagement
             shortcutProblem: state.shortcutProblem,
             presentation: presentationLog?.summary()
         )
+    }
+
+    func copyDiagnostics() throws {
+        let text = String(decoding: try diagnosticsData(diagnosticsReport()), as: UTF8.self)
+        NSPasteboard.general.clearContents()
+        guard NSPasteboard.general.writeObjects([text as NSString]) else { throw DiagnosticsFailure.clipboardUnavailable }
+    }
+
+    private func dumpDiagnostics() {
+        guard let diagnosticsTarget else { return }
         do {
-            try writeDiagnostics(report, to: diagnosticsTarget)
+            try writeDiagnostics(diagnosticsReport(), to: diagnosticsTarget)
         } catch {
             Self.log.error("diagnostics not written: path=\(diagnosticsTarget.path, privacy: .public) error=\(error.localizedDescription, privacy: .public)")
         }

@@ -3,6 +3,26 @@ import Testing
 @testable import Kampsis
 
 struct ReleaseTests {
+    @Test func releaseFailuresAreReadableAndDoNotExposeResponseDetails() throws {
+        let url = try #require(URL(string: "https://api.github.com/repos/owner/name/releases/latest"))
+        let cases: [(Int, [String: String])] = [(404, [:]), (403, ["X-RateLimit-Remaining": "0"]),
+                                               (429, [:]), (403, [:]), (502, [:])]
+        for (status, headers) in cases {
+            let response = try #require(HTTPURLResponse(url: url, statusCode: status, httpVersion: nil, headerFields: headers))
+            let failure = releaseResponseFailure(response, repository: "owner/name")
+            let message = failure.localizedDescription
+            #expect(!message.contains("https://"))
+            #expect(!message.contains("has no published releases yet"))
+            #expect(!message.contains("{"))
+            switch failure {
+            case .releaseUnavailable: #expect(status == 404)
+            case .rateLimited: #expect(status == 429 || headers["X-RateLimit-Remaining"] == "0")
+            case .accessDenied: #expect(status == 403)
+            case .unexpectedStatus: #expect(status == 502)
+            default: Issue.record("неожиданная классификация HTTP-ошибки")
+            }
+        }
+    }
     private func release(_ tag: String) -> PublishedRelease {
         PublishedRelease(tagName: tag, pageURL: URL(string: "https://github.com/boundlessend/kampsis/releases/tag/\(tag)")!,
                          notes: nil)

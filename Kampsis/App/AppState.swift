@@ -45,8 +45,9 @@ func initialPreviewAngle(fadeOutAngle: Double) -> Double {
     var settings: EffectSettings {
         didSet {
             guard settings != oldValue else { return }
-            saveSettings(settings, to: store)
             onSettingsChange?(oldValue, settings)
+            guard settings != oldValue else { return }
+            saveSettings(settings, to: store)
         }
     }
     var measuredAngle: Double?
@@ -60,8 +61,19 @@ func initialPreviewAngle(fadeOutAngle: Double) -> Double {
     var previewUsesLid = false
     var previewAngle: Double
     var launchesAtLogin = false
+    var loginNeedsApproval = false
+    var loginProblem: String?
+    var pointerProblem: String?
     var problem: String?
     var shortcutProblem: String?
+
+    /// сбрасывает живое превью вместе с остановкой датчика
+    func clearSensorReading() {
+        sensorReady = false
+        measuredAngle = nil
+        lidEstimate = .unknown
+        previewUsesLid = false
+    }
 
     @ObservationIgnored var lidEstimate = LidEstimate.unknown
     @ObservationIgnored var onDockIconChange: ((Bool) -> Void)?
