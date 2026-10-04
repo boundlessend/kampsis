@@ -35,6 +35,8 @@ fi
 stage=$(mktemp -d ${TMPDIR:-/tmp}/KampsisPackage.XXXXXX)
 app=$stage/Kampsis.app
 ditto --noextattr --norsrc $built $app
+# удаляет отладочные символы с локальными путями сборки до подписи
+xcrun strip -S $app/Contents/MacOS/Kampsis
 
 case $mode in
   adhoc)
