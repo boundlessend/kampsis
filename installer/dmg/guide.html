@@ -54,12 +54,19 @@
     padding: 1px 6px;
   }
   b { font-weight: 600; }
+  nav { margin-bottom: 24px; display: flex; gap: 16px; }
+  a { color: var(--accent); }
+  #ru { display: none; }
+  body:has(#ru:target) #en { display: none; }
+  body:has(#ru:target) #ru { display: block; }
 </style>
 </head>
 <body>
 <main>
+  <nav aria-label="Language"><a href="#en" lang="en">English</a><a href="#ru" lang="ru">Русский</a></nav>
+  <div id="en" lang="en">
   <h1>Install Kampsis</h1>
-  <p class="lead">You need a MacBook with Apple silicon on macOS 26 or newer. No internet connection is required.</p>
+  <p class="lead">You need macOS 26 or newer and a MacBook with Apple silicon and a lid angle sensor. This version is verified on Mac17,3; other models are experimental. The effect appears only on the built-in display. No internet connection is required to use the effect.</p>
 
   <section>
     <h2>1. Copy the app</h2>
@@ -90,13 +97,51 @@
   <section>
     <h2>4. Try it</h2>
     <p>Lower the lid slowly or click <b>Show on Screen</b>. The <kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>B</kbd> shortcut turns the effect on and off.</p>
-    <p>Kampsis lives in the menu bar. Closing the window does not quit it: choose <b>Quit Kampsis</b> in the menu to exit.</p>
+    <p>Left-click the menu bar icon to toggle the effect; right-click or Control-click it to open the menu. Closing the window does not quit Kampsis: choose <b>Quit Kampsis</b> in the menu to exit.</p>
   </section>
 
   <section>
     <h2>Updates</h2>
-    <p><b>Check for Updates…</b> in the menu compares your version with the latest GitHub release and opens the release page when a newer one exists. A new version is installed the same way, by replacing the app in Applications. Screen recording permission is kept.</p>
+    <p><b>Check for Updates…</b> in the menu compares your version with the latest GitHub release. Daily checks show an available version in General Settings and the menu without interrupting your work. A new version is installed by replacing the app in Applications. Your settings and screen recording permission are kept.</p>
   </section>
+  </div>
+  <div id="ru" lang="ru">
+    <h1>Установка Kampsis</h1>
+    <p class="lead">Нужны macOS 26 или новее и MacBook с Apple silicon и датчиком угла крышки. Эта версия проверена на Mac17,3; работа на других моделях пока экспериментальная. Эффект появляется только на встроенном экране. Для работы эффекта интернет не нужен.</p>
+    <section>
+      <h2>1. Скопируйте приложение</h2>
+      <p>Перетащите иконку Kampsis на папку Applications в этом окне. После копирования можно закрыть окно и извлечь образ диска.</p>
+    </section>
+    <section>
+      <h2>2. Запустите первый раз</h2>
+      <ol>
+        <li>Откройте Kampsis из папки «Программы».</li>
+        <li>Если macOS не может проверить приложение, нажмите <b>Готово</b>.</li>
+        <li>Откройте <b>Системные настройки → Конфиденциальность и безопасность</b>, найдите сообщение о Kampsis внизу и нажмите <b>Всё равно открыть</b>.</li>
+        <li>Подтвердите запуск.</li>
+      </ol>
+      <p class="muted">Приложение подписано собственным сертификатом проекта, а не сертификатом Apple Developer.</p>
+    </section>
+    <section>
+      <h2>3. Разрешите доступ к экрану</h2>
+      <ol>
+        <li>В окне Kampsis нажмите <b>Allow Screen Access…</b>.</li>
+        <li>Включите Kampsis в открывшемся разделе «Запись экрана».</li>
+        <li>Если macOS попросит перезапустить приложение, согласитесь.</li>
+      </ol>
+      <p class="muted">Изображение обрабатывается только в памяти этого Mac: снимки не сохраняются и никуда не отправляются.</p>
+    </section>
+    <section>
+      <h2>4. Попробуйте эффект</h2>
+      <p>Медленно опустите крышку или нажмите <b>Show on Screen</b>. Сочетание <kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>B</kbd> включает и выключает эффект.</p>
+      <p>Левый клик по иконке в строке меню переключает эффект. Правый клик или Control-click открывает меню. Закрытие окна не завершает работу: выберите <b>Quit Kampsis</b>, чтобы выйти.</p>
+      <p>Для русского интерфейса откройте <b>General Settings → Language → Русский</b>, затем перезапустите Kampsis.</p>
+    </section>
+    <section>
+      <h2>Обновления</h2>
+      <p><b>Проверить обновления…</b> сравнивает установленную версию с релизом на GitHub. Автоматическая проверка показывает новую версию в Общих настройках и меню приложения. Для установки замените приложение в папке «Программы». Настройки и разрешение на запись экрана сохраняются.</p>
+    </section>
+  </div>
 </main>
 </body>
 </html>

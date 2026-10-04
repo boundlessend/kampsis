@@ -18,4 +18,4 @@ labels: bug
 
 **Effect settings:** style, bend, blur, dimming, fade-out angle
 
-Attach screenshots only without personal content. The Status section in General Settings and the output of `scripts/diagnose-lid.sh` help the most.
+Attach screenshots only without personal content. Use **General Settings → Copy Diagnostics** to copy a technical report without screenshots.
