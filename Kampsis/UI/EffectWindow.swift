@@ -14,6 +14,7 @@ struct EffectWindow: View {
             ScrollView {
                 HStack(alignment: .top, spacing: 32) {
                     PreviewColumn(state: state, controller: controller)
+                        .frame(minWidth: 340)
                     EffectInspector(state: state)
                         .frame(width: 270)
                 }
@@ -54,6 +55,7 @@ struct EffectWindow: View {
 private struct PreviewColumn: View {
     @Bindable var state: AppState
     let controller: EffectController
+    @Environment(\.openWindow) private var openWindow
 
     private var shownAngle: Int {
         Int(state.previewUsesLid ? (state.measuredAngle ?? 0) : state.previewAngle)
@@ -158,9 +160,14 @@ private struct PreviewColumn: View {
             .font(.callout)
             .fixedSize(horizontal: false, vertical: true)
         } else if state.settings.isOn, !state.sensorReady {
-            Label("The lid sensor is unavailable, but the demo still works.", systemImage: "info.circle")
-                .font(.callout)
-                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 6) {
+                Label(state.sensorNote, systemImage: "info.circle")
+                    .fixedSize(horizontal: false, vertical: true)
+                Button("General Settings…") { openWindow(id: SceneID.general) }
+                    .buttonStyle(.link)
+            }
+            .font(.callout)
+            .foregroundStyle(.secondary)
         }
     }
 }
@@ -210,19 +217,25 @@ private struct EffectInspector: View {
 
             Divider()
             VStack(alignment: .leading, spacing: 8) {
-                Text("Animation pace")
+                Text("Effect timing")
                 HStack(spacing: 8) {
-                    Text("Faster").font(.callout).foregroundStyle(.secondary)
+                    Text("Earlier").font(.callout).foregroundStyle(.secondary)
                     Slider(value: $state.settings.pace, in: EffectSettings.paceRange)
-                        .accessibilityLabel("Animation pace")
-                    Text("Slower").font(.callout).foregroundStyle(.secondary)
+                        .accessibilityLabel("Effect timing")
+                        .help("How early the effect develops as the lid closes. The demo still lasts five seconds.")
+                    Text("Later").font(.callout).foregroundStyle(.secondary)
                 }
-                Text("Anticipation").padding(.top, 8)
+                Text("Lid anticipation").padding(.top, 8)
                 HStack(spacing: 8) {
                     Text("Exact").font(.callout).foregroundStyle(.secondary)
                     Slider(value: $state.settings.prediction, in: EffectSettings.predictionRange)
-                        .accessibilityLabel("Anticipation")
+                        .accessibilityLabel("Lid anticipation")
+                        .help("Uses live lid readings. Select Lid in the preview to try it; the slider and demo don’t use anticipation.")
                     Text("Earlier").font(.callout).foregroundStyle(.secondary)
+                }
+                if state.sensorReady, !state.previewUsesLid {
+                    Button("Try with Lid") { state.previewUsesLid = true }
+                        .buttonStyle(.link).font(.callout)
                 }
             }
             Button("Restore Default Look") { state.settings = state.settings.resettingAppearance() }

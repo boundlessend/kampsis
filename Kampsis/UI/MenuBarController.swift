@@ -61,6 +61,9 @@ import Observation
         menu.addItem(withTitle: angle, action: nil, keyEquivalent: "").isEnabled = false
         menu.addItem(withTitle: state.statusLine, action: nil, keyEquivalent: "").isEnabled = false
         menu.addItem(.separator())
+        if let release = controller.updates.availableRelease {
+            add(String(localized: "Open Release \(release.tagName)…"), action: #selector(openRelease), to: menu)
+        }
         let toggle = menu.addItem(withTitle: "\(state.toggleTitle)   \(shortcutLabel(state.settings.toggleShortcut))",
                                   action: #selector(toggleEffect), keyEquivalent: "")
         toggle.target = self
@@ -92,5 +95,6 @@ import Observation
         controller.beginDemo()
     }
     @objc private func checkUpdates() { controller.updates.checkFromMenu() }
+    @objc private func openRelease() { controller.updates.openAvailableRelease() }
     @objc private func quit() { NSApp.terminate(nil) }
 }

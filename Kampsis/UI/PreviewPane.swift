@@ -33,6 +33,9 @@ struct PreviewPane: NSViewRepresentable {
     /// чтение свойств состояния здесь подписывает превью на их изменения
     func updateNSView(_ view: NSView, context: Context) {
         guard case let .success(renderer) = context.coordinator else { return }
+        let problem = state.problem
+        if renderer.failed, problem == nil { renderer.reset() }
+        renderer.onFailure = { failure in state.problem = failure.localizedDescription }
         let settings = state.settings
         let usesLid = state.previewUsesLid
         let manualAngle = state.previewAngle

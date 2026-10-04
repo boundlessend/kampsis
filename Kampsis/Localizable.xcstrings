@@ -78,16 +78,6 @@
         }
       }
     },
-    "%@ has no published releases yet." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "В репозитории %@ пока нет опубликованных выпусков."
-          }
-        }
-      }
-    },
     "%@ is already used by another app (code %d). Choose another shortcut or toggle the effect from the menu." : {
       "localizations" : {
         "ru" : {
@@ -306,26 +296,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Угол, при котором эффект исчезает"
-          }
-        }
-      }
-    },
-    "Animation pace" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Темп анимации"
-          }
-        }
-      }
-    },
-    "Anticipation" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Предугадывание"
           }
         }
       }
@@ -690,16 +660,6 @@
         }
       }
     },
-    "Faster" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Быстрее"
-          }
-        }
-      }
-    },
     "Finish the book about mountains" : {
       "localizations" : {
         "ru" : {
@@ -716,16 +676,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пять секунд\nна вашем рабочем столе"
-          }
-        }
-      }
-    },
-    "Frames live only in this Mac’s memory and are replaced right away by the next ones. %@ doesn’t save screenshots, record audio, or send anything over the network." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Кадры живут только в памяти этого Mac и сразу заменяются следующими. %@ не сохраняет снимки, не записывает звук и ничего не отправляет в сеть."
           }
         }
       }
@@ -766,16 +716,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Готовится"
-          }
-        }
-      }
-    },
-    "GitHub responded %lld to %@: %@" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "GitHub ответил %lld на %@: %@"
           }
         }
       }
@@ -1280,16 +1220,6 @@
         }
       }
     },
-    "Slower" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Медленнее"
-          }
-        }
-      }
-    },
     "Soft" : {
       "localizations" : {
         "ru" : {
@@ -1410,16 +1340,6 @@
         }
       }
     },
-    "The lid sensor is unavailable, but the demo still works." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Датчик крышки недоступен, но демонстрация работает."
-          }
-        }
-      }
-    },
     "The lid sensor opened but isn’t reporting a valid angle. Click “Check Again”." : {
       "localizations" : {
         "ru" : {
@@ -1436,16 +1356,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Адрес репозитория выпусков «%@» задан неверно."
-          }
-        }
-      }
-    },
-    "The response from %@ isn’t HTTP." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ответ на %@ не похож на HTTP."
           }
         }
       }
@@ -1716,6 +1626,336 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "модель не определена"
+          }
+        }
+      }
+    },
+    "Approve in macOS Settings…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешить в настройках macOS…"
+          }
+        }
+      }
+    },
+    "Awaiting approval" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ожидает разрешения"
+          }
+        }
+      }
+    },
+    "Checking…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверяем…"
+          }
+        }
+      }
+    },
+    "Copy Diagnostics" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скопировать диагностику"
+          }
+        }
+      }
+    },
+    "Couldn’t connect to GitHub. Check your connection and try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось подключиться к GitHub. Проверьте соединение и попробуйте ещё раз."
+          }
+        }
+      }
+    },
+    "Couldn’t copy diagnostics. Try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось скопировать диагностику. Попробуйте ещё раз."
+          }
+        }
+      }
+    },
+    "Diagnostics Copied" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Диагностика скопирована"
+          }
+        }
+      }
+    },
+    "Effect timing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Развитие эффекта"
+          }
+        }
+      }
+    },
+    "Frames live only in this Mac’s memory and are replaced right away by the next ones. %@ doesn’t save screenshots, record audio, or send screen images over the network." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кадры живут только в памяти этого Mac и заменяются следующими. %@ не сохраняет снимки, не записывает звук и не отправляет изображения экрана в сеть."
+          }
+        }
+      }
+    },
+    "GitHub couldn’t provide release information (HTTP %lld). Try again later." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub не смог предоставить информацию о релизе (HTTP %lld). Попробуйте позже."
+          }
+        }
+      }
+    },
+    "GitHub denied access to the release information. Try again later." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub не разрешил доступ к информации о релизе. Попробуйте позже."
+          }
+        }
+      }
+    },
+    "GitHub didn’t respond in time. Try again later." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub не ответил вовремя. Попробуйте позже."
+          }
+        }
+      }
+    },
+    "GitHub returned unreadable release information. Try again later." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub вернул информацию о релизе, которую не удалось прочитать. Попробуйте позже."
+          }
+        }
+      }
+    },
+    "GitHub’s request limit has been reached. Wait a while, then check again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Достигнут лимит запросов GitHub. Подождите и проверьте обновления позже."
+          }
+        }
+      }
+    },
+    "How early the effect develops as the lid closes. The demo still lasts five seconds." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Насколько рано проявляется эффект при закрытии крышки. Демонстрация по-прежнему длится пять секунд."
+          }
+        }
+      }
+    },
+    "Include Command, Option, or Control in the shortcut." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавьте к сочетанию Command, Option или Control."
+          }
+        }
+      }
+    },
+    "Lid anticipation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Опережение крышки"
+          }
+        }
+      }
+    },
+    "Metal couldn’t prepare a frame. Click “Check Again”." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metal не смог подготовить кадр. Нажмите «Проверить ещё раз»."
+          }
+        }
+      }
+    },
+    "Metal couldn’t read the screen image (code %d). Click “Check Again”." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metal не смог прочитать изображение экрана (код %d). Нажмите «Проверить ещё раз»."
+          }
+        }
+      }
+    },
+    "Metal couldn’t render the effect. Click “Check Again”." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metal не смог отрисовать эффект. Нажмите «Проверить ещё раз»."
+          }
+        }
+      }
+    },
+    "Open Release %@…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть релиз %@…"
+          }
+        }
+      }
+    },
+    "The GPU stopped rendering the effect (code %lld). Click “Check Again”." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPU прекратил отрисовку эффекта (код %lld). Нажмите «Проверить ещё раз»."
+          }
+        }
+      }
+    },
+    "The GPU stopped rendering the effect. Click “Check Again”." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPU прекратил отрисовку эффекта. Нажмите «Проверить ещё раз»."
+          }
+        }
+      }
+    },
+    "The cursor couldn’t be restored. Move the pointer or switch to another app, then click “Check Again”." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось вернуть курсор. Подвигайте мышью или переключитесь в другое приложение, затем нажмите «Проверить ещё раз»."
+          }
+        }
+      }
+    },
+    "The latest release in %@ isn’t publicly available. The repository may be private or have no published release. Try again later." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последний релиз в %@ недоступен без авторизации. Репозиторий может быть приватным или ещё не иметь опубликованных релизов. Попробуйте позже."
+          }
+        }
+      }
+    },
+    "The update check lost its internet connection. Check your connection and try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При проверке обновлений пропало соединение с интернетом. Проверьте подключение и попробуйте ещё раз."
+          }
+        }
+      }
+    },
+    "This macOS version doesn’t provide background cursor control. The pointer may stay visible over the effect." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В этой версии macOS недоступно управление курсором в фоне. Курсор может оставаться видимым поверх эффекта."
+          }
+        }
+      }
+    },
+    "Try with Lid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверить с крышкой"
+          }
+        }
+      }
+    },
+    "Uses live lid readings. Select Lid in the preview to try it; the slider and demo don’t use anticipation." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Использует данные датчика крышки. Выберите «Крышка» в предпросмотре: ползунок и демонстрация не используют опережение."
+          }
+        }
+      }
+    },
+    "macOS couldn’t change background cursor visibility (code %d)." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS не смогла изменить видимость курсора в фоне (код %d)."
           }
         }
       }
