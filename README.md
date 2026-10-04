@@ -22,8 +22,9 @@ Requires macOS 26 or later and a MacBook with Apple silicon and a lid angle sens
 - **Left-click the menu bar icon** to turn the effect on or off. **Right-click** to open the menu. The icon dims when the effect is off.
 - Press **⌘⌥B** to toggle the effect. Change the shortcut in **General Settings**.
 - Open **Customize Effect…** to choose **Soft**, **Deep** or **Matte**, adjust the bend, blur and dimming, and try the preview.
+- **Effect timing** controls how early the effect develops as the lid closes. **Lid anticipation** responds ahead of the measured angle during movement; select **Lid** in the preview or click **Try with Lid** to test it. Anticipation does not affect the slider preview or demo.
 - Choose **Show Demo** to see a five-second demonstration on your desktop.
-- In **General Settings**, choose launch at login, an opening sound, and whether to show the Dock and menu bar icons. **Customize Effect…** returns to the effect window.
+- In **General Settings**, choose launch at login, an opening sound, and whether to show the Dock and menu bar icons. Launch at login runs in the background without opening a window. **Customize Effect…** returns to the effect window.
 - English is the default language. To switch to Russian, choose **Language → Русский** in **General Settings**, then reopen Kampsis.
 
 The Dock icon is hidden by default; the menu bar icon is visible. If you hide both, open Kampsis from **Applications** to bring back General Settings.
