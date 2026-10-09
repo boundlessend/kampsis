@@ -36,7 +36,7 @@ EOF
   -keyout $stage/key.pem -out $stage/certificate.pem
 /usr/bin/openssl pkcs12 -export -name 'Kampsis Release Signing' -inkey $stage/key.pem -in $stage/certificate.pem \
   -out $stage/identity.p12 -passout file:$stage/password
-security add-generic-password -a release -s $service -w "$(cat $stage/password)" -T /usr/bin/security
+xcrun swift $root/scripts/store-signing-password.swift $stage/password
 
 mkdir -p $private_dir ${certificate:h}
 chmod 700 $private_dir
