@@ -32,6 +32,7 @@ func initialPreviewAngle(fadeOutAngle: Double) -> Double {
 @MainActor @Observable final class AppState {
     private static let dockIconKey = "shows-dock-icon"
     private static let menuBarIconKey = "shows-menu-bar-icon"
+    private static let captureModeKey = "capture-mode"
 
     var showsDockIcon: Bool {
         didSet {
@@ -42,9 +43,28 @@ func initialPreviewAngle(fadeOutAngle: Double) -> Double {
     var showsMenuBarIcon: Bool {
         didSet { store.set(showsMenuBarIcon, forKey: Self.menuBarIconKey) }
     }
+    var showsCaptureIndicator: Bool {
+        didSet { store.set(showsCaptureIndicator, forKey: CaptureLaunch.preferenceKey) }
+    }
+    var captureMode: CaptureMode? {
+        didSet {
+            guard captureMode != oldValue else { return }
+            if let captureMode { store.set(captureMode.rawValue, forKey: Self.captureModeKey) }
+            onCaptureModeChange?()
+        }
+    }
+    var captureModeProblem: String? {
+        captureMode == nil ? String(localized: "The saved capture mode isn’t recognized. Choose a capture mode to use the effect.") : nil
+    }
+    let usesTerminalCapture = CaptureLaunch.isTerminalSession
+    var captureLaunchPending = false
+    var captureLaunchProblem: String?
+    var settingsProblem: String?
+    var wantsTerminalCapture: Bool { !showsCaptureIndicator && captureMode != nil && captureMode != .snapshot }
+    var canUseEffect: Bool { captureMode != nil && settingsProblem == nil && !captureLaunchPending }
     var settings: EffectSettings {
         didSet {
-            guard settings != oldValue else { return }
+            guard settingsProblem == nil, settings != oldValue else { return }
             onSettingsChange?(oldValue, settings)
             guard settings != oldValue else { return }
             saveSettings(settings, to: store)
@@ -77,6 +97,9 @@ func initialPreviewAngle(fadeOutAngle: Double) -> Double {
 
     @ObservationIgnored var lidEstimate = LidEstimate.unknown
     @ObservationIgnored var onDockIconChange: ((Bool) -> Void)?
+    @ObservationIgnored var onCaptureIndicatorChange: ((Bool) -> Void)?
+    @ObservationIgnored var onCaptureModeChange: (() -> Void)?
+    @ObservationIgnored var onCaptureRouteChange: (() -> Void)?
     @ObservationIgnored var onSettingsChange: ((EffectSettings, EffectSettings) -> Void)?
     @ObservationIgnored private let store: UserDefaults
 
@@ -84,16 +107,49 @@ func initialPreviewAngle(fadeOutAngle: Double) -> Double {
         self.store = store
         showsDockIcon = store.bool(forKey: Self.dockIconKey)
         showsMenuBarIcon = store.object(forKey: Self.menuBarIconKey) == nil || store.bool(forKey: Self.menuBarIconKey)
-        let settings = loadSettings(from: store)
-        self.settings = settings
-        previewAngle = initialPreviewAngle(fadeOutAngle: settings.fadeOutAngle)
+        if store.object(forKey: Self.captureModeKey) == nil {
+            // прежние установки без отдельного ключа использовали Live; их выбор не меняется при обновлении
+            let existingSettings = store.object(forKey: "effect-settings") != nil
+                || store.object(forKey: "automatic-update-checks") != nil
+                || store.object(forKey: Self.dockIconKey) != nil
+                || store.object(forKey: Self.menuBarIconKey) != nil
+                || store.object(forKey: CaptureLaunch.preferenceKey) != nil
+            let initialMode: CaptureMode = existingSettings ? .live : .snapshot
+            captureMode = initialMode
+            store.set(initialMode.rawValue, forKey: Self.captureModeKey)
+        } else {
+            captureMode = store.string(forKey: Self.captureModeKey).flatMap(CaptureMode.init(rawValue:))
+        }
+        showsCaptureIndicator = store.object(forKey: CaptureLaunch.preferenceKey) == nil
+            || store.bool(forKey: CaptureLaunch.preferenceKey)
+        let restored: EffectSettings
+        do {
+            restored = try loadSettings(from: store)
+        } catch {
+            var paused = EffectSettings.standard
+            paused.isOn = false
+            restored = paused
+            settingsProblem = error.localizedDescription
+        }
+        settings = restored
+        previewAngle = initialPreviewAngle(fadeOutAngle: restored.fadeOutAngle)
+    }
+
+    /// сброс подтверждён в интерфейсе; эффект остаётся выключенным до отдельного включения
+    func resetUnreadableSettings() {
+        var paused = EffectSettings.standard
+        paused.isOn = false
+        settingsProblem = nil
+        settings = paused
+        saveSettings(paused, to: store)
     }
 
     var statusLine: String {
+        if settingsProblem != nil || captureModeProblem != nil { return String(localized: "Needs attention") }
         if !settings.isOn { return String(localized: "Off") }
         if suspended { return String(localized: "Mac is asleep or locked") }
         if !screenAccess { return String(localized: "No screen access") }
-        if problem != nil { return String(localized: "Needs attention") }
+        if problem != nil || captureModeProblem != nil { return String(localized: "Needs attention") }
         if demoRunning { return String(localized: "Demo running") }
         if !sensorReady { return String(localized: "Sensor unavailable") }
         if overlayShown { return String(localized: "Effect on screen") }

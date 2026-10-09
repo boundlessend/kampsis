@@ -3,6 +3,13 @@ import os
 import QuartzCore
 import ServiceManagement
 
+/// те же события используются системными наблюдателями и изолированными интеграционными проверками
+enum EffectSleepEvent {
+    case machineSleeping(Bool)
+    case displaySleeping(Bool)
+    case sessionLocked(Bool)
+}
+
 /// связывает датчик, захват, оверлей и настройки; решения о захвате принимает `planEffect`
 @MainActor final class EffectController {
     static let shared = EffectController(store: .standard, stream: ScreenStream())
@@ -13,7 +20,7 @@ import ServiceManagement
     private static let quietRecheckDelay: Duration = .milliseconds(900)
     private static let stopDelay: Duration = .milliseconds(300)
     private static let firstFrameTimeout = 2.0
-    private static let demoCaptureTimeout = firstFrameTimeout * Double(restartLimit + 1) + 4
+    private static let demoCaptureTimeout = 26.0
     /// сколько раз подряд поток поднимается заново, прежде чем сбой показывается человеку
     private static let restartLimit = 2
     /// поток, проживший столько, считается здоровым: следующий сбой это новый случай
@@ -30,6 +37,7 @@ import ServiceManagement
     private var launched = false
     private(set) var phase = CapturePhase.idle
     private var captureJob: Task<Void, Never>?
+    private var freezeJob: Task<Void, Never>?
     private var captureSession = 0
     private var scheduledStop: Task<Void, Never>?
     private var quietRecheck: Task<Void, Never>?
@@ -37,8 +45,10 @@ import ServiceManagement
     private var demoValue = 0.0
     private var isOnBeforeDemo: Bool?
     private var captureFailed = false
+    private var captureStopProblem: (any Error)?
     private var restartsLeft = EffectController.restartLimit
     private var captureRunningSince = Double.infinity
+    private var firstFrameMilliseconds: Double?
     private var lastLidMovement = -Double.infinity
     private var chimeLatch = ChimeLatch.disarmed
     private var machineAsleep = false
@@ -61,7 +71,7 @@ import ServiceManagement
 
     // MARK: действия пользователя
 
-    func start() {
+    func start(background: Bool = false) {
         guard !launched else { return }
         launched = true
         state.screenAccess = stream.hasScreenAccess
@@ -70,8 +80,16 @@ import ServiceManagement
         sensor.onReading = { [weak self] reading in self?.receive(reading) }
         sensor.onStatus = { [weak self] status in self?.sensorChanged(status) }
         state.onSettingsChange = { [weak self] old, new in self?.settingsChanged(from: old, to: new) }
+        state.onCaptureModeChange = { [weak self] in
+            guard let self else { return }
+            self.state.problem = self.metalProblem
+            self.allowCaptureAgain()
+            self.endDemo()
+            self.endCapture()
+            self.state.onCaptureRouteChange?()
+        }
         pointer.onProblem = { [weak self] problem in self?.state.pointerProblem = problem }
-        state.pointerProblem = pointer.backgroundProblem
+        state.pointerProblem = state.captureMode == .live ? nil : pointer.backgroundProblem
         if state.settings.isOn { sensor.start() }
         registerShortcut()
         observeSystem()
@@ -79,11 +97,12 @@ import ServiceManagement
             MainActor.assumeIsolated { self?.refreshScreenAccess() }
         })
         startDiagnosticsIfRequested()
-        updates.start()
+        updates.start(background: background)
         reevaluate()
     }
 
     func toggle() {
+        guard state.canUseEffect else { return }
         if state.demoRunning {
             endDemo()
         } else {
@@ -97,6 +116,7 @@ import ServiceManagement
         sensor.stop()
         state.clearSensorReading()
         if state.settings.isOn, !state.suspended { sensor.start() }
+        endCapture()
         refreshScreenAccess()
         reevaluate()
     }
@@ -112,13 +132,14 @@ import ServiceManagement
     }
 
     func explainAccessRecovery() {
+        let captureApp = state.usesTerminalCapture ? "Terminal" : AppIdentity.name
         let alert = NSAlert()
         alert.messageText = String(localized: "Access is on, but the effect can’t see it")
         alert.informativeText = String(localized: """
-        macOS may have remembered the permission for another copy of \(AppIdentity.name).
+        macOS may have remembered the permission for another copy of \(captureApp).
 
         1. Open Screen Recording in Privacy & Security settings.
-        2. Select \(AppIdentity.name) and remove it with the “−” button.
+        2. Select \(captureApp) and remove it with the “−” button.
         3. Add the installed app with the “+” button and turn access on.
         4. Restart \(AppIdentity.name) if macOS asks.
         """)
@@ -153,15 +174,18 @@ import ServiceManagement
     func openLoginSettings() { SMAppService.openSystemSettingsLoginItems() }
 
     /// освобождает наблюдателей и ждёт остановки текущего захвата
-    func stop() async {
+    func stop() async throws {
         launched = false
         updates.stop()
         endDemo()
         quietRecheck?.cancel()
         quietRecheck = nil
-        sensor.stop()
+        var sensorStopProblem: (any Error)?
+        do { try await sensor.stopAndWait() }
+        catch { sensorStopProblem = error }
         state.clearSensorReading()
         state.onSettingsChange = nil
+        state.onCaptureModeChange = nil
         timers.forEach { $0.invalidate() }
         timers.removeAll()
         for (center, token) in observers { center.removeObserver(token) }
@@ -171,10 +195,12 @@ import ServiceManagement
         await captureJob?.value
         overlay?.panel.close()
         overlay = nil
+        if let sensorStopProblem { throw sensorStopProblem }
+        if let captureStopProblem { throw captureStopProblem }
     }
 
     func beginDemo() {
-        guard state.screenAccess, !state.suspended, !state.demoRunning else { return }
+        guard state.canUseEffect, state.screenAccess, !state.suspended, !state.demoRunning else { return }
         state.problem = nil
         allowCaptureAgain()
         isOnBeforeDemo = state.settings.isOn
@@ -300,15 +326,24 @@ import ServiceManagement
         }
     }
 
+    func receiveSleepEvent(_ event: EffectSleepEvent) {
+        switch event {
+        case let .machineSleeping(asleep): machineAsleep = asleep
+        case let .displaySleeping(asleep): displayAsleep = asleep
+        case let .sessionLocked(locked): sessionLocked = locked
+        }
+        applySleepState()
+    }
+
     private func observeSystem() {
         let workspace = NSWorkspace.shared.notificationCenter
         let distributed = DistributedNotificationCenter.default()
-        observe(workspace, NSWorkspace.willSleepNotification) { $0.machineAsleep = true; $0.applySleepState() }
-        observe(workspace, NSWorkspace.didWakeNotification) { $0.machineAsleep = false; $0.applySleepState() }
-        observe(workspace, NSWorkspace.screensDidSleepNotification) { $0.displayAsleep = true; $0.applySleepState() }
-        observe(workspace, NSWorkspace.screensDidWakeNotification) { $0.displayAsleep = false; $0.applySleepState() }
-        observe(distributed, Notification.Name("com.apple.screenIsLocked")) { $0.sessionLocked = true; $0.applySleepState() }
-        observe(distributed, Notification.Name("com.apple.screenIsUnlocked")) { $0.sessionLocked = false; $0.applySleepState() }
+        observe(workspace, NSWorkspace.willSleepNotification) { $0.receiveSleepEvent(.machineSleeping(true)) }
+        observe(workspace, NSWorkspace.didWakeNotification) { $0.receiveSleepEvent(.machineSleeping(false)) }
+        observe(workspace, NSWorkspace.screensDidSleepNotification) { $0.receiveSleepEvent(.displaySleeping(true)) }
+        observe(workspace, NSWorkspace.screensDidWakeNotification) { $0.receiveSleepEvent(.displaySleeping(false)) }
+        observe(distributed, Notification.Name("com.apple.screenIsLocked")) { $0.receiveSleepEvent(.sessionLocked(true)) }
+        observe(distributed, Notification.Name("com.apple.screenIsUnlocked")) { $0.receiveSleepEvent(.sessionLocked(false)) }
         observe(.default, NSApplication.didChangeScreenParametersNotification) { controller in
             // список экранов сменился: сбой «нет экрана для захвата» больше не актуален
             controller.allowCaptureAgain()
@@ -353,9 +388,15 @@ import ServiceManagement
 
     private func reevaluate() {
         guard launched else { return }
+        if state.captureMode == .frozen, phase == .running, !stream.isStreaming,
+           !state.demoRunning, readingProgress == 0 {
+            // новый сгиб должен получить новый кадр, даже если крышка быстро вернулась к порогу
+            endCapture()
+            return
+        }
         let now = CACurrentMediaTime()
         let snapshot = EffectSnapshot(
-            isOn: state.settings.isOn,
+            isOn: state.settings.isOn && state.settingsProblem == nil,
             screenAccess: state.screenAccess,
             suspended: state.suspended,
             builtInDisplay: ScreenStream.builtInDisplay() != nil,
@@ -369,7 +410,8 @@ import ServiceManagement
             rendererBroken: metalProblem != nil,
             phase: phase,
             stopScheduled: scheduledStop != nil,
-            hasFrame: stream.frames.latest != nil
+            hasFrame: stream.frames.latest != nil,
+            captureMode: state.captureMode
         )
         planEffect(snapshot).forEach(perform)
     }
@@ -396,27 +438,32 @@ import ServiceManagement
     }
 
     private func beginCapture() {
+        guard let mode = state.captureMode else { return }
+        let requestedAt = CACurrentMediaTime()
+        presentationLog = PresentationLog(requestedAt: requestedAt)
         // прозрачное окно заранее регистрирует приложение для фильтра ScreenCaptureKit при фоновом запуске
         guard orderedOverlay() != nil else { return }
         captureSession += 1
         let session = captureSession
         phase = .starting
-        presentationLog = diagnosticsTarget == nil ? nil : PresentationLog()
+        firstFrameMilliseconds = nil
         captureJob = Task { [weak self] in
             guard let self else { return }
             do {
                 let visibleWindows = NSApp.windows.filter { $0.isVisible && $0 !== self.overlay?.panel }
-                try await self.stream.start(showing: visibleWindows) { [weak self] trouble in
+                try await self.stream.start(mode: mode, showing: visibleWindows) { [weak self] trouble in
                     guard let self, self.captureSession == session else { return }
                     self.failCapture(trouble)
                 }
                 try await self.waitForFirstFrame()
                 guard self.captureSession == session else { return }
+                self.firstFrameMilliseconds = (CACurrentMediaTime() - requestedAt) * 1000
                 self.phase = .running
                 self.captureRunningSince = CACurrentMediaTime()
                 self.state.capturing = true
                 self.captureJob = nil
                 self.reevaluate()
+                self.freezeCaptureIfNeeded()
             } catch is CancellationError {
                 return
             } catch {
@@ -429,23 +476,48 @@ import ServiceManagement
 
     private func endCapture() {
         guard phase != .stopping else { return }
+        captureStopProblem = nil
         captureSession += 1
         scheduledStop?.cancel()
         scheduledStop = nil
         let pending = captureJob
         pending?.cancel()
+        freezeJob?.cancel()
+        freezeJob = nil
         dismissOverlay()
         phase = .stopping
         state.capturing = false
         captureJob = Task { [weak self] in
             await pending?.value
             guard let self else { return }
-            await self.stream.stop()
+            do { try await self.stream.stop() }
+            catch {
+                self.captureStopProblem = error
+                self.captureFailed = true
+                self.state.problem = error.localizedDescription
+                Self.log.error("capture stop failed: recovery=blocked message=\(error.localizedDescription, privacy: .public)")
+            }
             self.overlay?.renderer.reset()
             self.captureJob = nil
             self.phase = .idle
             self.captureRunningSince = .infinity
             self.reevaluate()
+        }
+    }
+
+    /// рендер удерживает видимый кадр; дальнейшие кадры потока этому сгибу не нужны
+    private func freezeCaptureIfNeeded() {
+        guard state.captureMode == .frozen, phase == .running, stream.isStreaming,
+              overlay?.renderer.holdsFrozenFrame == true, freezeJob == nil else { return }
+        let session = captureSession
+        freezeJob = Task { [weak self] in
+            guard let self else { return }
+            defer { if self.captureSession == session { self.freezeJob = nil } }
+            do { try await self.stream.freeze() }
+            catch {
+                guard self.captureSession == session else { return }
+                self.failCapture(CaptureTrouble(message: error.localizedDescription, recovery: .blocked))
+            }
         }
     }
 
@@ -510,7 +582,7 @@ import ServiceManagement
         return wasOn
     }
 
-    /// прозрачное окно эффекта уже на экране, курсор не прячется
+    /// прозрачное окно эффекта остаётся готовым к показу
     private func prepareOverlay() {
         guard let overlay = orderedOverlay() else { return }
         if state.overlayShown {
@@ -523,7 +595,7 @@ import ServiceManagement
     private func presentOverlay() {
         guard let screen = ScreenStream.builtInDisplay(), let overlay = orderedOverlay() else { return }
         if !state.overlayShown {
-            pointer.engage(over: screen.frame)
+            if state.captureMode != .live { pointer.engage(over: screen.frame) }
             state.overlayShown = true
         }
         overlay.renderer.wake()
@@ -546,7 +618,8 @@ import ServiceManagement
             renderer = try SheetRenderer(stack: stack, frames: stream.frames) { [unowned self] in
                 FoldInputs(progress: self.predictedProgress(at: CACurrentMediaTime()),
                                   settings: self.state.settings, fadesIn: true,
-                                  reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
+                                  reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
+                                  captureMode: self.state.captureMode)
             }
         } catch {
             // сбой подготовки рендера: перезапуск захвата не поможет
@@ -556,6 +629,7 @@ import ServiceManagement
         renderer.onFailure = { [weak self] failure in
             self?.failCapture(CaptureTrouble(message: failure.localizedDescription, recovery: .blocked))
         }
+        renderer.onFreeze = { [weak self] in self?.freezeCaptureIfNeeded() }
         let panel = NSPanel(contentRect: frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.title = "\(AppIdentity.name) overlay"
         panel.backgroundColor = .clear
@@ -617,6 +691,14 @@ import ServiceManagement
             metalReady: metalProblem == nil,
             drawnFrames: overlay?.renderer.drawnFrames ?? 0,
             captureFrame: stream.frames.latest?.number ?? 0,
+            captureMode: state.captureMode?.rawValue,
+            launchRoute: state.usesTerminalCapture ? "terminal" : "application",
+            terminalLaunchPreferred: !state.showsCaptureIndicator,
+            capturePhase: String(describing: phase),
+            settingsProblem: state.settingsProblem,
+            streaming: stream.isStreaming,
+            displayedFrame: overlay?.renderer.displayedFrameNumber,
+            firstFrameMilliseconds: firstFrameMilliseconds,
             status: state.statusLine,
             problem: state.problem,
             shortcutProblem: state.shortcutProblem,

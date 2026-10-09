@@ -17,6 +17,23 @@
           }
         }
       }
+    },
+    "NSAppleEventsUsageDescription" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kampsis controls Terminal only when you choose to hide the system capture indicator. It opens a separate launch window and closes it afterwards."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kampsis управляет Terminal, только если вы выбрали скрытие системного индикатора захвата. Приложение открывает отдельное окно запуска и затем закрывает его."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

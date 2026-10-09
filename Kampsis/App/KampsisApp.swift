@@ -12,6 +12,11 @@ enum SceneID {
     private let controller: EffectController
 
     init() {
+        // проверка Automation завершается до создания сцен и не открывает Terminal при отказе
+        if ProcessInfo.processInfo.arguments.contains("--terminal-automation-check") {
+            print(CaptureLaunch.terminalAuthorization(request: true))
+            exit(0)
+        }
         guard let domain = Bundle.main.bundleIdentifier else {
             preconditionFailure("у приложения нет bundle identifier")
         }
@@ -71,25 +76,125 @@ private struct WindowCommands: Commands {
     private var menuBar: MenuBarController?
     private(set) var launchedAtLogin = false
     private var initialWindowSetupFinished = false
+    private var launchTask: Task<Void, Never>?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // в роли хоста тестов приложение не трогает датчик, экран и сеть
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
-        if ProcessInfo.processInfo.arguments.contains("--capture-check") {
-            Task { exit(await runCaptureCheck()) }
+        launchedAtLogin = isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
+            || ProcessInfo.processInfo.arguments.contains("--background-launch")
+        let state = EffectController.shared.state
+        state.onCaptureIndicatorChange = { [weak self] shown in self?.changeCaptureIndicator(shown) }
+        state.onCaptureRouteChange = { [weak self] in self?.restartForCaptureRoute(previousIndicator: nil) }
+        if !ProcessInfo.processInfo.arguments.contains("--launch-parent"), !state.wantsTerminalCapture,
+           !CaptureLaunch.isTerminalSession {
+            if ProcessInfo.processInfo.arguments.contains("--capture-check") {
+                Task { exit(await runCaptureCheck()) }
+            } else {
+                startApplication()
+            }
             return
         }
+        launchTask = Task {
+            do { try await CaptureLaunch.completeHandoff() }
+            catch {
+                if error is CaptureLaunchFailure {
+                    NSApp.terminate(nil)
+                    return
+                }
+                let alert = NSAlert()
+                alert.messageText = String(localized: "Kampsis couldn’t restart")
+                alert.informativeText = error.localizedDescription
+                alert.runModal()
+                NSApp.terminate(nil)
+                return
+            }
+            if ProcessInfo.processInfo.arguments.contains("--capture-check") {
+                exit(await runCaptureCheck())
+            }
+            if state.wantsTerminalCapture != CaptureLaunch.isTerminalSession {
+                state.captureLaunchPending = true
+                do {
+                    let route: CaptureLaunchRoute = state.wantsTerminalCapture ? .terminal : .application
+                    try await CaptureLaunch.restart(via: route, background: launchedAtLogin, releaseResources: {})
+                    NSApp.terminate(nil)
+                    return
+                } catch {
+                    state.captureLaunchPending = false
+                    let alert = NSAlert()
+                    alert.messageText = String(localized: "Kampsis couldn’t change the launch method")
+                    alert.informativeText = error.localizedDescription
+                    if CaptureLaunch.isTerminalSession {
+                        alert.addButton(withTitle: String(localized: "Quit"))
+                        alert.runModal()
+                        NSApp.terminate(nil)
+                        return
+                    }
+                    alert.addButton(withTitle: String(localized: "Open Normally"))
+                    alert.addButton(withTitle: String(localized: "Quit"))
+                    guard alert.runModal() == .alertFirstButtonReturn else {
+                        NSApp.terminate(nil)
+                        return
+                    }
+                    state.showsCaptureIndicator = true
+                }
+            }
+            startApplication()
+            do { try CaptureLaunch.confirmStarted() }
+            catch {
+                // родитель показывает ошибку; запоздалый ребёнок не оставляет второе модальное окно
+                NSApp.terminate(nil)
+            }
+        }
+    }
+
+    /// запускает эффект только после передачи управления новому экземпляру
+    private func startApplication() {
         let controller = EffectController.shared
-        launchedAtLogin = isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent)
+        if CaptureLaunch.isTerminalSession, !CGPreflightScreenCaptureAccess() {
+            if !CGRequestScreenCaptureAccess() { controller.openScreenCaptureSettings() }
+        }
         controller.state.onDockIconChange = { [weak self] shown in self?.applyDockVisibility(shown) }
         applyDockVisibility(controller.state.showsDockIcon)
-        controller.start()
+        controller.start(background: launchedAtLogin)
         menuBar = MenuBarController(controller: controller)
         menuBar?.openWindow = { [weak self] scene in self?.openWindow?(scene) }
         if launchedAtLogin {
             NSApp.windows.filter { $0.title == AppIdentity.name }.forEach { $0.orderOut(nil) }
         } else {
             NSApp.activate()
+        }
+    }
+
+    /// изменение способа запуска вступает в силу сразу после подтверждённого перезапуска
+    private func changeCaptureIndicator(_ shown: Bool) {
+        let controller = EffectController.shared
+        let state = controller.state
+        guard shown != state.showsCaptureIndicator, !state.captureLaunchPending else { return }
+        let previous = state.showsCaptureIndicator
+        state.showsCaptureIndicator = shown
+        restartForCaptureRoute(previousIndicator: previous)
+    }
+
+    private func restartForCaptureRoute(previousIndicator: Bool?) {
+        let controller = EffectController.shared
+        let state = controller.state
+        guard state.wantsTerminalCapture != state.usesTerminalCapture, !state.captureLaunchPending else { return }
+        state.captureLaunchProblem = nil
+        state.captureLaunchPending = true
+        // ребёнок должен прочитать включённость до демо, а не временное включение ради демонстрации
+        controller.endDemo()
+        launchTask = Task {
+            do {
+                let route: CaptureLaunchRoute = state.wantsTerminalCapture ? .terminal : .application
+                try await CaptureLaunch.restart(via: route, background: false) { try await controller.stop() }
+                NSApp.terminate(nil)
+            } catch {
+                if let previousIndicator { state.showsCaptureIndicator = previousIndicator }
+                state.captureLaunchPending = false
+                state.captureLaunchProblem = error.localizedDescription
+                controller.start()
+            }
         }
     }
 
@@ -103,7 +208,9 @@ private struct WindowCommands: Commands {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
 
     private func applyDockVisibility(_ shown: Bool) {
-        NSApp.setActivationPolicy(shown ? .regular : .accessory)
+        let policy: NSApplication.ActivationPolicy = shown ? .regular : .accessory
+        guard NSApp.activationPolicy() != policy else { return }
+        NSApp.setActivationPolicy(policy)
     }
 
     func installWindowAction(_ action: OpenWindowAction) {

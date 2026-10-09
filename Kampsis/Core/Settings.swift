@@ -1,6 +1,31 @@
 import Foundation
 import os
 
+/// способ получения картинки для сгиба
+enum CaptureMode: String, CaseIterable, Identifiable, Sendable {
+    case live
+    case frozen
+    case snapshot
+
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .live: String(localized: "Live Desktop")
+        case .frozen: String(localized: "Freeze at Fold Start")
+        case .snapshot: String(localized: "Single Snapshot")
+        }
+    }
+
+    var summary: String {
+        switch self {
+        case .live: String(localized: "Prepares capture as the lid moves and keeps the desktop updating during the fold.")
+        case .frozen: String(localized: "Prepares capture as the lid moves, then holds the picture and stops the stream when the fold begins.")
+        case .snapshot: String(localized: "Takes one picture when the fold begins. No continuous capture; the first picture may take longer.")
+        }
+    }
+}
+
 /// готовый стиль эффекта: задаёт изгиб, размытие и затемнение одним выбором
 enum Look: String, Codable, CaseIterable, Identifiable, Sendable {
     case soft
@@ -120,14 +145,26 @@ struct EffectSettings: Codable, Equatable, Sendable {
 private let settingsKey = "effect-settings"
 private let settingsLog = Logger(subsystem: "io.github.boundlessend.kampsis", category: "settings")
 
-/// читает настройки; при первом запуске или повреждённой записи возвращает стандартные и пишет в лог
-func loadSettings(from defaults: UserDefaults) -> EffectSettings {
-    guard let data = defaults.data(forKey: settingsKey) else { return .standard }
+enum SettingsFailure: LocalizedError {
+    case unreadable
+
+    var errorDescription: String? {
+        String(localized: "The saved effect settings can’t be read. The effect is off. Reset the effect settings to continue.")
+    }
+}
+
+/// повреждённая запись остаётся в хранилище до явного сброса пользователем
+func loadSettings(from defaults: UserDefaults) throws(SettingsFailure) -> EffectSettings {
+    guard defaults.object(forKey: settingsKey) != nil else { return .standard }
+    guard let data = defaults.data(forKey: settingsKey) else {
+        settingsLog.error("stored effect settings have an invalid type")
+        throw .unreadable
+    }
     do {
         return try JSONDecoder().decode(EffectSettings.self, from: data).sanitized()
     } catch {
-        settingsLog.error("stored settings unreadable, using standard: \(error.localizedDescription, privacy: .public)")
-        return .standard
+        settingsLog.error("stored effect settings unreadable: code=\((error as NSError).code, privacy: .public)")
+        throw .unreadable
     }
 }
 

@@ -99,6 +99,14 @@ struct HardwareTests {
     }
 
     @Test func presentationSummaryMeasuresRealGapsInBoundedMemory() {
+        let measured = PresentationLog(requestedAt: 10)
+        measured.record(10.01, visible: false)
+        measured.record(10.05)
+        measured.recordGPU(start: 10, end: 10.003)
+        measured.recordGPU(start: 0, end: 0)
+        #expect(abs((measured.summary().firstVisibleMilliseconds ?? 0) - 50) < 0.001)
+        #expect(abs((measured.summary().gpuP95Milliseconds ?? 0) - 3) < 0.001)
+        #expect(measured.summary().samples == 1)
         let log = PresentationLog()
         log.record(0)
         log.record(.nan)

@@ -26,9 +26,9 @@ import os
         checksAutomatically = store.bool(forKey: Self.automaticKey)
     }
 
-    func start() {
+    func start(background: Bool = false) {
         guard store.object(forKey: Self.automaticKey) != nil else {
-            guard !isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent) else { return }
+            guard !background, !isLoginLaunch(NSAppleEventManager.shared().currentAppleEvent) else { return }
             Task { askAboutAutomaticChecks() }
             return
         }

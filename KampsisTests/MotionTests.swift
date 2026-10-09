@@ -284,25 +284,57 @@ struct MotionTests {
         let state = AppState(store: defaults)
         #expect(!state.showsDockIcon)
         #expect(state.showsMenuBarIcon)
+        #expect(state.showsCaptureIndicator)
+        #expect(state.captureMode == .snapshot)
         let custom = EffectSettings.standard.applying(.matte)
         state.settings = custom
         state.showsDockIcon = true
         state.showsMenuBarIcon = false
+        state.showsCaptureIndicator = false
+        state.captureMode = .frozen
         let relaunched = AppState(store: try #require(UserDefaults(suiteName: suite)))
         #expect(relaunched.showsDockIcon)
         #expect(!relaunched.showsMenuBarIcon)
+        #expect(!relaunched.showsCaptureIndicator)
+        #expect(relaunched.captureMode == .frozen)
         #expect(relaunched.settings == custom)
+        defaults.set("unknown", forKey: "capture-mode")
+        let unrecognized = AppState(store: defaults)
+        #expect(unrecognized.captureMode == nil)
+        #expect(unrecognized.captureModeProblem != nil)
+        #expect(unrecognized.settings == custom)
+        #expect(!unrecognized.wantsTerminalCapture)
+        relaunched.captureMode = .snapshot
+        #expect(!relaunched.wantsTerminalCapture)
+        relaunched.captureMode = .live
+        #expect(relaunched.wantsTerminalCapture)
+        defaults.removeObject(forKey: "capture-mode")
+        let previousInstallation = AppState(store: defaults)
+        #expect(previousInstallation.captureMode == .live)
+        #expect(defaults.string(forKey: "capture-mode") == "live")
     }
 
-    @Test func settingsSurviveRelaunchAndCorruptionFallsBackToStandard() throws {
+    @Test @MainActor func settingsSurviveRelaunchAndCorruptionPausesUntilExplicitReset() throws {
         let suite = "KampsisTests.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
-        #expect(loadSettings(from: defaults) == .standard)
+        #expect(try loadSettings(from: defaults) == .standard)
         let custom = EffectSettings.standard.applying(.deep)
         saveSettings(custom, to: defaults)
-        #expect(loadSettings(from: defaults) == custom)
+        #expect(try loadSettings(from: defaults) == custom)
         defaults.set(Data("не json".utf8), forKey: "effect-settings")
-        #expect(loadSettings(from: defaults) == .standard)
+        #expect(throws: SettingsFailure.self) { try loadSettings(from: defaults) }
+        defaults.set("не данные", forKey: "effect-settings")
+        #expect(throws: SettingsFailure.self) { try loadSettings(from: defaults) }
+        defaults.set(Data("не json".utf8), forKey: "effect-settings")
+        let paused = AppState(store: defaults)
+        #expect(!paused.settings.isOn)
+        #expect(!paused.canUseEffect)
+        #expect(paused.settingsProblem != nil)
+        #expect(defaults.data(forKey: "effect-settings") == Data("не json".utf8))
+        paused.resetUnreadableSettings()
+        #expect(paused.canUseEffect)
+        #expect(!paused.settings.isOn)
+        #expect(try loadSettings(from: defaults) == paused.settings)
     }
 }

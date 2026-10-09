@@ -210,15 +210,16 @@ private func contrast(_ values: [Int]) -> Double {
         }
     }
 
-    @Test func newCaptureWakesOverlayButHiddenOverlayStaysAsleep() async throws {
+    @Test func newCaptureWakesLiveOverlayWhileFrozenAndHiddenHoldTheirFrames() async throws {
         var created: CVPixelBuffer?
         let attributes = [kCVPixelBufferMetalCompatibilityKey: true, kCVPixelBufferIOSurfacePropertiesKey: [:]] as CFDictionary
         #expect(CVPixelBufferCreate(kCFAllocatorDefault, 160, 100, kCVPixelFormatType_32BGRA, attributes, &created) == kCVReturnSuccess)
         let pixels = try #require(created)
         let frames = FrameSlot()
         frames.store(pixels, capturedAt: CACurrentMediaTime())
+        var mode = CaptureMode.live
         let renderer = try SheetRenderer(stack: stack, frames: frames) {
-            FoldInputs(progress: 0.4, settings: .standard, fadesIn: true, reduceMotion: false)
+            FoldInputs(progress: 0.4, settings: .standard, fadesIn: true, reduceMotion: false, captureMode: mode)
         }
         let panel = floatingPanel(with: renderer.surface)
         defer { renderer.surface.paused = true; panel.close() }
@@ -231,6 +232,16 @@ private func contrast(_ values: [Int]) -> Double {
         try await Task.sleep(for: .milliseconds(400))
         #expect(renderer.drawnFrames > beforeCapture, "свежий кадр захвата должен будить display link")
         #expect(renderer.surface.paused)
+
+        mode = .frozen
+        renderer.wake()
+        try await wait(upTo: 1) { renderer.displayedFrameNumber == 2 && renderer.surface.paused }
+        frames.store(pixels, capturedAt: CACurrentMediaTime())
+        try await Task.sleep(for: .milliseconds(400))
+        #expect(renderer.displayedFrameNumber == 2, "после начала сгиба новый кадр остаётся вне зафиксированной картинки")
+        mode = .live
+        renderer.wake()
+        try await wait(upTo: 1) { renderer.displayedFrameNumber == 3 && renderer.surface.paused }
 
         panel.orderOut(nil)
         try await Task.sleep(for: .milliseconds(120))

@@ -36,6 +36,7 @@ struct EffectWindow: View {
             Toggle("Effect", isOn: $state.settings.isOn)
                 .toggleStyle(.switch)
                 .controlSize(.small)
+                .disabled(!state.canUseEffect)
             Divider()
                 .frame(height: 18)
                 .padding(.horizontal, 6)
@@ -134,6 +135,8 @@ private struct PreviewColumn: View {
                 }
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
+                .accessibilityIdentifier("effect-demo")
+                .disabled(!state.canUseEffect || state.suspended)
                 Group {
                     if state.demoRunning { Text("\(shortcutLabel(state.settings.toggleShortcut)) stops it") } else { Text("Five seconds\non your desktop") }
                 }
@@ -152,7 +155,14 @@ private struct PreviewColumn: View {
     }
 
     @ViewBuilder private var problemRow: some View {
-        if let problem = state.problem {
+        if let problem = state.settingsProblem ?? state.captureModeProblem {
+            VStack(alignment: .leading, spacing: 4) {
+                Label(problem, systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
+                Button("General Settings…") { openWindow(id: SceneID.general) }.buttonStyle(.link)
+            }
+            .font(.callout)
+            .fixedSize(horizontal: false, vertical: true)
+        } else if let problem = state.problem {
             VStack(alignment: .leading, spacing: 4) {
                 Label(problem, systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
                 Button("Check Again") { controller.retry() }.buttonStyle(.link)
@@ -243,6 +253,7 @@ private struct EffectInspector: View {
                 .font(.callout)
                 .help("Style, sliders, and fade-out angle return to their defaults. Sound and launch at login stay as they are.")
         }
+        .disabled(state.settingsProblem != nil || state.captureLaunchPending)
     }
 
     private func percentSlider(_ title: LocalizedStringKey, value: Binding<Double>) -> some View {

@@ -67,11 +67,12 @@ import Observation
         let toggle = menu.addItem(withTitle: "\(state.toggleTitle)   \(shortcutLabel(state.settings.toggleShortcut))",
                                   action: #selector(toggleEffect), keyEquivalent: "")
         toggle.target = self
+        toggle.isEnabled = state.canUseEffect || state.demoRunning
         add(String(localized: "Customize Effect…"), action: #selector(customizeEffect), to: menu)
         add(String(localized: "General Settings…"), action: #selector(generalSettings), to: menu)
         if !state.demoRunning {
             let demo = add(String(localized: "Show Demo"), action: #selector(showDemo), to: menu)
-            demo.isEnabled = state.screenAccess
+            demo.isEnabled = state.screenAccess && state.canUseEffect && !state.suspended
         }
         menu.addItem(.separator())
         let updates = add(String(localized: "Check for Updates…"), action: #selector(checkUpdates), to: menu)

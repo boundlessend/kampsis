@@ -22,6 +22,7 @@ struct EffectSnapshot: Equatable, Sendable {
     var phase: CapturePhase
     var stopScheduled: Bool
     var hasFrame: Bool
+    var captureMode: CaptureMode? = .live
 }
 
 enum EffectCommand: Equatable, Sendable {
@@ -43,10 +44,12 @@ let invisibleProgress = 0.001
 
 /// захват допустим: эффект включён, доступ есть, Mac не спит и крышка в рабочем диапазоне
 func captureAllowed(_ snapshot: EffectSnapshot) -> Bool {
-    guard snapshot.isOn, snapshot.screenAccess, !snapshot.suspended, snapshot.builtInDisplay else { return false }
+    guard snapshot.isOn, snapshot.screenAccess, !snapshot.suspended, snapshot.builtInDisplay,
+          let captureMode = snapshot.captureMode else { return false }
     if snapshot.demo { return true }
     guard let angle = snapshot.measuredAngle, angle.isFinite else { return false }
     guard angle > lidShutAngle else { return false }
+    if captureMode == .snapshot { return snapshot.progress > 0 }
     // крышка пошла вниз: захват прогревается сразу, чтобы первый кадр был готов к порогу
     if snapshot.closingSpeed > 0 { return true }
     return angle < snapshot.fadeOutAngle + captureAngleMargin

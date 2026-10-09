@@ -36,6 +36,16 @@ struct DecisionTests {
                 "в запасе над углом исчезновения захват держится и без движения")
     }
 
+    @Test func singleSnapshotWaitsForTheFoldInsteadOfPrewarming() {
+        let approaching = with {
+            $0.captureMode = .snapshot
+            $0.measuredAngle = 130; $0.fadeOutAngle = 60; $0.progress = 0; $0.closingSpeed = 20
+        }
+        #expect(planEffect(approaching) == [])
+        #expect(planEffect(with { $0.captureMode = .snapshot }) == [.beginCapture])
+        #expect(!captureAllowed(with { $0.captureMode = nil; $0.demo = true }))
+    }
+
     @Test func captureGatesOverrideDemo() {
         #expect(captureAllowed(ready))
         #expect(!captureAllowed(with { $0.measuredAngle = 123 }))

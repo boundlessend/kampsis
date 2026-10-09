@@ -11,6 +11,10 @@ struct GeneralWindow: View {
     @State private var language: AppLanguage = Bundle.main.preferredLocalizations.first == "ru" ? .russian : .english
     @State private var diagnosticsCopied = false
     @State private var diagnosticsProblem: String?
+    @State private var indicatorShown = true
+    @State private var requestedIndicator: Bool?
+    @State private var confirmsIndicatorChange = false
+    @State private var confirmsSettingsReset = false
 
     private var sensorLine: String {
         if !state.settings.isOn || state.suspended { return String(localized: "Not in use") }
@@ -40,6 +44,7 @@ struct GeneralWindow: View {
                     if alert.runModal() == .alertFirstButtonReturn { NSApp.terminate(nil) }
                 }
                 Toggle("Click when the lid opens", isOn: $state.settings.chimeOnOpen)
+                    .disabled(state.settingsProblem != nil)
                 Toggle("Show icon in Dock", isOn: $state.showsDockIcon)
                 Toggle("Show icon in menu bar", isOn: $state.showsMenuBarIcon)
                 Toggle("Open at login", isOn: Binding(
@@ -56,6 +61,7 @@ struct GeneralWindow: View {
                 }
                 LabeledContent("Turn effect on or off") {
                     ShortcutRecorder(shortcut: $state.settings.toggleShortcut)
+                        .disabled(state.settingsProblem != nil)
                 }
                 if let shortcutProblem = state.shortcutProblem {
                     Text(shortcutProblem).foregroundStyle(.orange)
@@ -63,6 +69,53 @@ struct GeneralWindow: View {
             }
 
             Section("Screen Access") {
+                Picker("Desktop Image", selection: $state.captureMode) {
+                    if state.captureMode == nil {
+                        Text("Choose Capture Mode").tag(CaptureMode?.none)
+                    }
+                    ForEach(CaptureMode.allCases) { mode in
+                        Text(verbatim: mode.title).tag(Optional(mode))
+                    }
+                }
+                .accessibilityIdentifier("capture-mode")
+                .disabled(state.captureLaunchPending)
+                if let mode = state.captureMode {
+                    Text(verbatim: mode.summary)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                if let problem = state.captureModeProblem {
+                    Text(problem).foregroundStyle(.orange)
+                }
+                Toggle("Use experimental Terminal launch", isOn: Binding(
+                    get: { state.captureMode == .snapshot ? false : !indicatorShown },
+                    set: {
+                        indicatorShown = !$0
+                        requestedIndicator = !$0
+                        confirmsIndicatorChange = true
+                    }
+                ))
+                .disabled(state.captureLaunchPending || state.captureMode == .snapshot || state.captureMode == nil)
+                if state.captureMode == .snapshot {
+                    Text("Single Snapshot uses the normal app launch and doesn’t need Terminal permissions. macOS controls its own capture indicator.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("May hide the macOS capture indicator for streams. Requires additional permissions and may leave Terminal in the Dock. Changing this option restarts Kampsis.")
+                        .foregroundStyle(.secondary)
+                }
+                if state.captureLaunchPending {
+                    HStack {
+                        ProgressView().controlSize(.small)
+                        Text("Restarting…").foregroundStyle(.secondary)
+                    }
+                }
+                if let problem = state.captureLaunchProblem {
+                    Text(problem).foregroundStyle(.orange)
+                }
+                if state.usesTerminalCapture {
+                    Text("Screen recording access belongs to Terminal in this mode.")
+                        .foregroundStyle(.secondary)
+                }
                 LabeledContent("Screen Recording") {
                     if state.screenAccess {
                         Label("Allowed", systemImage: "checkmark.circle").foregroundStyle(.secondary)
@@ -82,7 +135,7 @@ struct GeneralWindow: View {
                     .buttonStyle(.link)
                 DisclosureGroup("What happens to the image", isExpanded: $privacyShown) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Frames live only in this Mac’s memory and are replaced right away by the next ones. \(AppIdentity.name) doesn’t save screenshots, record audio, or send screen images over the network.")
+                        Text("Images stay in this Mac’s memory while the effect is in use. \(AppIdentity.name) doesn’t save screenshots, record audio, or send screen images over the network.")
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                         Button("Open macOS Settings") { controller.openScreenCaptureSettings() }
@@ -99,6 +152,11 @@ struct GeneralWindow: View {
                 LabeledContent("Effect", value: state.statusLine)
                 if let problem = state.problem {
                     Text(problem).foregroundStyle(.orange)
+                }
+                if let problem = state.settingsProblem {
+                    Text(problem).foregroundStyle(.orange)
+                    Button("Reset Effect Settings…") { confirmsSettingsReset = true }
+                        .buttonStyle(.link)
                 }
                 if let pointerProblem = state.pointerProblem {
                     Text(pointerProblem).foregroundStyle(.orange)
@@ -130,6 +188,10 @@ struct GeneralWindow: View {
 
             Section("Updates") {
                 LabeledContent("Version", value: AppIdentity.version)
+                Button("Open License") {
+                    if let license = Bundle.main.url(forResource: "LICENSE", withExtension: nil) { NSWorkspace.shared.open(license) }
+                }
+                .buttonStyle(.link)
                 Toggle("Check once a day", isOn: Binding(
                     get: { updates.checksAutomatically },
                     set: { updates.setChecksAutomatically($0) }
@@ -151,6 +213,31 @@ struct GeneralWindow: View {
             }
         }
         .formStyle(.grouped)
-        .onAppear { controller.refreshLoginStatus() }
+        .disabled(state.captureLaunchPending)
+        .onAppear {
+            controller.refreshLoginStatus()
+            indicatorShown = state.showsCaptureIndicator
+        }
+        .onChange(of: state.showsCaptureIndicator) { _, shown in indicatorShown = shown }
+        .alert("Restart to change the launch method", isPresented: $confirmsIndicatorChange,
+               presenting: requestedIndicator) { shown in
+            Button("Restart Now") { state.onCaptureIndicatorChange?(shown) }
+            Button("Cancel", role: .cancel) {
+                indicatorShown = state.showsCaptureIndicator
+                requestedIndicator = nil
+            }
+        } message: { shown in
+            if shown {
+                Text("Kampsis will restart using the normal app launch. macOS controls whether its capture indicator appears.")
+            } else {
+                Text("This experimental mode starts Kampsis through Apple Terminal. Allow Kampsis to control Terminal and allow Terminal to record the screen. This access also applies to other commands run in Terminal. Its launch window closes automatically; existing Terminal windows stay open. Terminal may remain in the Dock while Kampsis runs. A macOS update may stop this mode from hiding the indicator.")
+            }
+        }
+        .alert("Reset unreadable effect settings?", isPresented: $confirmsSettingsReset) {
+            Button("Reset Settings") { state.resetUnreadableSettings() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This replaces the unreadable effect settings with defaults. The effect stays off until you turn it on. Capture mode, language, and icon preferences stay as they are.")
+        }
     }
 }

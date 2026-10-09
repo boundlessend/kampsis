@@ -13,6 +13,7 @@ struct FoldInputs: Equatable, Sendable {
     /// оверлей проявляется в первые проценты сложения, превью всегда непрозрачно
     var fadesIn: Bool
     var reduceMotion: Bool
+    var captureMode: CaptureMode? = .live
 }
 
 /// раскладка совпадает со структурой FoldUniforms в шейдере
@@ -123,6 +124,7 @@ enum SheetRendererFailure: LocalizedError {
     var inputs: () -> FoldInputs
     var presentationLog: PresentationLog?
     var onFailure: ((SheetRendererFailure) -> Void)?
+    var onFreeze: (() -> Void)?
     let surface: MetalSurfaceView
     let painter: FoldPainter
     private(set) var drawnFrames = 0
@@ -131,6 +133,9 @@ enum SheetRendererFailure: LocalizedError {
     private let frames: FrameSlot?
     private let textureCache: CVMetalTextureCache?
     private var current: MappedFrame?
+    private var holdingFrame = false
+    var holdsFrozenFrame: Bool { holdingFrame }
+    var displayedFrameNumber: UInt64? { current?.number }
     private var smoother = ProgressSmoother.resting
     private var lastDrawn: (inputs: FoldInputs, size: CGSize, frameNumber: UInt64?)?
     private var lastChange = 0.0
@@ -158,7 +163,12 @@ enum SheetRendererFailure: LocalizedError {
         surface.onVisible = { [weak self] in self?.redraw() }
         surface.onResize = { [weak self] in self?.redraw() }
         frames?.onStore { [weak self] in
-            DispatchQueue.main.async { MainActor.assumeIsolated { self?.wake() } }
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    guard let self, !self.holdingFrame || self.inputs().captureMode != .frozen else { return }
+                    self.wake()
+                }
+            }
         }
     }
 
@@ -174,6 +184,7 @@ enum SheetRendererFailure: LocalizedError {
         smoother = .resting
         lastDrawn = nil
         current = nil
+        holdingFrame = false
         painter.reset()
         if let textureCache { CVMetalTextureCacheFlush(textureCache, 0) }
     }
@@ -193,10 +204,16 @@ enum SheetRendererFailure: LocalizedError {
         smoother = smoother.approaching(wanted.progress, at: now)
         var shown = wanted
         shown.progress = Double(Float(smoother.value))
-        adoptLatestFrame()
+        let invisible = shown.fadesIn && shown.progress == 0
+        let wasHolding = holdingFrame
+        if wanted.captureMode != .frozen || wanted.progress <= invisibleProgress { holdingFrame = false }
+        if !holdingFrame, !invisible {
+            adoptLatestFrame()
+            holdingFrame = wanted.captureMode == .frozen && wanted.progress > invisibleProgress && current != nil
+        }
         guard !failed else { return }
         let size = surface.drawableSize
-        let frameNumber = current?.number
+        let frameNumber = invisible ? nil : current?.number
         if let lastDrawn, lastDrawn.inputs == shown, lastDrawn.size == size, lastDrawn.frameNumber == frameNumber {
             if now - lastChange >= Self.idleDelay { surface.paused = true }
             return
@@ -209,7 +226,7 @@ enum SheetRendererFailure: LocalizedError {
         } else {
             (source, sourceNumber) = (current?.texture, frameNumber)
         }
-        guard let source else { return }
+        guard invisible || source != nil else { return }
         guard let command = stack.queue.makeCommandBuffer() else {
             fail(.commandBufferUnavailable)
             return
@@ -219,8 +236,17 @@ enum SheetRendererFailure: LocalizedError {
         pass.colorAttachments[0].loadAction = .clear
         pass.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0)
         pass.colorAttachments[0].storeAction = .store
-        guard painter.encode(source: source, sourceNumber: sourceNumber, inputs: shown,
-                             pass: pass, command: command, size: size) else {
+        let encoded: Bool
+        if invisible {
+            if let encoder = command.makeRenderCommandEncoder(descriptor: pass) {
+                encoder.endEncoding()
+                encoded = true
+            } else { encoded = false }
+        } else if let source {
+            encoded = painter.encode(source: source, sourceNumber: sourceNumber, inputs: shown,
+                                     pass: pass, command: command, size: size)
+        } else { encoded = false }
+        guard encoded else {
             fail(.encodingFailed)
             return
         }
@@ -228,9 +254,11 @@ enum SheetRendererFailure: LocalizedError {
         let keepAlive = current
         let semaphore = inFlight
         let submittedGeneration = generation
+        let measurements = presentationLog
         command.addCompletedHandler { [weak self] completed in
             withExtendedLifetime(keepAlive) {}
             semaphore.signal()
+            measurements?.recordGPU(start: completed.gpuStartTime, end: completed.gpuEndTime)
             if completed.status == .error {
                 let code = (completed.error as NSError?)?.code
                 DispatchQueue.main.async { [weak self] in
@@ -242,7 +270,8 @@ enum SheetRendererFailure: LocalizedError {
             }
         }
         if let presentationLog {
-            drawable.addPresentedHandler { presentationLog.record($0.presentedTime) }
+            let visible = !shown.fadesIn || shown.progress > invisibleProgress
+            drawable.addPresentedHandler { presentationLog.record($0.presentedTime, visible: visible) }
         }
         command.commit()
         drawable.present()
@@ -250,6 +279,7 @@ enum SheetRendererFailure: LocalizedError {
         lastDrawn = (shown, size, frameNumber)
         lastChange = now
         drawnFrames += 1
+        if holdingFrame, !wasHolding { onFreeze?() }
     }
 
     private func fail(_ failure: SheetRendererFailure) {

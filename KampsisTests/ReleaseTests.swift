@@ -61,6 +61,8 @@ struct ReleaseTests {
     }
 
     @Test func bundleCarriesPrivacyManifest() throws {
+        let license = try #require(Bundle.main.url(forResource: "LICENSE", withExtension: nil), "лицензия не попала в пакет")
+        #expect(try String(contentsOf: license, encoding: .utf8).contains("BSD 3-Clause License"))
         let url = try #require(Bundle.main.url(forResource: "PrivacyInfo", withExtension: "xcprivacy"),
                                "манифест приватности не попал в сборку")
         let manifest = try PropertyListSerialization.propertyList(from: Data(contentsOf: url), options: [], format: nil)

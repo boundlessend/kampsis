@@ -2,6 +2,26 @@ import Foundation
 import IOKit.hid
 import QuartzCore
 import os
+import Synchronization
+
+enum LidStopFailure: LocalizedError {
+    case timedOut
+    case rejected(IOReturn)
+
+    var errorDescription: String? {
+        switch self {
+        case .timedOut: String(localized: "The lid sensor didn’t close in time. Restart Kampsis before trying again.")
+        case let .rejected(code): String(localized: "The lid sensor couldn’t close (code \(code)). Restart Kampsis before trying again.")
+        }
+    }
+}
+
+/// статус освобождения не теряется, если системный close вернулся после срока ожидания
+private final class LidShutdown: Sendable {
+    private let result = Mutex<IOReturn?>(nil)
+    var status: IOReturn? { result.withLock { $0 } }
+    func complete(_ status: IOReturn) { result.withLock { $0 = status } }
+}
 
 enum SensorStatus: Equatable, Sendable {
     case reading
@@ -17,6 +37,7 @@ private let sensorLog = Logger(subsystem: "io.github.boundlessend.kampsis", cate
     var onStatus: ((SensorStatus) -> Void)?
     private var poller: LidPoller?
     private var session = 0
+    private var shutdowns: [LidShutdown] = []
 
     func start() {
         guard poller == nil else { return }
@@ -39,8 +60,27 @@ private let sensorLog = Logger(subsystem: "io.github.boundlessend.kampsis", cate
 
     func stop() {
         session += 1
-        poller?.end()
+        shutdowns.removeAll { $0.status == kIOReturnSuccess }
+        if let poller {
+            let shutdown = LidShutdown()
+            shutdowns.append(shutdown)
+            poller.end { shutdown.complete($0) }
+        }
         poller = nil
+    }
+
+    /// перезапуск приложения подтверждается после закрытия всех его прежних HID-читателей
+    func stopAndWait() async throws {
+        stop()
+        let deadline = ContinuousClock.now + .seconds(2)
+        for shutdown in shutdowns {
+            while shutdown.status == nil {
+                guard ContinuousClock.now < deadline else { throw LidStopFailure.timedOut }
+                try await Task.sleep(for: .milliseconds(10))
+            }
+            if let status = shutdown.status, status != kIOReturnSuccess { throw LidStopFailure.rejected(status) }
+        }
+        shutdowns.removeAll()
     }
 }
 
@@ -71,7 +111,9 @@ private final class LidPoller: @unchecked Sendable {
     }
 
     func begin() { queue.async { self.connect() } }
-    func end() { queue.async { self.disconnect() } }
+    func end(_ completed: @escaping @Sendable (IOReturn) -> Void) {
+        queue.async { completed(self.disconnect()) }
+    }
 
     private func connect() {
         let devices = discoverHIDDevices()
@@ -132,15 +174,17 @@ private final class LidPoller: @unchecked Sendable {
 
     private func fail(_ explanation: String) {
         sensorLog.warning("lid sensor unavailable: \(explanation, privacy: .public)")
-        disconnect()
+        _ = disconnect()
         onMain { [deliverStatus] in deliverStatus(.unavailable(explanation)) }
     }
 
-    private func disconnect() {
+    @discardableResult private func disconnect() -> IOReturn {
         pollTimer?.cancel()
         pollTimer = nil
-        if let hidDevice { IOHIDDeviceClose(hidDevice, IOOptionBits(kIOHIDOptionsTypeNone)) }
+        let status = hidDevice.map { IOHIDDeviceClose($0, IOOptionBits(kIOHIDOptionsTypeNone)) } ?? kIOReturnSuccess
+        if status != kIOReturnSuccess { sensorLog.error("lid sensor close failed: code=\(status, privacy: .public)") }
         hidDevice = nil
+        return status
     }
 
     private func onMain(_ work: @escaping @MainActor @Sendable () -> Void) {

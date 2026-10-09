@@ -30,5 +30,5 @@ actual=$(/usr/bin/openssl x509 -in $stage/certificate.pem -noout -fingerprint -s
 
 rcodesign=$($root/scripts/fetch-rcodesign.sh)
 $rcodesign sign --p12-file $private_dir/identity.p12 --p12-password-file $stage/password \
-  --code-signature-flags runtime --timestamp-url none $app
+  --entitlements-xml-file $root/Kampsis/Kampsis.entitlements --code-signature-flags runtime --timestamp-url none $app
 $root/scripts/verify-release-signature.sh $app

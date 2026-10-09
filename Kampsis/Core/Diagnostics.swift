@@ -9,6 +9,10 @@ struct PresentationSummary: Codable, Equatable, Sendable {
     let framesPerSecond: Double?
     let gapP95Milliseconds: Double?
     let gapMaxMilliseconds: Double?
+    var firstVisibleMilliseconds: Double?
+    var gpuP50Milliseconds: Double?
+    var gpuP95Milliseconds: Double?
+    var gpuMaxMilliseconds: Double?
 }
 
 /// значение из отсортированного непустого массива на заданной доле
@@ -42,12 +46,18 @@ final class PresentationLog: Sendable {
         var times: [Double]
         var next: Int
         var total: Int
+        var firstVisible: Double?
+        var gpuMilliseconds: [Double]
+        var gpuNext: Int
     }
 
-    private let ring = Mutex(Ring(times: [], next: 0, total: 0))
+    private let ring = Mutex(Ring(times: [], next: 0, total: 0, firstVisible: nil, gpuMilliseconds: [], gpuNext: 0))
+    private let requestedAt: Double?
 
-    func record(_ time: Double) {
-        guard time.isFinite, time > 0 else { return }
+    init(requestedAt: Double? = nil) { self.requestedAt = requestedAt }
+
+    func record(_ time: Double, visible: Bool = true) {
+        guard visible, time.isFinite, time > 0 else { return }
         ring.withLock { ring in
             if ring.times.count < Self.capacity {
                 ring.times.append(time)
@@ -56,12 +66,34 @@ final class PresentationLog: Sendable {
             }
             ring.next = (ring.next + 1) % Self.capacity
             ring.total += 1
+            if visible, ring.firstVisible == nil { ring.firstVisible = time }
+        }
+    }
+
+    /// GPU timestamps доступны после завершения command buffer; нули не считаются измерением
+    func recordGPU(start: Double, end: Double) {
+        guard start.isFinite, end.isFinite, start > 0, end >= start else { return }
+        let milliseconds = (end - start) * 1000
+        ring.withLock { ring in
+            if ring.gpuMilliseconds.count < Self.capacity { ring.gpuMilliseconds.append(milliseconds) }
+            else { ring.gpuMilliseconds[ring.gpuNext] = milliseconds }
+            ring.gpuNext = (ring.gpuNext + 1) % Self.capacity
         }
     }
 
     func summary() -> PresentationSummary {
-        let (times, total) = ring.withLock { ($0.times, $0.total) }
-        return summarizePresentation(times: times, totalFrames: total)
+        let snapshot = ring.withLock { $0 }
+        var summary = summarizePresentation(times: snapshot.times, totalFrames: snapshot.total)
+        if let requestedAt, let firstVisible = snapshot.firstVisible {
+            summary.firstVisibleMilliseconds = (firstVisible - requestedAt) * 1000
+        }
+        let gpu = snapshot.gpuMilliseconds.sorted()
+        if !gpu.isEmpty {
+            summary.gpuP50Milliseconds = percentile(gpu, 0.5)
+            summary.gpuP95Milliseconds = percentile(gpu, 0.95)
+            summary.gpuMaxMilliseconds = gpu.last
+        }
+        return summary
     }
 }
 
@@ -86,6 +118,14 @@ struct DiagnosticsReport: Codable, Sendable {
     let metalReady: Bool
     let drawnFrames: Int
     let captureFrame: UInt64
+    let captureMode: String?
+    let launchRoute: String
+    let terminalLaunchPreferred: Bool
+    let capturePhase: String
+    let settingsProblem: String?
+    let streaming: Bool
+    let displayedFrame: UInt64?
+    let firstFrameMilliseconds: Double?
     let status: String
     let problem: String?
     let shortcutProblem: String?

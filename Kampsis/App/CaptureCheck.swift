@@ -22,6 +22,32 @@ private let measuringWindow = 1.0
     at \(screen.backingScaleFactor)x, \(screen.maximumFramesPerSecond) Hz
     """)
 
+    let arguments = ProcessInfo.processInfo.arguments
+    let mode: CaptureMode
+    if let index = arguments.firstIndex(of: "--capture-mode") {
+        guard arguments.indices.contains(index + 1), let selected = CaptureMode(rawValue: arguments[index + 1]) else {
+            print("FAIL: --capture-mode requires live, frozen, or snapshot")
+            return 2
+        }
+        mode = selected
+    } else {
+        guard let selected = EffectController.shared.state.captureMode else {
+            print("FAIL: choose a valid capture mode in General Settings")
+            return 2
+        }
+        mode = selected
+    }
+    print("capture mode: \(mode.rawValue)")
+    // прозрачное окно регистрирует процесс в ScreenCaptureKit без рендера и изображения рабочего стола
+    let registration = NSPanel(contentRect: screen.frame, styleMask: [.borderless, .nonactivatingPanel],
+                               backing: .buffered, defer: false)
+    registration.backgroundColor = .clear
+    registration.isOpaque = false
+    registration.hasShadow = false
+    registration.ignoresMouseEvents = true
+    registration.isReleasedWhenClosed = false
+    registration.orderFrontRegardless()
+    defer { registration.close() }
     let stream = ScreenStream()
     var stoppedWith: CaptureTrouble?
     // насколько кадр доходит позже своей метки времени: положительное значение означает очередь или тормоза
@@ -33,17 +59,17 @@ private let measuringWindow = 1.0
 
     let startedAt = CACurrentMediaTime()
     do {
-        // окон у приложения нет: так проверяется, что macOS перечисляет его в SCShareableContent
-        try await stream.start(showing: []) { stoppedWith = $0 }
+        // своё служебное окно исключается из изображения
+        try await stream.start(mode: mode, showing: []) { stoppedWith = $0 }
         let readyAt = CACurrentMediaTime()
-        print("stream started in \(oneDecimal((readyAt - startedAt) * 1000)) ms, queue depth \(ScreenStream.queueDepth)")
+        print("capture prepared in \(oneDecimal((readyAt - startedAt) * 1000)) ms, queue depth \(ScreenStream.queueDepth)")
 
         let deadline = readyAt + firstFrameWait
         while stream.frames.latest == nil, stoppedWith == nil, CACurrentMediaTime() < deadline {
             try await Task.sleep(for: .milliseconds(5))
         }
         guard let first = stream.frames.latest else {
-            await stream.stop()
+            _ = await stopCaptureCheck(stream)
             if let trouble = stoppedWith {
                 print("FAIL capture: \(trouble.message) [\(String(describing: trouble.recovery))]")
             } else {
@@ -57,6 +83,14 @@ private let measuringWindow = 1.0
         \(oneDecimal((CACurrentMediaTime() - readyAt) * 1000)) ms after the stream started
         """)
 
+        if mode == .frozen { try await stream.freeze() }
+        print("continuous stream: \(stream.isStreaming ? "yes" : "no")")
+        if mode != .live {
+            print("frames: one picture held without a continuous stream")
+            guard await stopCaptureCheck(stream) else { return 1 }
+            print("OK")
+            return 0
+        }
         lateness.withLock { $0.removeAll() }
         let until = CACurrentMediaTime() + measuringWindow
         while stoppedWith == nil, CACurrentMediaTime() < until {
@@ -67,16 +101,16 @@ private let measuringWindow = 1.0
         }
         print("")
     } catch is CancellationError {
-        await stream.stop()
+        _ = await stopCaptureCheck(stream)
         print("CANCELLED: capture check stopped")
         return 1
     } catch {
-        await stream.stop()
+        _ = await stopCaptureCheck(stream)
         let trouble = captureTrouble(error)
         print("FAIL capture: \(trouble.message) [\(String(describing: trouble.recovery))]")
         return 1
     }
-    await stream.stop()
+    guard await stopCaptureCheck(stream) else { return 1 }
     if let trouble = stoppedWith {
         print("FAIL capture: \(trouble.message) [\(String(describing: trouble.recovery))]")
         return 1
@@ -106,4 +140,15 @@ private func oneDecimal(_ value: Double) -> String {
 /// четырёхсимвольный код формата пикселей
 private func pixelFormatName(_ code: OSType) -> String {
     String([24, 16, 8, 0].map { Character(UnicodeScalar(UInt8(truncatingIfNeeded: code >> $0))) })
+}
+
+/// ошибка остановки тоже делает проверку неуспешной, а не теряется при выходе
+@MainActor private func stopCaptureCheck(_ stream: ScreenStream) async -> Bool {
+    do {
+        try await stream.stop()
+        return true
+    } catch {
+        print("FAIL stopping capture: \(error.localizedDescription)")
+        return false
+    }
 }

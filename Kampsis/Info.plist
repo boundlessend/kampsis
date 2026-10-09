@@ -37,5 +37,7 @@
 	<string>NSApplication</string>
 	<key>NSScreenCaptureUsageDescription</key>
 	<string>Kampsis uses the image of the built-in display to fold it along with the lid. Frames stay in this Mac’s memory and are never saved.</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Kampsis controls Terminal only when you choose to hide the system capture indicator. It opens a separate launch window and closes it afterwards.</string>
 </dict>
 </plist>

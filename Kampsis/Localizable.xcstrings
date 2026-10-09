@@ -1718,17 +1718,6 @@
         }
       }
     },
-    "Frames live only in this Mac’s memory and are replaced right away by the next ones. %@ doesn’t save screenshots, record audio, or send screen images over the network." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Кадры живут только в памяти этого Mac и заменяются следующими. %@ не сохраняет снимки, не записывает звук и не отправляет изображения экрана в сеть."
-          }
-        }
-      }
-    },
     "GitHub couldn’t provide release information (HTTP %lld). Try again later." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1956,6 +1945,450 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "macOS не смогла изменить видимость курсора в фоне (код %d)."
+          }
+        }
+      }
+    },
+    "Allow Kampsis to control Terminal in macOS Settings > Privacy & Security > Automation, then try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешите Kampsis управлять Terminal в Системных настройках > Конфиденциальность и безопасность > Автоматизация, затем попробуйте ещё раз."
+          }
+        }
+      }
+    },
+    "Choose Capture Mode" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите режим захвата"
+          }
+        }
+      }
+    },
+    "Desktop Image" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изображение рабочего стола"
+          }
+        }
+      }
+    },
+    "Freeze at Fold Start" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Фиксация в начале сгиба"
+          }
+        }
+      }
+    },
+    "Images stay in this Mac’s memory while the effect is in use. %@ doesn’t save screenshots, record audio, or send screen images over the network." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изображения остаются только в памяти этого Mac, пока используется эффект. %@ не сохраняет снимки экрана, не записывает звук и не передаёт изображения экрана по сети."
+          }
+        }
+      }
+    },
+    "Kampsis couldn’t change the launch method" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось изменить способ запуска Kampsis"
+          }
+        }
+      }
+    },
+    "Kampsis couldn’t close its Terminal window safely. Close that window and try again. Other Terminal windows were left open." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kampsis не смог безопасно закрыть своё окно Terminal. Закройте это окно и попробуйте ещё раз. Остальные окна Terminal остались открытыми."
+          }
+        }
+      }
+    },
+    "Kampsis couldn’t restart" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось перезапустить Kampsis"
+          }
+        }
+      }
+    },
+    "Kampsis didn’t restart. Open the installed app and try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kampsis не перезапустился. Откройте установленное приложение и попробуйте ещё раз."
+          }
+        }
+      }
+    },
+    "Kampsis will restart using the normal app launch. macOS controls whether its capture indicator appears." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kampsis перезапустится обычным способом. Появлением индикатора захвата управляет macOS."
+          }
+        }
+      }
+    },
+    "Live Desktop" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Живой рабочий стол"
+          }
+        }
+      }
+    },
+    "May hide the macOS capture indicator for streams. Requires additional permissions and may leave Terminal in the Dock. Changing this option restarts Kampsis." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Может скрыть индикатор macOS при потоковом захвате. Требует дополнительных разрешений; Terminal может остаться в Dock. Изменение этой настройки перезапускает Kampsis."
+          }
+        }
+      }
+    },
+    "Open License" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть лицензию"
+          }
+        }
+      }
+    },
+    "Open Normally" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть обычным способом"
+          }
+        }
+      }
+    },
+    "Prepares capture as the lid moves and keeps the desktop updating during the fold." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заранее готовит захват при движении крышки. Рабочий стол продолжает обновляться во время сгиба."
+          }
+        }
+      }
+    },
+    "Prepares capture as the lid moves, then holds the picture and stops the stream when the fold begins." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подготавливает захват при движении крышки, затем фиксирует картинку и останавливает поток в начале сгиба."
+          }
+        }
+      }
+    },
+    "Reset Effect Settings…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбросить параметры эффекта…"
+          }
+        }
+      }
+    },
+    "Reset Settings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбросить параметры"
+          }
+        }
+      }
+    },
+    "Reset unreadable effect settings?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбросить повреждённые параметры эффекта?"
+          }
+        }
+      }
+    },
+    "Restart Now" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перезапустить сейчас"
+          }
+        }
+      }
+    },
+    "Restart to change the launch method" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перезапуск для смены способа запуска"
+          }
+        }
+      }
+    },
+    "Restarting…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перезапуск…"
+          }
+        }
+      }
+    },
+    "Screen recording access belongs to Terminal in this mode." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В этом режиме доступ к записи экрана выдан Terminal."
+          }
+        }
+      }
+    },
+    "Single Snapshot" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Одиночный снимок"
+          }
+        }
+      }
+    },
+    "Single Snapshot uses the normal app launch and doesn’t need Terminal permissions. macOS controls its own capture indicator." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Одиночный снимок использует обычный запуск приложения и не требует разрешений для Terminal. Системным индикатором захвата управляет macOS."
+          }
+        }
+      }
+    },
+    "Takes one picture when the fold begins. No continuous capture; the first picture may take longer." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Делает один снимок в начале сгиба без постоянного потока захвата. Подготовка первого кадра может занять больше времени."
+          }
+        }
+      }
+    },
+    "Terminal didn’t finish the launch in time. Check the permission dialog and try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminal не завершил запуск вовремя. Проверьте диалог разрешения и попробуйте ещё раз."
+          }
+        }
+      }
+    },
+    "Terminal launch failed (status %d). Open the installed app and try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запуск через Terminal завершился ошибкой (статус %d). Откройте установленное приложение и попробуйте ещё раз."
+          }
+        }
+      }
+    },
+    "Terminal remained open after launch failed: %@ Close the launch window and try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminal остался открыт после ошибки запуска: %@ Закройте окно запуска и попробуйте ещё раз."
+          }
+        }
+      }
+    },
+    "The lid sensor couldn’t close (code %d). Restart Kampsis before trying again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось закрыть датчик крышки (код %d). Перезапустите Kampsis перед новой попыткой."
+          }
+        }
+      }
+    },
+    "The lid sensor didn’t close in time. Restart Kampsis before trying again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Датчик крышки не закрылся вовремя. Перезапустите Kampsis перед новой попыткой."
+          }
+        }
+      }
+    },
+    "The previous Kampsis process didn’t quit. Close it before trying again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предыдущий процесс Kampsis не завершился. Закройте его перед новой попыткой."
+          }
+        }
+      }
+    },
+    "The saved capture mode isn’t recognized. Choose a capture mode to use the effect." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранённый режим захвата не распознан. Выберите режим, чтобы включить эффект."
+          }
+        }
+      }
+    },
+    "The saved effect settings can’t be read. The effect is off. Reset the effect settings to continue." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранённые параметры эффекта не читаются. Эффект выключен. Сбросьте параметры эффекта, чтобы продолжить."
+          }
+        }
+      }
+    },
+    "This experimental mode starts Kampsis through Apple Terminal. Allow Kampsis to control Terminal and allow Terminal to record the screen. This access also applies to other commands run in Terminal. Its launch window closes automatically; existing Terminal windows stay open. Terminal may remain in the Dock while Kampsis runs. A macOS update may stop this mode from hiding the indicator." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Экспериментальный режим запускает Kampsis через Apple Terminal. Разрешите Kampsis управлять Terminal, а Terminal - запись экрана. Этот доступ распространяется и на другие команды Terminal. Окно запуска закроется автоматически; ваши существующие окна останутся открытыми. Terminal может оставаться в Dock, пока работает Kampsis. Обновление macOS может вернуть индикатор."
+          }
+        }
+      }
+    },
+    "This replaces the unreadable effect settings with defaults. The effect stays off until you turn it on. Capture mode, language, and icon preferences stay as they are." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повреждённые параметры эффекта будут заменены стандартными. Эффект останется выключенным, пока вы его не включите. Режим захвата, язык и настройки иконок сохранятся."
+          }
+        }
+      }
+    },
+    "Use experimental Terminal launch" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Экспериментальный запуск через Terminal"
+          }
+        }
+      }
+    },
+    "macOS didn’t confirm the app launch in time. Check whether it opened before trying again." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS не подтвердила запуск приложения вовремя. Перед новой попыткой проверьте, открылось ли оно."
+          }
+        }
+      }
+    },
+    "macOS didn’t list the displays in time. Click “Check Again”." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS не предоставила список экранов вовремя. Нажмите «Проверить ещё раз»."
+          }
+        }
+      }
+    },
+    "macOS didn’t return the snapshot in time. Click “Check Again”." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS не предоставила снимок вовремя. Нажмите «Проверить ещё раз»."
+          }
+        }
+      }
+    },
+    "macOS didn’t start capture in time. Click “Check Again”." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS не запустила захват вовремя. Нажмите «Проверить ещё раз»."
+          }
+        }
+      }
+    },
+    "macOS hasn’t finished stopping capture. Restart Kampsis before trying again." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS ещё не завершила остановку захвата. Перезапустите Kampsis перед новой попыткой."
           }
         }
       }

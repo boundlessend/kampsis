@@ -40,7 +40,7 @@ xcrun strip -S $app/Contents/MacOS/Kampsis
 
 case $mode in
   adhoc)
-    codesign --force --options runtime --timestamp=none --sign - $app
+    codesign --force --options runtime --entitlements $root/Kampsis/Kampsis.entitlements --timestamp=none --sign - $app
     codesign --verify --deep --strict -R "=identifier \"$bundle_id\"" $app
     suffix=-adhoc
     ;;
@@ -49,13 +49,13 @@ case $mode in
     suffix=
     ;;
   development)
-    codesign --force --options runtime --timestamp=none --sign $KAMPSIS_SIGN_IDENTITY $app
+    codesign --force --options runtime --entitlements $root/Kampsis/Kampsis.entitlements --timestamp=none --sign $KAMPSIS_SIGN_IDENTITY $app
     codesign --verify --deep --strict \
       -R "=identifier \"$bundle_id\" and anchor apple generic and certificate leaf[subject.OU] = \"$KAMPSIS_TEAM_ID\"" $app
     suffix=-development
     ;;
   developer-id)
-    codesign --force --options runtime --timestamp --sign $KAMPSIS_SIGN_IDENTITY $app
+    codesign --force --options runtime --entitlements $root/Kampsis/Kampsis.entitlements --timestamp --sign $KAMPSIS_SIGN_IDENTITY $app
     codesign --verify --deep --strict \
       -R "=identifier \"$bundle_id\" and anchor apple generic and certificate leaf[field.1.2.840.113635.100.6.1.13] exists and certificate leaf[subject.OU] = \"$KAMPSIS_TEAM_ID\"" $app
     suffix=-unnotarized
