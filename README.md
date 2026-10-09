@@ -12,7 +12,7 @@ Your desktop folds, blurs and dims as you close your MacBook lid. Open it again 
 
 Requires macOS 26 or later and a MacBook with Apple silicon and a lid angle sensor. This version is verified on Mac17,3; other models are experimental. The effect appears only on the built-in display.
 
-1. Download **Kampsis-v0.2.0-macos-arm64.dmg** from [Releases](https://github.com/boundlessend/kampsis/releases/latest).
+1. Download **Kampsis-v0.4.3-macos-arm64.dmg** from [Releases](https://github.com/boundlessend/kampsis/releases/latest).
 2. Open the image and drag **Kampsis** into **Applications**.
 3. Launch Kampsis. If macOS blocks it, go to **System Settings → Privacy & Security → Open Anyway**. The app uses the project's own signing certificate and is not notarized by Apple.
 4. Click **Allow Screen Access…** and enable Kampsis in **Screen Recording**. Restart the app if macOS asks.
@@ -24,7 +24,7 @@ brew tap boundlessend/kampsis https://github.com/boundlessend/kampsis
 brew install --cask boundlessend/kampsis/kampsis
 ```
 
-To update it later, quit Kampsis, then run `brew update` and `brew upgrade --cask boundlessend/kampsis/kampsis`. The tap remains on 0.2.0 until a new release is published. Homebrew may ask you to trust this third-party tap; inspect the cask before accepting.
+To update it later, quit Kampsis, then run `brew update` and `brew upgrade --cask boundlessend/kampsis/kampsis`. Homebrew may ask you to trust this third-party tap; inspect the cask before accepting.
 
 ## Use
 
@@ -38,9 +38,9 @@ To update it later, quit Kampsis, then run `brew update` and `brew upgrade --cas
 
 The Dock icon is hidden by default; the menu bar icon is visible. If you hide both, open Kampsis from **Applications** to bring back General Settings.
 
-## Local development build
+## Desktop image modes
 
-This checkout builds **0.4.3**, which has not been published. The download above and the Homebrew cask still install the published **0.2.0**. The following settings belong to the local build:
+Kampsis 0.4.3 offers three ways to obtain the desktop image:
 
 - **Single Snapshot** takes one picture at the start of the fold without a continuous stream. It is the default for new settings. On the verified Mac17,3/macOS 27.0.1, it worked without the persistent purple capture indicator or Terminal in the Dock. macOS controls the indicator; other systems are unverified.
 - **Live Desktop** prepares capture during lid movement and updates the picture throughout the fold.

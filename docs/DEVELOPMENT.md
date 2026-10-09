@@ -1,6 +1,6 @@
 # Development
 
-The local project builds Kampsis 0.4.3 (7). The published Homebrew cask remains on 0.2.0 until a separately approved release. Do not update its version, URL, or checksum to an unpublished package.
+The project builds Kampsis 0.4.3 (7). The published Homebrew cask tracks 0.4.3. Update its version, URL, and checksum only after the corresponding package is published.
 
 ## Tools
 
