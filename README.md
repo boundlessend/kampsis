@@ -17,6 +17,15 @@ Requires macOS 26 or later and a MacBook with Apple silicon and a lid angle sens
 3. Launch Kampsis. If macOS blocks it, go to **System Settings → Privacy & Security → Open Anyway**. The app uses the project's own signing certificate and is not notarized by Apple.
 4. Click **Allow Screen Access…** and enable Kampsis in **Screen Recording**. Restart the app if macOS asks.
 
+To install the published version with Homebrew:
+
+```sh
+brew tap boundlessend/kampsis https://github.com/boundlessend/kampsis
+brew install --cask boundlessend/kampsis/kampsis
+```
+
+To update it later, quit Kampsis, then run `brew update` and `brew upgrade --cask boundlessend/kampsis/kampsis`. The tap remains on 0.2.0 until a new release is published. Homebrew may ask you to trust this third-party tap; inspect the cask before accepting.
+
 ## Use
 
 - **Left-click the menu bar icon** to turn the effect on or off. **Right-click** to open the menu. The icon dims when the effect is off.
@@ -28,6 +37,24 @@ Requires macOS 26 or later and a MacBook with Apple silicon and a lid angle sens
 - English is the default language. To switch to Russian, choose **Language → Русский** in **General Settings**, then reopen Kampsis.
 
 The Dock icon is hidden by default; the menu bar icon is visible. If you hide both, open Kampsis from **Applications** to bring back General Settings.
+
+## Local development build
+
+This checkout builds **0.4.3**, which has not been published. The download above and the Homebrew cask still install the published **0.2.0**. The following settings belong to the local build:
+
+- **Single Snapshot** takes one picture at the start of the fold without a continuous stream. It is the default for new settings. On the verified Mac17,3/macOS 27.0.1, it worked without the persistent purple capture indicator or Terminal in the Dock. macOS controls the indicator; other systems are unverified.
+- **Live Desktop** prepares capture during lid movement and updates the picture throughout the fold.
+- **Freeze at Fold Start** prepares a stream, holds the picture at the start of the fold, and stops the stream. A new fold obtains a new picture.
+
+Choose the mode in **General Settings → Screen Access → Desktop Image**. An existing saved choice is preserved. Slider preview uses a sample desktop; **Show on Screen** uses the selected capture mode.
+
+The system pointer stays visible in Live Desktop. Freeze and Single Snapshot hide it while the held picture is shown, then restore it when the effect ends.
+
+**Use experimental Terminal launch** is optional for Live and Freeze and is unavailable for Single Snapshot. It may hide the stream indicator on some macOS versions. It needs permission for Kampsis to control Apple Terminal and for Terminal to record the screen; that screen access also applies to other commands run in Terminal. Kampsis closes its launch window and preserves existing Terminal windows. Terminal may remain in the Dock while Kampsis runs. Selecting Single Snapshot returns to the normal app launch. A macOS update may stop the workaround from hiding the indicator.
+
+Unreadable effect settings leave the effect off and show a recovery message. **Reset Effect Settings…** replaces that record only after confirmation; the effect remains off until you enable it.
+
+Build instructions and verification commands are in [Development](docs/DEVELOPMENT.md).
 
 ## Updates
 
