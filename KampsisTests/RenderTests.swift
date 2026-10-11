@@ -59,7 +59,7 @@ private func contrast(_ values: [Int]) -> Double {
     }
 
     private func render(_ source: any MTLTexture, settings: EffectSettings, progress: Double,
-                        width: Int, height: Int) throws -> RenderedFrame {
+                        width: Int, height: Int, isOverlay: Bool = true) throws -> RenderedFrame {
         let descriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: MetalStack.pixelFormat,
                                                                   width: width, height: height, mipmapped: false)
         descriptor.storageMode = .shared
@@ -72,7 +72,7 @@ private func contrast(_ values: [Int]) -> Double {
         attachment.clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0)
         attachment.storeAction = .store
         let command = try #require(stack.queue.makeCommandBuffer())
-        let inputs = FoldInputs(progress: progress, settings: settings, fadesIn: true, reduceMotion: false)
+        let inputs = FoldInputs(progress: progress, settings: settings, isOverlay: isOverlay, reduceMotion: false)
         #expect(FoldPainter(stack: stack).encode(source: source, sourceNumber: nil, inputs: inputs, pass: pass,
                                                  command: command, size: CGSize(width: width, height: height)))
         command.commit()
@@ -131,7 +131,7 @@ private func contrast(_ values: [Int]) -> Double {
         let frames = FrameSlot()
         frames.store(pixels, capturedAt: CACurrentMediaTime())
         let renderer = try SheetRenderer(stack: stack, frames: frames) {
-            FoldInputs(progress: 0.1, settings: .standard, fadesIn: true, reduceMotion: false)
+            FoldInputs(progress: 0.1, settings: .standard, isOverlay: true, reduceMotion: false)
         }
         var failure: SheetRendererFailure?
         renderer.onFailure = { failure = $0 }
@@ -160,7 +160,7 @@ private func contrast(_ values: [Int]) -> Double {
     }
 
     @Test func idlePreviewStopsDisplayLinkAndWakesOnEdit() async throws {
-        var inputs = FoldInputs(progress: 0.32, settings: .standard, fadesIn: false, reduceMotion: false)
+        var inputs = FoldInputs(progress: 0.32, settings: .standard, isOverlay: false, reduceMotion: false)
         let renderer = try SheetRenderer(stack: stack, frames: nil) { inputs }
         let panel = floatingPanel(with: renderer.surface)
         defer { renderer.surface.paused = true; panel.close() }
@@ -219,7 +219,7 @@ private func contrast(_ values: [Int]) -> Double {
         frames.store(pixels, capturedAt: CACurrentMediaTime())
         var mode = CaptureMode.live
         let renderer = try SheetRenderer(stack: stack, frames: frames) {
-            FoldInputs(progress: 0.4, settings: .standard, fadesIn: true, reduceMotion: false, captureMode: mode)
+            FoldInputs(progress: 0.4, settings: .standard, isOverlay: true, reduceMotion: false, captureMode: mode)
         }
         let panel = floatingPanel(with: renderer.surface)
         defer { renderer.surface.paused = true; panel.close() }
@@ -305,6 +305,32 @@ private func contrast(_ values: [Int]) -> Double {
     }
 
     // MARK: вид эффекта
+
+    @Test(arguments: [-1.0, 0.0, 1.0])
+    func returnAlignsHeldDetailsBeforeRemovingOverlay(pace: Double) throws {
+        let source = try grayTexture(width: 320, height: 200) { x, _ in x % 8 < 4 ? 192 : 32 }
+        var settings = EffectSettings.standard.applying(.matte)
+        settings.pace = pace
+        let aligned = try render(source, settings: settings, progress: invisibleProgress + 0.00001,
+                                 width: 320, height: 200)
+        let unchanged = try render(source, settings: settings, progress: 0,
+                                   width: 320, height: 200, isOverlay: false)
+        #expect(zip(aligned.bgra, unchanged.bgra).allSatisfy { abs(Int($0) - Int($1)) <= 1 },
+                "у порога возврата снимок должен выровняться при любом темпе")
+    }
+
+    @Test(arguments: [0.0, 0.0005, 0.001, 0.00101, 0.002, 0.00375, 0.0075, 0.01125, 0.015])
+    func returnDoesNotBlendDesktopCopiesOrBrighten(progress: Double) throws {
+        let source = try grayTexture(width: 320, height: 200) { _, _ in 192 }
+        var settings = EffectSettings.standard
+        (settings.bend, settings.blur, settings.dimming) = (0, 0, 0)
+        let frame = try render(source, settings: settings, progress: progress, width: 320, height: 200)
+        let expectedAlpha: UInt8 = progress > invisibleProgress ? 255 : 0
+        #expect(stride(from: 3, to: frame.bgra.count, by: 4).allSatisfy { frame.bgra[$0] == expectedAlpha },
+                "при возврате старый кадр должен быть непрозрачным или полностью убранным")
+        #expect(frame.brightest <= 192, "возврат не должен добавлять свет исходному серому")
+        if expectedAlpha == 0 { #expect(frame.bgra.allSatisfy { $0 == 0 }) }
+    }
 
     @Test(arguments: [0.25, 0.5, 0.75])
     func sheetEdgesFadeInsteadOfCutting(progress: Double) throws {

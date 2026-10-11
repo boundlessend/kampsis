@@ -617,7 +617,7 @@ enum EffectSleepEvent {
         do {
             renderer = try SheetRenderer(stack: stack, frames: stream.frames) { [unowned self] in
                 FoldInputs(progress: self.predictedProgress(at: CACurrentMediaTime()),
-                                  settings: self.state.settings, fadesIn: true,
+                                  settings: self.state.settings, isOverlay: true,
                                   reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
                                   captureMode: self.state.captureMode)
             }

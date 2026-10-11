@@ -12,7 +12,7 @@ struct PreviewPane: NSViewRepresentable {
         MetalStack.shared.flatMap { stack in
             Result {
                 try SheetRenderer(stack: stack, frames: nil) {
-                    FoldInputs(progress: 0, settings: .standard, fadesIn: false, reduceMotion: false)
+                    FoldInputs(progress: 0, settings: .standard, isOverlay: false, reduceMotion: false)
                 }
             }
         }
@@ -47,7 +47,7 @@ struct PreviewPane: NSViewRepresentable {
             return FoldInputs(
                 progress: previewProgress(usesLid: usesLid, manualAngle: manualAngle,
                                           liveAngle: liveAngle, fadeOutAngle: settings.fadeOutAngle),
-                settings: settings, fadesIn: false, reduceMotion: reduceMotion
+                settings: settings, isOverlay: false, reduceMotion: reduceMotion
             )
         }
         renderer.wake()
@@ -105,7 +105,7 @@ enum ThumbnailFailure: LocalizedError {
         pass.colorAttachments[0].loadAction = .clear
         pass.colorAttachments[0].storeAction = .store
         let inputs = FoldInputs(progress: progress, settings: EffectSettings.standard.applying(look),
-                                fadesIn: false, reduceMotion: false)
+                                isOverlay: false, reduceMotion: false)
         guard FoldPainter(stack: stack).encode(source: stack.sampleDesktop, sourceNumber: nil, inputs: inputs, pass: pass,
                                                command: command, size: CGSize(width: width, height: height)) else {
             throw ThumbnailFailure.noTarget

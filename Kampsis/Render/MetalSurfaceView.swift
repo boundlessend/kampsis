@@ -17,6 +17,7 @@ import QuartzCore
         super.init(frame: .zero)
         metalLayer.device = device
         metalLayer.pixelFormat = MetalStack.pixelFormat
+        metalLayer.colorspace = CGColorSpace(name: CGColorSpace.sRGB)
         metalLayer.framebufferOnly = true
         metalLayer.isOpaque = false
         wantsLayer = true

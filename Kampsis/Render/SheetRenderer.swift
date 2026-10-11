@@ -10,8 +10,8 @@ private let renderLog = Logger(subsystem: "io.github.boundlessend.kampsis", cate
 struct FoldInputs: Equatable, Sendable {
     var progress: Double
     var settings: EffectSettings
-    /// оверлей проявляется в первые проценты сложения, превью всегда непрозрачно
-    var fadesIn: Bool
+    /// оверлей скрыт у порога покоя, превью всегда непрозрачно
+    var isOverlay: Bool
     var reduceMotion: Bool
     var captureMode: CaptureMode? = .live
 }
@@ -43,7 +43,12 @@ private struct FoldUniforms {
 
     func encode(source: any MTLTexture, sourceNumber: UInt64?, inputs: FoldInputs,
                 pass: MTLRenderPassDescriptor, command: any MTLCommandBuffer, size: CGSize) -> Bool {
-        let progress = Float(pacedProgress(inputs.progress, pace: inputs.settings.pace))
+        var progress = Float(pacedProgress(inputs.progress, pace: inputs.settings.pace))
+        if inputs.isOverlay {
+            // перед заменой снимка выравниваем его, не смешивая два рабочих стола
+            let alignment = ((inputs.progress - invisibleProgress) / (0.015 - invisibleProgress)).clamped(to: 0...1)
+            progress *= Float(alignment * alignment * (3 - 2 * alignment))
+        }
         let spread = progress * Float(inputs.settings.blur) * Float(source.width) / 1600
         let glassSpread = spread * (inputs.settings.look == .matte ? 72 : 54)
         guard let softened = soft.blurred(source, sigma: spread * 8, sourceNumber: sourceNumber, into: command),
@@ -58,7 +63,7 @@ private struct FoldUniforms {
             bend: Float(inputs.settings.bend),
             blur: Float(inputs.settings.blur),
             dimming: Float(inputs.settings.dimming),
-            opacity: inputs.fadesIn ? min(1, Float(inputs.progress) / 0.015) : 1,
+            opacity: inputs.isOverlay && Float(inputs.progress) <= Float(invisibleProgress) ? 0 : 1,
             flatten: inputs.reduceMotion ? 1 : 0,
             aspect: Float(size.width / max(1, size.height))
         )
@@ -204,9 +209,9 @@ enum SheetRendererFailure: LocalizedError {
         smoother = smoother.approaching(wanted.progress, at: now)
         var shown = wanted
         shown.progress = Double(Float(smoother.value))
-        let invisible = shown.fadesIn && shown.progress == 0
+        let invisible = shown.isOverlay && Float(shown.progress) <= Float(invisibleProgress)
         let wasHolding = holdingFrame
-        if wanted.captureMode != .frozen || wanted.progress <= invisibleProgress { holdingFrame = false }
+        if wanted.captureMode != .frozen || invisible { holdingFrame = false }
         if !holdingFrame, !invisible {
             adoptLatestFrame()
             holdingFrame = wanted.captureMode == .frozen && wanted.progress > invisibleProgress && current != nil
@@ -270,7 +275,7 @@ enum SheetRendererFailure: LocalizedError {
             }
         }
         if let presentationLog {
-            let visible = !shown.fadesIn || shown.progress > invisibleProgress
+            let visible = !invisible
             drawable.addPresentedHandler { presentationLog.record($0.presentedTime, visible: visible) }
         }
         command.commit()

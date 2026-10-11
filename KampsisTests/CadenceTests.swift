@@ -51,7 +51,7 @@ import Testing
         let began = CACurrentMediaTime()
         let renderer = try SheetRenderer(stack: stack, frames: frames) {
             let phase = sin((CACurrentMediaTime() - began) / 4 * .pi)
-            return FoldInputs(progress: 0.1 + 0.8 * phase * phase, settings: settings, fadesIn: true, reduceMotion: false)
+            return FoldInputs(progress: 0.1 + 0.8 * phase * phase, settings: settings, isOverlay: true, reduceMotion: false)
         }
         let log = PresentationLog()
         renderer.presentationLog = log
@@ -102,7 +102,7 @@ import Testing
         var encodeMilliseconds: [Double] = []
         for frame in 0..<240 {
             let phase = sin(Double(frame) / 239 * .pi)
-            let inputs = FoldInputs(progress: 0.05 + 0.9 * phase * phase, settings: settings, fadesIn: true, reduceMotion: false)
+            let inputs = FoldInputs(progress: 0.05 + 0.9 * phase * phase, settings: settings, isOverlay: true, reduceMotion: false)
             let encodeStart = CACurrentMediaTime()
             let command = try #require(stack.queue.makeCommandBuffer())
             #expect(painter.encode(source: desktop, sourceNumber: 1, inputs: inputs, pass: pass, command: command,
