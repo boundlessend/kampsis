@@ -1,6 +1,6 @@
 cask "kampsis" do
-  version "0.4.4"
-  sha256 "dbb96d666839fbcab2b779c136c8ad3bf9eb2471e9c32db5b5966769f1efa293"
+  version "0.4.5"
+  sha256 "a6a362a907522819f760b01c0628325ed6e547cadb3fa3c457dc0eb8fe000355"
 
   url "https://github.com/boundlessend/kampsis/releases/download/v#{version}/Kampsis-v#{version}-macos-arm64.dmg"
   name "Kampsis"

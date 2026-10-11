@@ -16,7 +16,7 @@ Your desktop folds, blurs and dims as you close your MacBook lid. Open it again 
 
 Requires macOS 26 or later and a MacBook with Apple silicon and a lid angle sensor. This version is verified on Mac17,3; other models are experimental. The effect appears only on the built-in display.
 
-1. Download **Kampsis-v0.4.4-macos-arm64.dmg** from [Releases](https://github.com/boundlessend/kampsis/releases/latest).
+1. Download **Kampsis-v0.4.5-macos-arm64.dmg** from [Releases](https://github.com/boundlessend/kampsis/releases/latest).
 2. Open the image and drag **Kampsis** into **Applications**.
 3. Launch Kampsis. If macOS blocks it, go to **System Settings → Privacy & Security → Open Anyway**. The app uses the project's own signing certificate and is not notarized by Apple.
 4. Click **Allow Screen Access…** and enable Kampsis in **Screen Recording**. Restart the app if macOS asks.

@@ -1,6 +1,6 @@
 # Development
 
-The project builds Kampsis 0.4.5 (9). The published Homebrew cask tracks 0.4.4. Update its version, URL, and checksum only after the corresponding package is published.
+The project builds Kampsis 0.4.5 (9). The published Homebrew cask tracks 0.4.5. Update its version, URL, and checksum only after the corresponding package is published.
 
 ## Tools
 
