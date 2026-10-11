@@ -44,4 +44,18 @@ These are local checks dated 2026-10-09. The media demonstration is a recorded o
 
 ## Recorded demo limitation
 
-The real on-screen recordings include brief brightening and ghosting as the held picture returns to the current desktop. One visible case is Frozen at 12.4 seconds in the comparison video, corresponding to 6.6 seconds in the untouched source clip. The cause is unconfirmed. This is not an edit between modes; physical lid behavior has not been rechecked. The demonstration retains this observed behavior and should not be read as a promise of artifact-free transitions
+The 0.4.3 recordings include brief brightening and ghosting as the held picture returns to the current desktop. One visible case is Frozen at 12.4 seconds in the comparison video, corresponding to 6.6 seconds in the untouched source clip. This is not an edit between modes. Version 0.4.5 removes partial-alpha desktop blending and aligns the held picture before replacing it. The existing media remains a record of 0.4.3; physical lid behavior has not been rechecked
+
+## Follow-up validation of the 0.4.5 changes
+
+A separate check dated 2026-10-11 used the real controller and Metal renderer with synthetic 2560x1664 frames instead of ScreenCaptureKit. It ran 30 complete five-second demos, ten per mode, followed by one minute idle. Every stop released the overlay surface, and the next demo rendered again
+
+| Measurement | Physical footprint |
+|---|---:|
+| Baseline before the demos | 35.6 MiB |
+| Largest observed sample | 423.4 MiB |
+| Median of the final 30 idle seconds | 43.2 MiB |
+
+The final footprint was 7.6 MiB above baseline; those remaining allocations were not classified. Metal allocations returned to 7.4 MiB by the fifth idle second. This validates overlay cleanup, not a percentage improvement against the earlier 90-demo run: the process, capture source, repetition count and recovery duration differ. It does not establish ScreenCaptureKit memory use, battery savings or a comparison with another app
+
+All 77 project tests passed, including GPU return brightness, opaque-or-clear presentation, alignment at three pace settings, and overlay cleanup followed by another demo in each mode. These checks do not replace physical lid tests

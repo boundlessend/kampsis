@@ -1,6 +1,6 @@
 # Development
 
-The project builds Kampsis 0.4.4 (8). The published Homebrew cask tracks 0.4.4. Update its version, URL, and checksum only after the corresponding package is published.
+The project builds Kampsis 0.4.5 (9). The published Homebrew cask tracks 0.4.4. Update its version, URL, and checksum only after the corresponding package is published.
 
 ## Tools
 
@@ -18,7 +18,7 @@ For a distributable package, use the existing signing setup:
 
 ```sh
 scripts/build.sh selfsigned
-scripts/build-dmg.sh dist/Kampsis-v0.4.4-macos-arm64.zip
+scripts/build-dmg.sh dist/Kampsis-v0.4.5-macos-arm64.zip
 ```
 
 `selfsigned` needs the project's existing release identity and Keychain entry. Do not regenerate an existing identity. Passwords are injected through protected files and Security APIs; never put them in shell arguments or logs. Package scripts refuse to overwrite an existing output. Both ZIP and DMG contain the signed app and its bundled LICENSE.

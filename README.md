@@ -10,7 +10,7 @@ Your desktop folds, blurs and dims as you close your MacBook lid. Open it again 
 
 ![Live, Frozen and Snapshot on the same generated desktop](assets/readme/desktop-modes.gif)
 
-[Watch the MP4](assets/readme/desktop-modes.mp4) for the recorded motion, or open the [static preview](assets/readme/desktop-modes-poster.png). The GIF is a reduced preview. This is an on-screen demo using generated content, not footage of physical lid movement. Frozen and Snapshot intentionally look similar; their capture paths differ, as explained below. Brief brightening and image ghosting during return were observed in these demos; the cause is unconfirmed.
+[Watch the MP4](assets/readme/desktop-modes.mp4) for the recorded motion, or open the [static preview](assets/readme/desktop-modes-poster.png). The GIF is a reduced preview. This is an on-screen demo using generated content, not footage of physical lid movement. Frozen and Snapshot intentionally look similar; their capture paths differ, as explained below. These demos were recorded with 0.4.3 and show its earlier brightening and ghosting during return. Version 0.4.5 aligns the picture before replacing it without a crossfade.
 
 ## Install
 
