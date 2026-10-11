@@ -243,6 +243,41 @@ import Testing
         }
     }
 
+    @Test(arguments: CaptureMode.allCases)
+    func completedCaptureReleasesOverlayAndNextDemoRenders(mode: CaptureMode) async throws {
+        var created: CVPixelBuffer?
+        #expect(CVPixelBufferCreate(kCFAllocatorDefault, 64, 64, kCVPixelFormatType_32BGRA,
+                                   [kCVPixelBufferMetalCompatibilityKey: true,
+                                    kCVPixelBufferIOSurfacePropertiesKey: [:]] as CFDictionary, &created) == kCVReturnSuccess)
+        let pixels = try #require(created)
+        CVPixelBufferLockBaseAddress(pixels, [])
+        let base = try #require(CVPixelBufferGetBaseAddress(pixels))
+        memset(base, 0, CVPixelBufferGetDataSize(pixels))
+        CVPixelBufferUnlockBaseAddress(pixels, [])
+        let capture = CaptureProbe { slot in slot.store(pixels, capturedAt: CACurrentMediaTime()) }
+        try await withController(capture: capture) { controller, _ in
+            controller.state.captureMode = mode
+            for _ in 0..<2 {
+                weak var previousSurface: NSView?
+                weak var previousPanel: NSWindow?
+                controller.beginDemo()
+                try await wait(upTo: 4) { controller.state.overlayShown && controller.diagnosticsReport().drawnFrames > 1 }
+                try autoreleasepool {
+                    let panel = try #require(NSApp.windows.first { $0.isVisible && $0.title == "\(AppIdentity.name) overlay" })
+                    previousPanel = panel
+                    previousSurface = panel.contentView
+                }
+                controller.endDemo()
+                try await wait(upTo: 3) { controller.phase == .idle && previousSurface == nil }
+                #expect(previousPanel?.isVisible != true)
+                #expect(!(previousPanel?.contentView is MetalSurfaceView))
+                #expect(capture.frames.latest == nil)
+                #expect(controller.state.problem == nil)
+            }
+            #expect(capture.starts == 2)
+        }
+    }
+
     @Test func occupiedShortcutLeavesTheWorkingRegistrationAndStoredSettingsIntact() async throws {
         let occupied = ToggleShortcut(keyCode: UInt16(kVK_F19), modifiers: [.command, .control, .shift])
         let blocker = try GlobalShortcut(occupied) {}

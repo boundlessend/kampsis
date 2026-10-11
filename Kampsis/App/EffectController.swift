@@ -193,8 +193,7 @@ enum EffectSleepEvent {
         shortcut = nil
         endCapture()
         await captureJob?.value
-        overlay?.panel.close()
-        overlay = nil
+        releaseOverlay()
         if let sensorStopProblem { throw sensorStopProblem }
         if let captureStopProblem { throw captureStopProblem }
     }
@@ -497,7 +496,7 @@ enum EffectSleepEvent {
                 self.state.problem = error.localizedDescription
                 Self.log.error("capture stop failed: recovery=blocked message=\(error.localizedDescription, privacy: .public)")
             }
-            self.overlay?.renderer.reset()
+            self.releaseOverlay()
             self.captureJob = nil
             self.phase = .idle
             self.captureRunningSince = .infinity
@@ -649,6 +648,14 @@ enum EffectSleepEvent {
         overlay?.renderer.surface.paused = true
         state.overlayShown = false
         pointer.release()
+    }
+
+    /// скрытое окно тоже удерживает GPU-буферы; освобождаем его после остановки захвата
+    private func releaseOverlay() {
+        overlay?.renderer.reset()
+        overlay?.panel.contentView = nil
+        overlay?.panel.close()
+        overlay = nil
     }
 
     private func after(_ delay: Duration, _ work: @escaping @MainActor (EffectController) -> Void) -> Task<Void, Never> {
